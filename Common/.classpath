@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/gpfs/main/home/martins/git/hammurabi-mendes/Hammr/lib/jgrapht-jdk1.6.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/martins/git/Hammr/lib/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
