@@ -3,7 +3,7 @@ package execinfo;
 import java.io.Serializable;
 
 /**
- * This class packages the whole set of node measurements.
+ * Package for node timing measurements.
  * 
  * @author Hammurabi Mendes (hmendes)
  */
@@ -17,9 +17,9 @@ public class NodeMeasurements implements Serializable {
 	/**
 	 * Constructor method.
 	 * 
-	 * @param realTime Real time associated with the Node run.
-	 * @param cpuTime CPU time associated with the Node run.
-	 * @param userTime User time associated with the Node run.
+	 * @param realTime	Node's execution real time.
+	 * @param cpuTime	Node's execution CPU time.
+	 * @param userTime	Node's execution user time.
 	 */
 	public NodeMeasurements(long realTime, long cpuTime, long userTime) {
 		this.realTime = realTime;
@@ -30,7 +30,7 @@ public class NodeMeasurements implements Serializable {
 	/**
 	 * Getter for the real time associated with the Node run.
 	 * 
-	 * @return The real time associated with the Node run.
+	 * @return Real time (epoch).
 	 */
 	public long getRealTime() {
 		return realTime;
@@ -39,16 +39,16 @@ public class NodeMeasurements implements Serializable {
 	/**
 	 * Getter for the CPU time associated with the Node run.
 	 * 
-	 * @return The CPU time associated with the Node run.
+	 * @return CPU time (epoch)
 	 */
 	public long getCpuTime() {
 		return cpuTime;
 	}
 
 	/**
-	 * Getter for the user time associated with the Node run.
+	 * Getter for user time associated with Node's run.
 	 * 
-	 * @return The user time associated with the Node run.
+	 * @return User time (epoch).
 	 */
 	public long getUserTime() {
 		return userTime;

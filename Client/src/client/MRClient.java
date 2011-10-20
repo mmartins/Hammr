@@ -38,7 +38,7 @@ public class MRClient {
 
 		MapReduceSpecification mapReduceSpecification = new MapReduceSpecification("mapreduce", baseDirectory);
 
-		if(!mapReduceSpecification.initialize()) {
+		if (!mapReduceSpecification.initialize()) {
 			System.err.println("The directory " + mapReduceSpecification.getAbsoluteDirectory() + " does not exist");
 
 			System.exit(1);
@@ -46,7 +46,7 @@ public class MRClient {
 
 		Node[] nodesStage1 = new Node[numberMappers];
 
-		for(int i = 0; i < nodesStage1.length; i++) {
+		for (int i = 0; i < nodesStage1.length; i++) {
 			nodesStage1[i] = new CountingMapper<String>(numberReducers);
 		}
 
@@ -60,7 +60,7 @@ public class MRClient {
 
 		Node[] nodesStage2 = new Node[numberReducers];
 
-		for(int i = 0; i < nodesStage2.length; i++) {
+		for (int i = 0; i < nodesStage2.length; i++) {
 			nodesStage2[i] = new CountingReducer<String>();
 		}
 
@@ -69,7 +69,10 @@ public class MRClient {
 				mapReduceSpecification.insertReducers("output-merger.dat", new CountingMerger<String>(), nodesStage2);
 			}
 			else {
-				// Append a ".out" extension to the input filenames to form the output filenames
+				/*
+				 *  Append a ".out" extension to the input filenames to form the
+				 *   output filenames
+				 */
 
 				String[] outputFilenames = new String[numberReducers];
 

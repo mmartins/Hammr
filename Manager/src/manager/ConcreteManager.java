@@ -30,9 +30,10 @@ import scheduler.ConcreteScheduler;
 import utilities.RMIHelper;
 
 /**
- * This class is a concrete implementation of a Manager.
+ * Concrete implementation of Manager.
  * 
  * @author Hammurabi Mendes (hmendes)
+ * @author Marcelo Martins (martins)
  */
 public class ConcreteManager implements Manager {
 	private String baseDirectory;
@@ -41,31 +42,31 @@ public class ConcreteManager implements Manager {
 	private Map<String, Launcher> registeredLaunchers;
 
 	// Active applications, mapped by name
-	private Map<String, ApplicationInformationHolder> applicationInformationHolders;
+	private Map<String, ApplicationPackage> applicationPackages;
 
 	private Random random;
 
 	/**
 	 * Constructor method.
 	 * 
-	 * @param baseDirectory The working directory of the manager.
+	 * @param baseDirectory Working directory of the manager.
 	 */
 	public ConcreteManager(String baseDirectory) {
 		this.baseDirectory = baseDirectory;
 
 		this.registeredLaunchers = Collections.synchronizedMap(new LinkedHashMap<String, Launcher>());
 
-		this.applicationInformationHolders = Collections.synchronizedMap(new HashMap<String, ApplicationInformationHolder>());
+		this.applicationPackages = Collections.synchronizedMap(new HashMap<String, ApplicationPackage>());
 
 		this.random = new Random();
 	}
 
 	/**
-	 * Notifies the manager a new launcher has been started. Called by Launchers.
+	 * Notifies manager of new launcher start. Called by Launchers.
 	 * 
-	 * @param launcher Started launcher.
+	 * @param launcher	Started launcher.
 	 * 
-	 * @return True unless the launcher is not reachable.
+	 * @return True unless launcher is not reachable.
 	 */
 	public boolean registerLauncher(Launcher launcher) {
 		String launcherId;
@@ -86,41 +87,40 @@ public class ConcreteManager implements Manager {
 	}
 
 	/**
-	 * Submits a new application. Called by clients.
+	 * Submits a new application for scheduling. Called by clients.
 	 * 
-	 * @param applicationSpecification Specification of the application that should be run.
+	 * @param applicationSpecification Specification of to-be-run application
 	 * 
-	 * @return False unless:
-	 *         1) No running application has the same name;
-	 *         2) The scheduler setup for the application went fine;
+	 * @return True unless:
+	 *         1) Application with the same name is already running;
+	 *         2) Scheduler setup for application went wrong;
 	 *         
-	 *         In these cases, the method returns true.
 	 */
 	public boolean registerApplication(ApplicationSpecification applicationSpecification) {
 		String applicationName = applicationSpecification.getName();
 
-		// Trying to register an application that's still running
+		// Trying to register an applicationName that's still running
 
-		if(applicationInformationHolders.containsKey(applicationName)) {
-			System.err.println("Application " + applicationName + " is still running!");
+		if (applicationPackages.containsKey(applicationName)) {
+			System.err.println("Application " + applicationName + " is already running!");
 
 			return false;
 		}
 
-		ApplicationInformationHolder applicationInformationHolder = setupApplication(applicationName, applicationSpecification);
+		ApplicationPackage applicationPackage = setupApplication(applicationName, applicationSpecification);
 
-		Scheduler scheduler = applicationInformationHolder.getApplicationScheduler();
+		Scheduler scheduler = applicationPackage.getApplicationScheduler();
 
 		try {
 			// Setup the scheduler, and try to schedule an initial wave of NodeGroups
 
-			if(!scheduler.setup(applicationSpecification)) {
+			if (!scheduler.setup(applicationSpecification)) {
 				System.err.println("Error setting up scheduler");
 
 				return false;
 			}
 
-			if(!scheduler.scheduleNodeGroupBundle()) {
+			if (!scheduler.scheduleNodeGroupBundle()) {
 				System.err.println("Initial schedule indicated that no free node group bundles are present");
 
 				return false;
@@ -146,50 +146,55 @@ public class ConcreteManager implements Manager {
 	}
 
 	/**
-	 * Informs a server-side TCP channel socket address to the manager. This is called in the setup of NodeGroups that have
-	 * server-side TCP channels. This happens in the Launcher. The corresponding client-side TCP channels query the master for
+	 * Registers server-side TCP channel socket address with manager. Called
+	 * within Laucher during setup of NodeGroups that have server-side TCP
+	 * channels. The corresponding client-side TCP channels query master for
 	 * this information.
 	 * 
-	 * @param application Name of the application.
-	 * @param name Name of the Node with a server-side TCP channel.
-	 * @param socketAddress Socket addrss of the server-side TCP channel.
+	 * @param applicationName
+	 *            Ditto.
+	 * @param nodeName
+	 *            Ditto.
+	 * @param socketAddress
+	 *            Socket address of server-side TCP channel.
 	 * 
-	 * @return True unless the map for the specific pair application/node already exists.
+	 * @return True unless the map for the specific pair applicationName/node
+	 *         already exists.
 	 */
-	public boolean insertSocketAddress(String application, String name, InetSocketAddress socketAddress) throws RemoteException {
-		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(application);
+	public boolean registerSocketAddress(String applicationName, String nodeName, InetSocketAddress socketAddress) throws RemoteException {
+		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
-		if(applicationInformationHolder == null) {
-			System.err.println("Unable to locate application information holder for application " + application + "!");
+		if (applicationPackage == null) {
+			System.err.println("Unable to locate applicationName information holder for applicationName " + applicationName + "!");
 
 			return false;
 		}
 
-		applicationInformationHolder.addRegisteredSocketAddresses(name, socketAddress);
+		applicationPackage.addRegisteredSocketAddresses(nodeName, socketAddress);
 
 		return true;
 	}
 
 	/**
-	 * Queries for the socket address for a server-side TCP channel. This is called in the setup of NodeGroups that have
-	 * client-side TCP channels. This happens in the Launcher. The corresponding server-side TCP channels inform their socket
-	 * address to the manager.
+	 * Queries for server-side TCP socket address. Called on setup of NodeGroups
+	 * that have client-side TCP channels within Launcher. Server-side TCP channel
+	 * informs manager about its address.
 	 * 
-	 * @param application Name of the application.
-	 * @param name Name of the Node with a server-side TCP channel.
+	 * @param applicationName	Ditto.
+	 * @param nodeName			Ditto.
 	 * 
 	 * @return The socket address associated with the requested TCP channel.
 	 */
-	public InetSocketAddress obtainSocketAddress(String application, String name) throws RemoteException {
-		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(application);
+	public InetSocketAddress obtainSocketAddress(String applicationName, String nodeName) throws RemoteException {
+		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
-		if(applicationInformationHolder == null) {
-			System.err.println("Unable to locate application information holder for application " + application + "!");
+		if (applicationPackage == null) {
+			System.err.println("Unable to locate applicationName information holder for applicationName " + applicationName + "!");
 
 			return null;
 		}
 
-		while(applicationInformationHolder.getRegisteredSocketAddress(name) == null) {
+		while (applicationPackage.getRegisteredSocketAddress(nodeName) == null) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException exception) {
@@ -197,46 +202,46 @@ public class ConcreteManager implements Manager {
 			}
 		}
 
-		return applicationInformationHolder.getRegisteredSocketAddress(name);
+		return applicationPackage.getRegisteredSocketAddress(nodeName);
 	}
 
 	/**
-	 * Notifies the master that a NodeGroup finished execution. This is called by the Launchers.
+	 * Notifies master that a NodeGroup has finished execution. Called by Launchers.
 	 * 
-	 * @param resultSummary Summary containing the runtime information regarding the executed NodeGroup.
+	 * @param resultSummary	Summary containing NodeGroup's runtime information.
 	 * 
-	 * @return True if the information was expected at the time this method is called; false otherwise.
+	 * @return True if scheduling works as expected; false otherwise.
 	 */
 	public boolean handleTermination(ResultSummary resultSummary) {
-		String application = resultSummary.getNodeGroupApplication();
+		String applicationName = resultSummary.getNodeGroupApplication();
 
-		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(application);
+		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
-		if(applicationInformationHolder == null) {
-			System.err.println("Unable to locate application information holder for NodeGroup with application " + resultSummary.getNodeGroupApplication() + " and serial number " + resultSummary.getNodeGroupSerialNumber() + "!");
-
-			return false;
-		}
-
-		Scheduler scheduler = applicationInformationHolder.getApplicationScheduler();
-
-		if(scheduler == null) {
-			System.err.println("Unable to locate running scheduler for NodeGroup with application " + resultSummary.getNodeGroupApplication() + " and serial number " + resultSummary.getNodeGroupSerialNumber() + "!");
+		if (applicationPackage == null) {
+			System.err.println("Unable to locate application information holder for NodeGroup running " + resultSummary.getNodeGroupApplication() + " and with number " + resultSummary.getNodeGroupSerialNumber() + "!");
 
 			return false;
 		}
 
-		if(!scheduler.handleTermination(resultSummary.getNodeGroupSerialNumber())) {
-			System.err.println("Abnormal termination handling for NodeGroup with application " + resultSummary.getNodeGroupApplication() + " and serial number " + resultSummary.getNodeGroupSerialNumber() + "!");
+		Scheduler scheduler = applicationPackage.getApplicationScheduler();
+
+		if (scheduler == null) {
+			System.err.println("Unable to locate scheduler for NodeGroup running " + resultSummary.getNodeGroupApplication() + " with serial number " + resultSummary.getNodeGroupSerialNumber() + "!");
+
+			return false;
+		}
+
+		if (!scheduler.handleTermination(resultSummary.getNodeGroupSerialNumber())) {
+			System.err.println("Abnormal termination for NodeGroup running " + resultSummary.getNodeGroupApplication() + " with serial number " + resultSummary.getNodeGroupSerialNumber() + "!");
 
 			finishApplication(resultSummary.getNodeGroupApplication());
 			return false;
 		}
 
-		applicationInformationHolder.addReceivedResultSummaries(resultSummary);
+		applicationPackage.addReceivedResultSummaries(resultSummary);
 
 		try {
-			if(scheduler.finished()) {
+			if (scheduler.finished()) {
 				finishApplication(resultSummary.getNodeGroupApplication());
 			}
 			else {
@@ -245,7 +250,7 @@ public class ConcreteManager implements Manager {
 
 			return true;
 		} catch (InsufficientLaunchersException exception) {
-			System.err.println("Unable to proceed scheduling for application " + resultSummary.getNodeGroupApplication() + "! Aborting application...");
+			System.err.println("Unable to proceed with scheduling of application " + resultSummary.getNodeGroupApplication() + "! Aborting applicationName...");
 
 			finishApplication(resultSummary.getNodeGroupApplication());
 			return false;
@@ -253,51 +258,55 @@ public class ConcreteManager implements Manager {
 	}
 
 	/**
-	 * Creates a holder containing the application name, specification, and scheduler, and makes it
-	 * ready to start executing.
+	 * Creates a holder containing the application name, specification, and
+	 * scheduler, and makes it ready for execution
 	 * 
-	 * @param applicationName Name of the application.
-	 * @param applicationSpecification Application specification.
+	 * @param applicationName
+	 *            Ditto.
+	 * @param applicationSpecification
+	 *            Ditto.
 	 * 
 	 * @return The newly created holder.
 	 */
-	private synchronized ApplicationInformationHolder setupApplication(String applicationName, ApplicationSpecification applicationSpecification) {
-		ApplicationInformationHolder applicationInformationHolder = new ApplicationInformationHolder();
+	private synchronized ApplicationPackage setupApplication(String applicationName, ApplicationSpecification applicationSpecification) {
+		ApplicationPackage applicationPackage = new ApplicationPackage();
 
-		applicationInformationHolder.setApplicationName(applicationName);
-		applicationInformationHolder.setApplicationSpecification(applicationSpecification);
+		applicationPackage.setApplicationName(applicationName);
+		applicationPackage.setApplicationSpecification(applicationSpecification);
 
-		applicationInformationHolder.setApplicationScheduler(new ConcreteScheduler(this));
+		applicationPackage.setApplicationScheduler(new ConcreteScheduler(this));
 
-		applicationInformationHolder.markStart();
+		applicationPackage.markStart();
 
-		applicationInformationHolders.put(applicationName, applicationInformationHolder);
+		applicationPackages.put(applicationName, applicationPackage);
 
-		return applicationInformationHolder;
+		return applicationPackage;
 	}
 
 	/**
-	 * Deletes the holder containing the application name, specification, and scheduler, effectively
-	 * finishing its execution.
+	 * Deletes holder containing application name, specification, and scheduler,
+	 * effectively finishing its execution.
 	 * 
-	 * @param applicationName Name of the application
+	 * @param applicationName
+	 *            Name of the applicationName
 	 * 
-	 * @return True if the application was finished successfully; false otherwise.
+	 * @return True if the applicationName was finished successfully; false
+	 *         otherwise.
 	 */
 	private synchronized boolean finishApplication(String applicationName) {
-		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(applicationName);
+		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
-		if(applicationInformationHolder == null) {
-			System.err.println("Unable to locate application information holder for application " + applicationName + "!");
+		if (applicationPackage == null) {
+			System.err.println("Unable to locate applicationName information holder for applicationName " + applicationName + "!");
 
 			return false;
 		}
 
-		applicationInformationHolders.remove(applicationName);
+		applicationPackages.remove(applicationName);
 
-		applicationInformationHolder.markFinish();
+		applicationPackage.markFinish();
 
-		processApplicationResultSummaries(applicationName, applicationInformationHolder.getTotalRunningTime(), applicationInformationHolder.getReceivedResultSummaries());
+		processApplicationResult(applicationName, applicationPackage.getTotalRunningTime(), applicationPackage.getReceivedResultSummaries());
 
 		return true;
 	}
@@ -312,7 +321,7 @@ public class ConcreteManager implements Manager {
 
 		aliveLaunchers.addAll(registeredLaunchers.entrySet());
 
-		while(aliveLaunchers.size() > 0) {
+		while (aliveLaunchers.size() > 0) {
 			int randomIndex = Math.abs(random.nextInt() % aliveLaunchers.size());
 
 			Map.Entry<String,Launcher> randomEntry = aliveLaunchers.get(randomIndex);
@@ -336,14 +345,14 @@ public class ConcreteManager implements Manager {
 	}
 
 	/**
-	 * Generates a result containing a summary of the whole application execution.
+	 * Generates summary of application execution.
 	 * 
-	 * @param application The application being summarized.
-	 * @param runningTime Application running time.
-	 * @param applicationResultSummaries Result summaries obtained for this application.
+	 * @param applicationName		Application name
+	 * @param runningTime			Application running time.
+	 * @param applicationResultSummaries Result summaries obtained from application.
 	 */
-	private void processApplicationResultSummaries(String application, long runningTime, Set<ResultSummary> applicationResultSummaries) {
-		ResultGenerator resultGenerator = new ResultGenerator(baseDirectory, application, runningTime, applicationResultSummaries);
+	private void processApplicationResult(String applicationName, long runningTime, Set<ResultSummary> applicationResultSummaries) {
+		ResultGenerator resultGenerator = new ResultGenerator(baseDirectory, applicationName, runningTime, applicationResultSummaries);
 
 		resultGenerator.start();
 	}
@@ -356,7 +365,7 @@ public class ConcreteManager implements Manager {
 	 *        2) The manager working directory.
 	 */
 	public static void main(String[] arguments) {
-		if(arguments.length != 2) {
+		if (arguments.length != 2) {
 			System.err.println("Usage: ConcreteManager <registry_location> <base_directory>");
 
 			System.exit(1);

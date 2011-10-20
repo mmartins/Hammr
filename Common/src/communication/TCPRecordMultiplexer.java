@@ -13,10 +13,10 @@ import java.io.ObjectInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
-public class TCPChannelElementMultiplexer extends SHMChannelElementMultiplexer implements ChannelElementReader {
+public class TCPRecordMultiplexer extends SHMRecordMultiplexer implements RecordReader {
 	private ServerSocket serverSocket;
 
-	public TCPChannelElementMultiplexer(Set<String> origins) throws IOException {
+	public TCPRecordMultiplexer(Set<String> origins) throws IOException {
 		super(origins);
 
 		serverSocket = new ServerSocket(0);
@@ -40,7 +40,7 @@ public class TCPChannelElementMultiplexer extends SHMChannelElementMultiplexer i
 
 	private class TCPAccepter extends Thread {
 		public void run() {
-			for(int i = 0; i < origins.size(); i++) {
+			for (int i = 0; i < origins.size(); i++) {
 				try {
 					Socket socket = serverSocket.accept();
 
@@ -74,14 +74,14 @@ public class TCPChannelElementMultiplexer extends SHMChannelElementMultiplexer i
 
 				origin = (String) object;
 
-				while(true) {
+				while (true) {
 					try {
 						object = objectInputStream.readObject();
 					} catch (EOFException exception) {
 						break;
 					}
 
-					write(origin, (ChannelElement) object);
+					write(origin, (Record) object);
 				}
 			} catch (IOException exception) {
 				System.err.println("Error receiving data from client \"" + origin + "\" (I/O error)");

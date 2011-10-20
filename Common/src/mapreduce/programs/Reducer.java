@@ -2,30 +2,30 @@ package mapreduce.programs;
 
 import appspecs.Node;
 
-import mapreduce.communication.MRChannelElement;
+import mapreduce.communication.MRRecord;
 
-public abstract class Reducer<O,V> extends Node {
+public abstract class Reducer<K,V> extends Node {
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unchecked")
 	public void run() {
-		MRChannelElement<O,V> channelElement;
+		MRRecord<K,V> record;
 
-		while(true) {
-			channelElement = (MRChannelElement<O,V>) readSomeone();
+		while (true) {
+			record = (MRRecord<K,V>) readArbitraryChannel();
 
-			if(channelElement == null) {
+			if (record == null) {
 				break;
 			}
 
-			reduce(channelElement.getObject(), channelElement.getValue());
+			reduce(record.getKey(), record.getValue());
 		}
 
-		finalizeReduce();
+		flushReduce();
 
 		closeOutputs();
 	}
 
-	protected abstract void reduce(O object, V value);
-	protected abstract void finalizeReduce();
+	protected abstract void reduce(K key, V value);
+	protected abstract void flushReduce();
 }

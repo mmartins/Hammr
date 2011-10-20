@@ -5,40 +5,40 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 
-public abstract class Combiner<O,V> {
+public abstract class Combiner<K,V> {
 	private static final long serialVersionUID = 1L;
 
-	private Map<O,V> currentValues;
+	private Map<K,V> currentTuples;
 
 	public Combiner() {
-		currentValues = new HashMap<O,V>();
+		currentTuples = new HashMap<K,V>();
 	}
 
-	public void add(O object, V newValue) {
+	public void addTuple(K key, V newValue) {
 		V updatedValue;
 
-		V oldValue = currentValues.get(object);
+		V oldValue = currentTuples.get(key);
 
-		if(oldValue != null) {
+		if (oldValue != null) {
 			updatedValue = combine(oldValue, newValue);
 		}
 		else {
 			updatedValue = newValue;
 		}
 
-		currentValues.put(object, updatedValue);
+		currentTuples.put(key, updatedValue);
 	}
 	
-	public V get(O object) {
-		return currentValues.get(object);
+	public V getValue(K key) {
+		return currentTuples.get(key);
 	}
 
-	public Set<O> getCurrentObjects() {
-		return currentValues.keySet();
+	public Set<K> getKeys() {
+		return currentTuples.keySet();
 	}
 	
-	public Set<Map.Entry<O,V>> getCurrentEntries() {
-		return currentValues.entrySet();
+	public Set<Map.Entry<K,V>> getTuples() {
+		return currentTuples.entrySet();
 	}
 
 	public abstract V combine(V oldValue, V newValue);

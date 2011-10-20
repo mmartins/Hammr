@@ -9,8 +9,8 @@ import java.io.FileReader;
 
 import java.io.IOException;
 
-import communication.ChannelElement;
-import communication.FileChannelElementWriter;
+import communication.Record;
+import communication.FileRecordWriter;
 
 public abstract class InputGenerator {
 	private String[] inputs;
@@ -22,8 +22,8 @@ public abstract class InputGenerator {
 
 		boolean foundColum = false;
 
-		for(int i = 0; i < inputsOutputs.length; i++) {
-			if(inputsOutputs[i].equals(":")) {
+		for (int i = 0; i < inputsOutputs.length; i++) {
+			if (inputsOutputs[i].equals(":")) {
 				foundColum = true;
 
 				continue;
@@ -37,7 +37,7 @@ public abstract class InputGenerator {
 			}
 		}	
 
-		if(inputList.size() == 0 || outputList.size() == 0) {
+		if (inputList.size() == 0 || outputList.size() == 0) {
 			System.err.println("Parameters: <input> ... <input> : <output> ... <output>");
 
 			System.exit(1);
@@ -55,46 +55,46 @@ public abstract class InputGenerator {
 	public void run() throws IOException {
 		BufferedReader[] readers = new BufferedReader[inputs.length];
 		
-		for(int i = 0; i < inputs.length; i++) {
+		for (int i = 0; i < inputs.length; i++) {
 			readers[i] = new BufferedReader(new FileReader(inputs[i]));
 		}
 		
-		FileChannelElementWriter[] writers = new FileChannelElementWriter[outputs.length];
+		FileRecordWriter[] writers = new FileRecordWriter[outputs.length];
 		
 		for(int i = 0; i < outputs.length; i++) {
-			writers[i] =  new FileChannelElementWriter(outputs[i]);
+			writers[i] =  new FileRecordWriter(outputs[i]);
 		}
 		
 		int writerCount = 0;
 		
-		for(int i = 0; i < readers.length; i++) {
+		for (int i = 0; i < readers.length; i++) {
 			String buffer;
 
 			while(true) {
 				buffer = obtainBuffer(readers[i]);
 
-				if(buffer == null) {
+				if (buffer == null) {
 					break;
 				}
 
-				Set<ChannelElement> channelElements = generateInput(buffer);
+				Set<Record> records = generateInput(buffer);
 
-				for(ChannelElement channelElement: channelElements) {
-					writers[(writerCount++) % writers.length].write(channelElement);
+				for(Record record: records) {
+					writers[(writerCount++) % writers.length].write(record);
 				}
 			}
 		}
 
-		for(int i = 0; i < readers.length; i++) {
+		for (int i = 0; i < readers.length; i++) {
 			readers[i].close();
 		}
 		
-		for(int i = 0; i < writers.length; i++) {
+		for (int i = 0; i < writers.length; i++) {
 			writers[i].close();
 		}
 	}
 
 	protected abstract String obtainBuffer(BufferedReader reader) throws IOException;
 
-	protected abstract Set<ChannelElement> generateInput(String buffer);
+	protected abstract Set<Record> generateInput(String buffer);
 }

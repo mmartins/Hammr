@@ -1,21 +1,21 @@
 package mapreduce.communication;
 
-import communication.ChannelElement;
+import communication.Record;
 
-public class MRChannelElement<O,V> extends ChannelElement {
+public class MRRecord<K,V> extends Record {
 	private static final long serialVersionUID = 1L;
 
 	private V value;
 
-	public MRChannelElement(O object, V value) {
-		super(object, null);
+	public MRRecord(K key, V value) {
+		super(key, null);
 
 		this.value = value;
 	}
 
 	@SuppressWarnings("unchecked")
-	public O getObject() {
-		return (O) super.getObject();
+	public K getKey() {
+		return (K) super.getObject();
 	}
 
 	public V getValue() {

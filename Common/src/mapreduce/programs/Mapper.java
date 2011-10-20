@@ -5,20 +5,20 @@ import java.util.Map;
 
 import appspecs.Node;
 
-import mapreduce.communication.MRChannelElement;
+import mapreduce.communication.MRRecord;
 
-public abstract class Mapper<O,V> extends Node {
+public abstract class Mapper<K,V> extends Node {
 	private static final long serialVersionUID = 1L;
 
 	protected int numberReducers;
 
-	protected Combiner<O,V> combiner;
+	protected Combiner<K,V> combiner;
 
 	public Mapper(int numberReducers) {
 		this(numberReducers, null);
 	}
 
-	public Mapper(int numberReducers, Combiner<O,V> combiner) {
+	public Mapper(int numberReducers, Combiner<K,V> combiner) {
 		this.numberReducers = numberReducers;
 
 		this.combiner = combiner;
@@ -32,63 +32,63 @@ public abstract class Mapper<O,V> extends Node {
 		this.numberReducers = numberReducers;
 	}
 
-	public Combiner<O,V> getCombiner() {
+	public Combiner<K,V> getCombiner() {
 		return combiner;
 	}
 
-	public void setCombiner(Combiner<O,V> combiner) {
+	public void setCombiner(Combiner<K,V> combiner) {
 		this.combiner = combiner;
 	}
 
 	@SuppressWarnings("unchecked")
 	public void run() {
-		MRChannelElement<O,V> channelElement;
+		MRRecord<K,V> record;
 
 		while(true) {
-			channelElement = (MRChannelElement<O,V>) readSomeone();
+			record = (MRRecord<K,V>) readArbitraryChannel();
 
-			if(channelElement == null) {
+			if(record == null) {
 				break;
 			}
 
-			O object = channelElement.getObject();
+			K key = record.getKey();
 
-			V value = map(object);
+			V value = map(key);
 
-			if(combiner == null) {
-				channelElement.setValue(value);
+			if (combiner == null) {
+				record.setValue(value);
 
-				String destination = calculateDestination(object);
+				String destination = getDestination(key);
 
-				write(channelElement, destination);
+				writeChannel(record, destination);
 			}
 			else {
-				combiner.add(object, value);
+				combiner.addTuple(key, value);
 			}
 		}
 
-		finalizeMapping();
+		flushMap();
 
 		closeOutputs();
 	}
 
-	protected String calculateDestination(O object) {
-		return "reducer-" + Math.abs(object.hashCode() % numberReducers);
+	protected String getDestination(K key) {
+		return "reducer-" + Math.abs(key.hashCode() % numberReducers);
 	}
 
-	protected abstract V map(O object);
+	protected abstract V map(K key);
 
-	protected void finalizeMapping() {
-		if(combiner != null) {
-			Set<Map.Entry<O,V>> currentEntries = combiner.getCurrentEntries();
+	protected void flushMap() {
+		if (combiner != null) {
+			Set<Map.Entry<K,V>> tuples = combiner.getTuples();
 
-			for(Map.Entry<O,V> currentEntry: currentEntries) {
-				O object = currentEntry.getKey();
-				V value = currentEntry.getValue();
+			for (Map.Entry<K,V> tuple: tuples) {
+				K key = tuple.getKey();
+				V value = tuple.getValue();
 
-				String destination = calculateDestination(object);
+				String destination = getDestination(key);
 
-				write(new MRChannelElement<O,V>(object, value), destination);
+				writeChannel(new MRRecord<K,V>(key, value), destination);
 			}
 		}
 	}

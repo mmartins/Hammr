@@ -15,7 +15,7 @@ import appspecs.ApplicationSpecification;
 import appspecs.EdgeType;
 import appspecs.Node;
 
-import programs.ReaderSomeoneWriterSomeone;
+import programs.ReaderArbitraryWriterArbitrary;
 
 import appspecs.exceptions.InexistentInputException;
 import appspecs.exceptions.OverlappingOutputException;
@@ -38,7 +38,7 @@ public class Client {
 
 		ApplicationSpecification applicationSpecification = new ApplicationSpecification("test1", baseDirectory);
 
-		if(!applicationSpecification.initialize()) {
+		if (!applicationSpecification.initialize()) {
 			System.err.println("The directory " + applicationSpecification.getAbsoluteDirectory() + " does not exist");
 
 			System.exit(1);
@@ -49,17 +49,17 @@ public class Client {
 
 		Node[] nodesStage1 = new Node[1];
 
-		for(int i = 0; i < nodesStage1.length; i++) {
-			nodesStage1[i] = new ReaderSomeoneWriterSomeone();
+		for (int i = 0; i < nodesStage1.length; i++) {
+			nodesStage1[i] = new ReaderArbitraryWriterArbitrary();
 		}
 
 		applicationSpecification.insertNodes(nodesStage1);
 
-		for(int i = 0; i < nodesStage1.length; i++) {
+		for (int i = 0; i < nodesStage1.length; i++) {
 			inputFilename = "input-stage1-" + i + ".dat";
 
 			try {
-				applicationSpecification.addInitial(nodesStage1[i], inputFilename);
+				applicationSpecification.addSourceNode(nodesStage1[i], inputFilename);
 			} catch (InexistentInputException exception) {
 				System.err.println(exception);
 
@@ -67,11 +67,11 @@ public class Client {
 			}
 		}
 
-		for(int i = 0; i < nodesStage1.length; i++) {
+		for (int i = 0; i < nodesStage1.length; i++) {
 			outputFilename = "output-stage1-" + i + ".dat";
 
 			try {
-				applicationSpecification.addFinal(nodesStage1[i], outputFilename);
+				applicationSpecification.addDestinationNode(nodesStage1[i], outputFilename);
 			} catch (OverlappingOutputException exception) {
 				System.err.println(exception);
 
@@ -96,7 +96,7 @@ public class Client {
 
 		ApplicationSpecification applicationSpecification = new ApplicationSpecification("test2", baseDirectory);
 
-		if(!applicationSpecification.initialize()) {
+		if (!applicationSpecification.initialize()) {
 			System.err.println("The directory " + applicationSpecification.getAbsoluteDirectory() + " does not exist");
 
 			System.exit(1);
@@ -107,17 +107,17 @@ public class Client {
 
 		Node[] nodesStage1 = new Node[1];
 
-		for(int i = 0; i < nodesStage1.length; i++) {
-			nodesStage1[i] = new ReaderSomeoneWriterSomeone();
+		for (int i = 0; i < nodesStage1.length; i++) {
+			nodesStage1[i] = new ReaderArbitraryWriterArbitrary();
 		}
 
 		applicationSpecification.insertNodes(nodesStage1);
 
-		for(int i = 0; i < nodesStage1.length; i++) {
+		for (int i = 0; i < nodesStage1.length; i++) {
 			inputFilename = "input-stage1-" + i + ".dat";
 
 			try {
-				applicationSpecification.addInitial(nodesStage1[i], inputFilename);
+				applicationSpecification.addSourceNode(nodesStage1[i], inputFilename);
 			} catch (InexistentInputException exception) {
 				System.err.println(exception);
 
@@ -127,17 +127,17 @@ public class Client {
 
 		Node[] nodesStage2 = new Node[1];
 
-		for(int i = 0; i < nodesStage2.length; i++) {
-			nodesStage2[i] = new ReaderSomeoneWriterSomeone();
+		for (int i = 0; i < nodesStage2.length; i++) {
+			nodesStage2[i] = new ReaderArbitraryWriterArbitrary();
 		}
 
 		applicationSpecification.insertNodes(nodesStage2);
 
-		for(int i = 0; i < nodesStage2.length; i++) {
+		for (int i = 0; i < nodesStage2.length; i++) {
 			outputFilename = "output-stage2-" + i + ".dat";
 
 			try {
-				applicationSpecification.addFinal(nodesStage2[i], outputFilename);
+				applicationSpecification.addDestinationNode(nodesStage2[i], outputFilename);
 			} catch (OverlappingOutputException exception) {
 				System.err.println(exception);
 
@@ -172,7 +172,7 @@ public class Client {
 
 		Node[] nodes = new Node[numberNodesEdges];
 
-		for(int i = 0; i < nodes.length; i++) {
+		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = new TrivialNode();
 		}
 
@@ -181,7 +181,7 @@ public class Client {
 		String inputFilename = "fake-input.dat";
 
 		try {
-			applicationSpecification.addInitial(nodes[0], inputFilename);
+			applicationSpecification.addSourceNode(nodes[0], inputFilename);
 		} catch (InexistentInputException exception) {
 			System.err.println(exception);
 
@@ -197,7 +197,7 @@ public class Client {
 
 		int numberEdges = 0;
 
-		for(int i = 0; i < nodes.length; i++) {
+		for (int i = 0; i < nodes.length; i++) {
 			for(int j = i + 1; j < nodes.length; j++) {
 				dice = random.nextInt() % 1000;
 
@@ -226,7 +226,7 @@ public class Client {
 	}
 
 	public static void main(String[] arguments) {
-		if(arguments.length <= 2) {
+		if (arguments.length <= 2) {
 			System.err.println("Usage: Client <registry_location> <base_directory> <command> [<command_argument> ... <comand_argument>]");
 
 			System.exit(1);
@@ -238,7 +238,7 @@ public class Client {
 
 		String command = arguments[2];
 
-		if(command.equals("test1")) {
+		if (command.equals("test1")) {
 			Client client = new Client(registryLocation, baseDirectory);
 
 			client.performTest1();
@@ -246,7 +246,7 @@ public class Client {
 			System.exit(0);
 		}
 
-		if(command.equals("test2")) {
+		if (command.equals("test2")) {
 			Client client = new Client(registryLocation, baseDirectory);
 
 			client.performTest2(EdgeType.TCP);
@@ -254,7 +254,7 @@ public class Client {
 			System.exit(0);
 		}
 
-		if(command.equals("test3")) {
+		if (command.equals("test3")) {
 			if(arguments.length <= 3) {
 				System.err.println("Usage: Client <registry_location> <base_directory> test3 <number_nodes_edges>");
 
@@ -270,7 +270,7 @@ public class Client {
 			System.exit(0);
 		}
 
-		if(command.equals("perform_mapreduce")) {
+		if (command.equals("perform_mapreduce")) {
 			if(arguments.length <= 5) {
 				System.err.println("Usage: Client <registry_location> <base_directory> perform_mapreduce <type> <join> [<input_filename> ... <input_filename>]");
 				System.err.println("<type>: \"TCP\" or \"FILE\"");
@@ -283,10 +283,10 @@ public class Client {
 
 			MapReduceSpecification.Type type = MapReduceSpecification.Type.FILEBASED;
 
-			if(arguments[3].equals("TCP")) {
+			if (arguments[3].equals("TCP")) {
 				type = MapReduceSpecification.Type.TCPBASED;
 			}
-			else if(arguments[3].equals("FILE")) {
+			else if (arguments[3].equals("FILE")) {
 				type = MapReduceSpecification.Type.FILEBASED;
 			}
 			else {
@@ -297,10 +297,10 @@ public class Client {
 
 			boolean join = false;
 
-			if(arguments[4].equals("true")) {
+			if (arguments[4].equals("true")) {
 				join = true;
 			}
-			else if(arguments[4].equals("false")) {
+			else if (arguments[4].equals("false")) {
 				join = false;
 			}
 			else {
@@ -311,7 +311,7 @@ public class Client {
 
 			List<String> temporaryInputFilenames = new ArrayList<String>();
 
-			for(int i = 5; i < arguments.length; i++) {
+			for (int i = 5; i < arguments.length; i++) {
 				temporaryInputFilenames.add(arguments[i]);
 			}
 

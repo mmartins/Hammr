@@ -3,8 +3,8 @@ package utilities;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import communication.ChannelElement;
-import communication.FileChannelElementReader;
+import communication.Record;
+import communication.FileRecordReader;
 
 public class DumpFileContents {
 	private String filename;
@@ -14,11 +14,11 @@ public class DumpFileContents {
 	}
 
 	public void dump() throws FileNotFoundException, IOException {
-		FileChannelElementReader reader = new FileChannelElementReader(filename);
+		FileRecordReader reader = new FileRecordReader(filename);
 
-		ChannelElement element;
+		Record element;
 
-		while((element = reader.read()) != null) {
+		while ((element = reader.read()) != null) {
 			System.out.println(element);
 		}
 	}

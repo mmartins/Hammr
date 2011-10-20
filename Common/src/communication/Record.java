@@ -2,18 +2,18 @@ package communication;
 
 import java.io.Serializable;
 
-public class ChannelElement implements Serializable {
+public class Record implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private Object object;
 	private String description;
 
-	public ChannelElement(Object object, String description) {
+	public Record(Object object, String description) {
 		this.object = object;
 		this.description = description;
 	}
 
-	public ChannelElement(Object object) {
+	public Record(Object object) {
 		this(object, null);
 	}
 

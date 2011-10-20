@@ -14,24 +14,24 @@ import utilities.MutableInteger;
 public class NodeGroup extends HashSet<Node> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String application;
+	private String applicationName;
 	private long serialNumber;
 
 	private MutableInteger mark;
 
 	private NodeGroupBundle nodeGroupBundle;
 
-	public NodeGroup(String application, Node node) {
+	public NodeGroup(String applicationName, Node node) {
 		super();
 
-		setApplication(application);
+		setApplicationName(applicationName);
 		addNode(node);
 	}
 
-	public NodeGroup(String application, Set<Node> nodes) {
+	public NodeGroup(String applicationName, Set<Node> nodes) {
 		super();
 
-		setApplication(application);
+		setApplicationName(applicationName);
 		addNodes(nodes);
 	}
 
@@ -77,12 +77,12 @@ public class NodeGroup extends HashSet<Node> implements Serializable {
 		return this;
 	}
 
-	public void setApplication(String application) {
-		this.application = application;
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
 	}
 
-	public String getApplication() {
-		return application;
+	public String getApplicationName() {
+		return applicationName;
 	}
 
 	public void setSerialNumber(long serialNumber) {

@@ -9,39 +9,39 @@ import java.util.Map.Entry;
 import java.util.List;
 import java.util.ArrayList;
 
-import mapreduce.communication.MRChannelElement;
+import mapreduce.communication.MRRecord;
 
 import mapreduce.programs.Reducer;
 
-public class CountingReducer<O> extends Reducer<O,Long> {
+public class CountingReducer<K> extends Reducer<K,Long> {
 	private static final long serialVersionUID = 1L;
 
-	private CountingCombiner<O> combiner;
+	private CountingCombiner<K> combiner;
 
 	public CountingReducer() {
-		this.combiner = new CountingCombiner<O>();
+		this.combiner = new CountingCombiner<K>();
 	}
 
-	public void reduce(O object, Long value) {
-		combiner.add(object, value);
+	public void reduce(K key, Long value) {
+		combiner.addTuple(key, value);
 	}
 
-	public void finalizeReduce() {
-		List<Map.Entry<O,Long>> currentEntries = new ArrayList<Map.Entry<O,Long>>(combiner.getCurrentEntries());
+	public void flushReduce() {
+		List<Map.Entry<K,Long>> tuples = new ArrayList<Map.Entry<K,Long>>(combiner.getTuples());
 
-		Collections.sort(currentEntries, new CountingEntryComparator<O>());
+		Collections.sort(tuples, new CountingEntryComparator<K>());
 
-		for(Map.Entry<O,Long> currentEntry: currentEntries) {
-			O object = currentEntry.getKey();
-			Long value = currentEntry.getValue();
+		for (Map.Entry<K,Long> tuple: tuples) {
+			K key = tuple.getKey();
+			Long value = tuple.getValue();
 
-			writeSomeone(new MRChannelElement<O,Long>(object, value));
+			writeArbitraryChannel(new MRRecord<K,Long>(key, value));
 		}
 	}
 }
 
-class CountingEntryComparator<O> implements Comparator<Map.Entry<O,Long>> {
-	public int compare(Entry<O, Long> first, Entry<O, Long> second) {
+class CountingEntryComparator<K> implements Comparator<Map.Entry<K,Long>> {
+	public int compare(Entry<K, Long> first, Entry<K, Long> second) {
 		return first.getValue().compareTo(second.getValue());
 	}
 }

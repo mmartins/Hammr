@@ -39,7 +39,7 @@ public class ConcreteScheduler implements Scheduler {
 	
 	private DependencyManager<NodeGroup, NodeGroupBundle> dependencyManager;
 
-	// List of NodeGroups currently executin on Launchers
+	// List of NodeGroups currently executing on Launchers
 	
 	private Map<Long, NodeGroup> scheduledNodeGroups;
 
@@ -242,7 +242,7 @@ public class ConcreteScheduler implements Scheduler {
 			throw new CyclicDependencyException();
 		}
 
-		for(Node node: applicationSpecification.getInitials()) {
+		for(Node node: applicationSpecification.getSourceNodes()) {
 			dependencyManager.insertDependency(null, node.getNodeGroup().getNodeGroupBundle());
 		}
 

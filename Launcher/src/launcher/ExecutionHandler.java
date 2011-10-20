@@ -24,14 +24,14 @@ import communication.SHMChannelHandler;
 import communication.TCPChannelHandler;
 import communication.FileChannelHandler;
 
-import communication.SHMChannelElementMultiplexer;
-import communication.SHMChannelElementWriter;
+import communication.SHMRecordMultiplexer;
+import communication.SHMRecordWriter;
 
-import communication.TCPChannelElementMultiplexer;
-import communication.TCPChannelElementWriter;
+import communication.TCPRecordMultiplexer;
+import communication.TCPRecordWriter;
 
-import communication.FileChannelElementReader;
-import communication.FileChannelElementWriter;
+import communication.FileRecordReader;
+import communication.FileRecordWriter;
 
 import interfaces.Manager;
 
@@ -41,6 +41,7 @@ import exceptions.InexistentApplicationException;
  * This class is responsible for running a specific NodeGroup previously submitted to the Launcher.
  * 
  * @author Hammurabi Mendes (hmendes)
+ * @author Marcelo Martins (martins)
  */
 public class ExecutionHandler extends Thread {
 	private Manager manager;
@@ -52,9 +53,9 @@ public class ExecutionHandler extends Thread {
 	/**
 	 * Constructor.
 	 * 
-	 * @param manager Reference to the manager.
-	 * @param concreteLauncher Reference to the local launcher.
-	 * @param nodeGroup NodeGroup that should be run.
+	 * @param manager Reference to manager.
+	 * @param concreteLauncher Reference to local launcher.
+	 * @param nodeGroup NodeGroup that should run.
 	 */
 	public ExecutionHandler(Manager manager, ConcreteLauncher concreteLauncher, NodeGroup nodeGroup) {
 		this.manager = manager;
@@ -65,39 +66,39 @@ public class ExecutionHandler extends Thread {
 	}
 
 	/**
-	 * Setter for the NodeGroup that should be run.
+	 * Setter for NodeGroup
 	 * 
-	 * @param nodeGroup NodeGroup that should be run.
+	 * @param nodeGroup NodeGroup that should run.
 	 */
 	public void setNodeGroup(NodeGroup nodeGroup) {
 		this.nodeGroup = nodeGroup;
 	}
 
 	/**
-	 * Getter for the NodeGroup that should be run.
+	 * Getter for the NodeGroup
 	 * 
-	 * @return NodeGroup that should be run.
+	 * @return NodeGroup that should run.
 	 */
 	public NodeGroup getNodeGroup() {
 		return nodeGroup;
 	}
 
 	/**
-	 * Runs the NodeGroup in separate threads, one thread for each Node.
+	 * Runs NodeGroup members in separate threads, one for each Node.
 	 */
 	public void run() {
-		// Stores runtime information; sent back to the master
-		// at the end of the execution.
+		// Store runtime information; sent back to master
+		// at the end of execution.
 		ResultSummary resultSummary;
 
 		try {
 			setupCommunication();
 		} catch (Exception genericException) {
-			System.err.println("Error setting communication up for NodeGroup");
+			System.err.println("Error setting up communication for NodeGroup");
 
 			genericException.printStackTrace();
 
-			resultSummary = new ResultSummary(nodeGroup.getApplication(), nodeGroup.getSerialNumber(), ResultSummary.Type.FAILURE);
+			resultSummary = new ResultSummary(nodeGroup.getApplicationName(), nodeGroup.getSerialNumber(), ResultSummary.Type.FAILURE);
 
 			finishExecution(resultSummary);
 
@@ -110,154 +111,182 @@ public class ExecutionHandler extends Thread {
 	}
 
 	/**
-	 * Creates the communication channels for the NodeGroup being run.
-	 * If it has a server-side TCP channel, it notifies the master about the obtained socket address.
-	 * If it has a client-side TCP channel, it obtains from the master the associated socket address.
+	 * Creates communication channels for NodeGroup
+	 * If Node has server-side TCP channel, notify master about obtained socket
+	 * address.
+	 * If Node has client-side TCP channel, obtains from master the associated
+	 * socket address.
 	 * 
-	 * @throws Exception If one of the following situations occur:
-	 *         1) Error creating client-side or server-side TCP channels;
-	 *         2) The address of a server-side TCP channel required by this NodeGroup is not located at the master;
-	 *         3) Error creating or opening file channels.
+	 * @throws Exception
+	 *             If one of the following situations occur
+	 *             1) Error creating client-side or server-side TCP channels;
+	 *             2) Address of server-side TCP channel required by NodeGroup 
+	 *             is not registered in master;
+	 *             3) Error creating or opening file channels.
 	 */
 	private void setupCommunication() throws Exception {
-		// Create all the pipe handlers
-		// If two pipe edges target the same node, only one pipe handler (and corresponding physical pipe) will be created
+		/*
+		 * Create all pipe handlers
+		 * If two pipe edges target the same node, only one pipe handler (and
+		 * corresponding physical pipe) is created
+		 */
 
-		Map<String, SHMChannelElementMultiplexer> mapChannelElementOutputStream = new HashMap<String, SHMChannelElementMultiplexer>();
+		Map<String, SHMRecordMultiplexer> mapRecordOutputStream = new HashMap<String, SHMRecordMultiplexer>();
 
-		for(Node node: nodeGroup.getNodes()) {
-			SHMChannelElementMultiplexer shmChannelElementMultiplexer = null;
+		for (Node node: nodeGroup.getNodes()) {
+			SHMRecordMultiplexer shmRecordMultiplexer = null;
 
-			for(ChannelHandler channelHandler: node.getInputChannelHandlers()) {
-				if(channelHandler.getType() == ChannelHandler.Type.SHM) {
+			for (ChannelHandler channelHandler: node.getInputChannels()) {
+				if (channelHandler.getType() == ChannelHandler.Type.SHM) {
 					SHMChannelHandler shmChannelHandler = (SHMChannelHandler) channelHandler;
 
-					if(shmChannelElementMultiplexer == null) {
-						shmChannelElementMultiplexer = new SHMChannelElementMultiplexer(node.getInputChannelNames());
+					if (shmRecordMultiplexer == null) {
+						shmRecordMultiplexer = new SHMRecordMultiplexer(node.getInputChannelNames());
 
-						// For SHM, when creating the input pipe, map the associated output pipe for other nodes
-						mapChannelElementOutputStream.put(node.getName(), shmChannelElementMultiplexer);
+						/*
+						 * For SHM, when creating input pipe, map the
+						 * associated output pipe for destination nodes
+						 */
+						mapRecordOutputStream.put(node.getName(), shmRecordMultiplexer);
 					}
 
-					// For SHM, all the inputs come from the unique input pipe
-					shmChannelHandler.setChannelElementReader(shmChannelElementMultiplexer);
+					// For SHM, all inputs come from the unique input pipe
+					shmChannelHandler.setRecordReader(shmRecordMultiplexer);
 				}
 			}
 		}
 
-		for(Node node: nodeGroup.getNodes()) {
-			for(ChannelHandler channelHandler: node.getOutputChannelHandlers()) {
+		for (Node node: nodeGroup.getNodes()) {
+			for (ChannelHandler channelHandler: node.getOutputChannels()) {
 				if(channelHandler.getType() == ChannelHandler.Type.SHM) {
 					SHMChannelHandler shmChannelHandler = (SHMChannelHandler) channelHandler;
 
-					// For SHM, all the outputs go to the unique output pipe for each node
+					/*
+					 * For SHM, all the outputs go to the unique output pipe 
+					 * for each node
+					 */
 
-					SHMChannelElementWriter shmChannelElementWriter = new SHMChannelElementWriter(node.getName(), mapChannelElementOutputStream.get(channelHandler.getName()));
+					SHMRecordWriter shmRecordWriter = new SHMRecordWriter(node.getName(), mapRecordOutputStream.get(channelHandler.getName()));
 
-					shmChannelHandler.setChannelElementWriter(shmChannelElementWriter);
+					shmChannelHandler.setRecordWriter(shmRecordWriter);
 				}
 			}
 		}
 
-		// Create all the TCP handlers
-		// If two TCP edges target the same node, only one TCP handler (and corresponding server) will be created
+		/* 
+		 * Create all TCP handlers
+		 * If two TCP edges target the same node, only one TCP handler
+		 * (and corresponding server) is created
+		 */
 
-		for(Node node: nodeGroup.getNodes()) {
-			TCPChannelElementMultiplexer tcpChannelElementMultiplexer = null;
+		for (Node node: nodeGroup.getNodes()) {
+			TCPRecordMultiplexer tcpRecordMultiplexer = null;
 
-			for(ChannelHandler channelHandler: node.getInputChannelHandlers()) {
-				if(channelHandler.getType() == ChannelHandler.Type.TCP) {
+			for (ChannelHandler channelHandler: node.getInputChannels()) {
+				if (channelHandler.getType() == ChannelHandler.Type.TCP) {
 					TCPChannelHandler tcpChannelHandler = (TCPChannelHandler) channelHandler;
 
-					if(tcpChannelElementMultiplexer == null) {
-						tcpChannelElementMultiplexer = new TCPChannelElementMultiplexer(node.getInputChannelNames());
+					if (tcpRecordMultiplexer == null) {
+						tcpRecordMultiplexer = new TCPRecordMultiplexer(node.getInputChannelNames());
 
-						tcpChannelHandler.setSocketAddress(tcpChannelElementMultiplexer.getAddress());
+						tcpChannelHandler.setSocketAddress(tcpRecordMultiplexer.getAddress());
 
-						// For TCP, when creating the input server, map the associated output server addresses for other nodes
-						boolean result = manager.insertSocketAddress(nodeGroup.getApplication(), node.getName(), tcpChannelHandler.getSocketAddress());
+						/* 
+						 * For TCP, when creating the input server, map the
+						 * associated output server addresses for other nodes
+						 */
+						boolean result = manager.registerSocketAddress(nodeGroup.getApplicationName(), node.getName(), tcpChannelHandler.getSocketAddress());
 
-						if(result == false) {
-							System.err.println("Unable to insert socket address for application " + nodeGroup.getApplication() + " on the manager!");
+						if (result == false) {
+							System.err.println("Unable to insert socket address for application " + nodeGroup.getApplicationName() + " in manager!");
 
-							throw new InexistentApplicationException(nodeGroup.getApplication());
+							throw new InexistentApplicationException(nodeGroup.getApplicationName());
 						}
 					}
 
-					// For TCP, all the inputs come from the unique input server
-					tcpChannelHandler.setChannelElementReader(tcpChannelElementMultiplexer);
+					// For TCP, all inputs come from the unique input server
+					tcpChannelHandler.setRecordReader(tcpRecordMultiplexer);
 				}
 			}
 		}
 
-		for(Node node: nodeGroup.getNodes()) {
-			for(ChannelHandler channelHandler: node.getOutputChannelHandlers()) {
-				if(channelHandler.getType() == ChannelHandler.Type.TCP) {
+		for (Node node: nodeGroup.getNodes()) {
+			for (ChannelHandler channelHandler: node.getOutputChannels()) {
+				if (channelHandler.getType() == ChannelHandler.Type.TCP) {
 					TCPChannelHandler tcpChannelHandler = (TCPChannelHandler) channelHandler;
 
-					// For TCP, (1) obtain the address of the output server from the manager
-					InetSocketAddress socketAddress = manager.obtainSocketAddress(nodeGroup.getApplication(), tcpChannelHandler.getName());
+					/*
+					 *  For TCP, (1) obtain the address of the output server
+					 *  from manager
+					 */
+					InetSocketAddress socketAddress = manager.obtainSocketAddress(nodeGroup.getApplicationName(), tcpChannelHandler.getName());
 
 					if(socketAddress == null) {
-						throw new InexistentApplicationException(nodeGroup.getApplication());
+						throw new InexistentApplicationException(nodeGroup.getApplicationName());
 					}
 
 					tcpChannelHandler.setSocketAddress(socketAddress);
 
-					// For TCP, (2) all the outputs go to the unique server for each node
+					/*
+					 *  For TCP, (2) all the outputs go to the unique server 
+					 *  for each node
+					 */
 
-					TCPChannelElementWriter tcpChannelElementWriter = new TCPChannelElementWriter(node.getName(), socketAddress);
+					TCPRecordWriter tcpRecordWriter = new TCPRecordWriter(node.getName(), socketAddress);
 
-					tcpChannelHandler.setChannelElementWriter(tcpChannelElementWriter);
+					tcpChannelHandler.setRecordWriter(tcpRecordWriter);
 				}
 			}
 		}
 
-		// Create all the file handlers
-		// If more than one file edge target the same node, more than one file handler (and corresponding file descriptor) will be created
+		/*
+		 * Create all the file handlers
+		 * If more than one file edge target the same node, more than one file
+		 * handler (and corresponding file descriptor) is created
+		 */
 
-		for(Node node: nodeGroup.getNodes()) {
-			for(ChannelHandler channelHandler: node.getInputChannelHandlers()) {
-				if(channelHandler.getType() == ChannelHandler.Type.FILE) {
+		for (Node node: nodeGroup.getNodes()) {
+			for (ChannelHandler channelHandler: node.getInputChannels()) {
+				if (channelHandler.getType() == ChannelHandler.Type.FILE) {
 					FileChannelHandler fileChannelHandler = (FileChannelHandler) channelHandler;
 
-					FileChannelElementReader fileChannelElementReader = new FileChannelElementReader(fileChannelHandler.getLocation());
+					FileRecordReader fileRecordReader = new FileRecordReader(fileChannelHandler.getLocation());
 
-					fileChannelHandler.setChannelElementReader(fileChannelElementReader);
+					fileChannelHandler.setRecordReader(fileRecordReader);
 				}
 			}
 
-			for(ChannelHandler channelHandler: node.getOutputChannelHandlers()) {
-				if(channelHandler.getType() == ChannelHandler.Type.FILE) {
+			for (ChannelHandler channelHandler: node.getOutputChannels()) {
+				if (channelHandler.getType() == ChannelHandler.Type.FILE) {
 					FileChannelHandler fileChannelHandler = (FileChannelHandler) channelHandler;
 
-					FileChannelElementWriter fileChannelElementWriter = new FileChannelElementWriter(fileChannelHandler.getLocation());
+					FileRecordWriter fileRecordWriter = new FileRecordWriter(fileChannelHandler.getLocation());
 
-					fileChannelHandler.setChannelElementWriter(fileChannelElementWriter);
+					fileChannelHandler.setRecordWriter(fileRecordWriter);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Performs the execution of the Nodes, one per thread, and prepares the result summary to send back to the master.
+	 * Performs task execution inside Nodes, one per thread, and sends result 
+	 * summary to master.
 	 * 
-	 * @return Result summary to send back to the master.
+	 * @return Result summary to be sent back to master.
 	 */
 	private ResultSummary performExecution() {
-		NodeHandler[] nodeHandlers = new NodeHandler[nodeGroup.size()];
+		NodeProfileHandler[] nodeHandlers = new NodeProfileHandler[nodeGroup.size()];
 
 		Iterator<Node> iterator = nodeGroup.iterator();
 
 		long globalTimerStart = System.currentTimeMillis();
 
-		for(int i = 0; i < nodeGroup.size(); i++) {
-			nodeHandlers[i] = new NodeHandler(iterator.next());
-
+		for (int i = 0; i < nodeGroup.size(); i++) {
+			nodeHandlers[i] = new NodeProfileHandler(iterator.next());
 			nodeHandlers[i].start();
 		}
 
-		for(int i = 0; i < nodeGroup.size(); i++) {
+		for (int i = 0; i < nodeGroup.size(); i++) {
 			try {
 				nodeHandlers[i].join();
 			} catch (InterruptedException exception) {
@@ -270,11 +299,11 @@ public class ExecutionHandler extends Thread {
 
 		long globalTimerFinish = System.currentTimeMillis();
 
-		ResultSummary resultSummary = new ResultSummary(nodeGroup.getApplication(), nodeGroup.getSerialNumber(), ResultSummary.Type.SUCCESS);
+		ResultSummary resultSummary = new ResultSummary(nodeGroup.getApplicationName(), nodeGroup.getSerialNumber(), ResultSummary.Type.SUCCESS);
 
 		resultSummary.setNodeGroupTiming(globalTimerFinish - globalTimerStart);
 
-		for(int i = 0; i < nodeGroup.size(); i++) {
+		for (int i = 0; i < nodeGroup.size(); i++) {
 			resultSummary.addNodeMeasurements(nodeHandlers[i].getNode().getName(), nodeHandlers[i].getNodeMeasurements());
 		}
 
@@ -282,11 +311,12 @@ public class ExecutionHandler extends Thread {
 	}
 
 	/**
-	 * Sends the result summary of the NodeGroup back to the master, and clears the NodeGroup data from the launcher.
+	 * Sends the result summary of NodeGroup to master.
+	 * Clears the NodeGroup data from launcher.
 	 * 
-	 * @param resultSummary Result summary obtained after the NodeGroup was executed.
+	 * @param resultSummary Result summary obtained after NodeGroup is executed.
 	 * 
-	 * @return True if the master was properly notified; false otherwise.
+	 * @return True if master is properly notified; false otherwise.
 	 */
 	private boolean finishExecution(ResultSummary resultSummary) {
 		concreteLauncher.delNodeGroup(nodeGroup);
@@ -294,7 +324,7 @@ public class ExecutionHandler extends Thread {
 		try {
 			manager.handleTermination(resultSummary);
 		} catch (RemoteException exception) {
-			System.err.println("Unable to communicate termination to the manager");
+			System.err.println("Unable to communicate termination to manager");
 
 			exception.printStackTrace();
 			return false;
@@ -304,11 +334,13 @@ public class ExecutionHandler extends Thread {
 	}
 
 	/**
-	 * Class that executes a single Node in a separate thread, performing the appopriate measurements.
+	 * Class that executes a single Node in a separate thread,
+	 *  performing the appropriate measurements.
 	 * 
 	 * @author Hammurabi Mendes (hmendes)
+	 * @author Marcelo Martins (martins)
 	 */
-	class NodeHandler extends Thread {
+	class NodeProfileHandler extends Thread {
 		private Node node;
 
 		private long realLocalTimerStart;
@@ -325,20 +357,20 @@ public class ExecutionHandler extends Thread {
 		 * 
 		 * @param node Node to be run in a separate thread.
 		 */
-		public NodeHandler(Node node) {
+		public NodeProfileHandler(Node node) {
 			this.node = node;
 		}
 
 		/**
-		 * Runs the Node in a separate thread of execution, and obtain runtime measurements.
+		 * Runs Node in a separate thread and obtain runtime measurements.
 		 */
 		public void run() {
 			System.out.println("Executing " + node);
 
 			ThreadMXBean profiler = ManagementFactory.getThreadMXBean();
 
-			if(profiler.isThreadCpuTimeSupported()) {
-				if(!profiler.isThreadCpuTimeEnabled()) {
+			if (profiler.isThreadCpuTimeSupported()) {
+				if (!profiler.isThreadCpuTimeEnabled()) {
 					profiler.setThreadCpuTimeEnabled(true);
 				}
 			}
@@ -357,41 +389,41 @@ public class ExecutionHandler extends Thread {
 		}
 
 		/**
-		 * Getter for the Node being run.
+		 * Getter for running Node
 		 * 
-		 * @return The node being run.
+		 * @return running Node.
 		 */
 		public Node getNode() {
 			return node;
 		}
 
 		/**
-		 * Getter for the real time to execute the Node.
+		 * Getter for Node's real-time execution.
 		 * 
-		 * @return The real time to execute the Node.
+		 * @return The real time to execute Node.
 		 */
 		public long getRealTime() {
 			return realLocalTimerFinish - realLocalTimerStart;
 		}
 
 		/**
-		 * Getter for the CPU time to execute the Node.
+		 * Getter for Node's CPU time.
 		 * 
-		 * @return The CPU time to execute the Node.
+		 * @return The CPU time to execute Node.
 		 */
 		public long getCpuTime() {
-			// We get results in milliseconds, not in nanoseconds
+			// Return time in milliseconds, not in nanoseconds
 			
 			return (cpuLocalTimerFinish - cpuLocalTimerStart) / 1000000;
 		}
 
 		/**
-		 * Getter for the user time to execute the Node.
+		 * Getter for Node's user time
 		 * 
-		 * @return The user time to execute the Node.
+		 * @return The user time to execute Node.
 		 */
 		public long getUserTime() {
-			// We get results in milliseconds, not in nanoseconds
+			// Return time in milliseconds, not nanoseconds
 			
 			return (userLocalTimerFinish - userLocalTimerStart) / 1000000;
 		}

@@ -9,64 +9,64 @@ import java.util.HashMap;
 
 import java.util.PriorityQueue;
 
-import mapreduce.communication.MRChannelElement;
+import mapreduce.communication.MRRecord;
 
 import appspecs.Node;
 
-public abstract class Merger<O,V> extends Node {
+public abstract class Merger<K,V> extends Node {
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unchecked")
 	public void run() {
 		Set<String> inputs = getInputChannelNames();
 
-		PriorityQueue<MRChannelElement<O,V>> channelElements = new PriorityQueue<MRChannelElement<O,V>>(inputs.size(), getComparator());
+		PriorityQueue<MRRecord<K,V>> records = new PriorityQueue<MRRecord<K,V>>(inputs.size(), getComparator());
 
-		Map<MRChannelElement<O,V>,String> backwardMapping = new HashMap<MRChannelElement<O,V>,String>();
+		Map<MRRecord<K,V>,String> reverseMap = new HashMap<MRRecord<K,V>,String>();
 
-		MRChannelElement<O,V> channelElement;
+		MRRecord<K,V> record;
 
-		for(String input: inputs) {
-			channelElement = (MRChannelElement<O,V>) read(input);
+		for (String input: inputs) {
+			record = (MRRecord<K,V>) readChannel(input);
 
-			if(channelElement != null) {
-				channelElements.add(channelElement);
+			if (record != null) {
+				records.add(record);
 
-				backwardMapping.put(channelElement, input);
+				reverseMap.put(record, input);
 			}
 		}
 
-		while(channelElements.size() > 0) {
-			channelElement = channelElements.poll();
+		while (records.size() > 0) {
+			record = records.poll();
 
-			writeSomeone(channelElement);
+			writeArbitraryChannel(record);
 
-			String input = backwardMapping.get(channelElement);
+			String input = reverseMap.get(record);
 
-			backwardMapping.remove(channelElement);
+			reverseMap.remove(record);
 
-			channelElement = (MRChannelElement<O,V>) read(input);
+			record = (MRRecord<K,V>) readChannel(input);
 
-			if(channelElement != null) {
-				channelElements.add(channelElement);
+			if(record != null) {
+				records.add(record);
 
-				backwardMapping.put(channelElement, input);
+				reverseMap.put(record, input);
 			}
 		}
 
 		closeOutputs();
 	}
 
-	public abstract Comparator<MRChannelElement<O,V>> getComparator();
+	public abstract Comparator<MRRecord<K,V>> getComparator();
 
-	public class MRChannelElementComparatorObject<X extends Comparable<X>,Y> implements Comparator<MRChannelElement<X,Y>> {
-		public int compare(MRChannelElement<X,Y> first, MRChannelElement<X,Y> second) {
-			return first.getObject().compareTo(second.getObject());
+	public class MRRecordComparatorObject<X extends Comparable<X>,Y> implements Comparator<MRRecord<X,Y>> {
+		public int compare(MRRecord<X,Y> first, MRRecord<X,Y> second) {
+			return first.getKey().compareTo(second.getKey());
 		}
 	}
 
-	public class MRChannelElementComparatorValue<X,Y extends Comparable<Y>> implements Comparator<MRChannelElement<X,Y>> {
-		public int compare(MRChannelElement<X,Y> first, MRChannelElement<X,Y> second) {
+	public class MRRecordComparatorValue<X,Y extends Comparable<Y>> implements Comparator<MRRecord<X,Y>> {
+		public int compare(MRRecord<X,Y> first, MRRecord<X,Y> second) {
 			return first.getValue().compareTo(second.getValue());
 		}
 	}

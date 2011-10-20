@@ -20,8 +20,8 @@ import appspecs.exceptions.OverlappingOutputException;
 public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	private static final long serialVersionUID = 1L;
 
-	private Set<Node> initials;
-	private Set<Node> finals;
+	private Set<Node> sources;
+	private Set<Node> destinations;
 
 	private String name;
 	private String directoryPrefix;
@@ -40,14 +40,14 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 		this.name = name;
 		this.directoryPrefix = directoryPrefix;
 
-		initials = new HashSet<Node>();
-		finals = new HashSet<Node>();
+		sources = new HashSet<Node>();
+		destinations = new HashSet<Node>();
 
 		outputFilenames = new HashSet<String>();
 	}
 
 	public ApplicationSpecification() {
-		this("default_application", "/cluserdata");
+		this("default_application", "/cluster_data");
 	}
 
 	public ApplicationSpecification(String name, String directoryPrefix, Node[] nodes, Edge[] edges) {
@@ -58,7 +58,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	}
 
 	public void insertNodes(Node[] nodes) {
-		for(Node node: nodes) {
+		for (Node node: nodes) {
 			node.setName(generateUniqueName());
 
 			addVertex(node);
@@ -66,7 +66,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	}
 
 	public void insertEdges(Edge[] edges) {
-		for(Edge edge: edges) {
+		for (Edge edge: edges) {
 			addEdge(edge.getSource(), edge.getTarget());
 		}
 	}
@@ -81,10 +81,10 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 
 		int destinationPosition = 0;
 
-		for(int i = 0; i < origins.length; i++) {
+		for (int i = 0; i < origins.length; i++) {
 			currentOrigin = origins[i];
 
-			if(quantity == -1) {
+			if (quantity == -1) {
 				for(int j = 0; j < destinations.length; j++) {
 					currentDestination = destinations[j];
 
@@ -92,7 +92,10 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 				}
 			}
 			else {
-				for(int j = 0; j < quantity; j++) {
+				/* TODO: what if quantity > len(destinations)?
+				 * Is this what we really want to do?
+				 */
+				for (int j = 0; j < quantity; j++) {
 					currentDestination = destinations[destinationPosition++ % destinations.length];
 
 					addEdge(currentOrigin, currentDestination, new Edge(edgeType));
@@ -113,44 +116,46 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 		}
 	}
 
-	public void addInitial(Node node, String filename) throws InexistentInputException {
-		if(!FileHelper.exists(getAbsoluteFileName(filename))) {
+	public void addSourceNode(Node node, String filename) throws InexistentInputException {
+		if (!FileHelper.exists(getAbsoluteFileName(filename))) {
 			throw new InexistentInputException(getAbsoluteFileName(filename));
 		}
 
+		/* TODO: What if node already has input  channel? */
 		node.setType(NodeType.INITIAL);
-		node.addInputChannelHandler(new FileChannelHandler(ChannelHandler.Mode.INPUT, "input-" + (inputCounter++), getAbsoluteFileName(filename)));
+		node.addInputChannel(new FileChannelHandler(ChannelHandler.Mode.INPUT, "input-" + (inputCounter++), getAbsoluteFileName(filename)));
 
-		initials.add(node);
+		sources.add(node);
 	}
 
-	public Set<Node> getInitials() {
-		return initials;
+	public Set<Node> getSourceNodes() {
+		return sources;
 	}
 
-	public void setInitials(Set<Node> initials) {
-		this.initials = initials;
+	public void setSourceNodes(Set<Node> sources) {
+		this.sources = sources;
 	}
 
-	public void addFinal(Node node, String filename) throws OverlappingOutputException {
-		if(outputFilenames.contains(filename)) {
+	public void addDestinationNode(Node node, String filename) throws OverlappingOutputException {
+		if (outputFilenames.contains(filename)) {
 			throw new OverlappingOutputException(filename);
 		}
 
 		outputFilenames.add(filename);
 
+		/* TODO: What if node already has output channel? */
 		node.setType(NodeType.FINAL);
-		node.addOutputChannelHandler(new FileChannelHandler(ChannelHandler.Mode.OUTPUT, "output-" + (outputCounter++), getAbsoluteFileName(filename)));
+		node.addOutputChannel(new FileChannelHandler(ChannelHandler.Mode.OUTPUT, "output-" + (outputCounter++), getAbsoluteFileName(filename)));
 
-		finals.add(node);
+		destinations.add(node);
 	}
 
-	public Set<Node> getFinals() {
-		return finals;
+	public Set<Node> getDestinationNodes() {
+		return destinations;
 	}
 
-	public void setFinals(Set<Node> finals) {
-		this.finals = finals;
+	public void setDestinationNodes(Set<Node> destinations) {
+		this.destinations = destinations;
 	}
 
 	public void setName(String name) {
@@ -174,7 +179,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	}
 
 	public String getAbsoluteFileName(String filename) {
-		if(filename.startsWith("/")) {
+		if (filename.startsWith("/")) {
 			return filename;
 		}
 
@@ -192,7 +197,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	public Set<Node> getNeighbors(Node node) {
 		Set<Node> result = new HashSet<Node>();
 
-		for(Edge edge: outgoingEdgesOf(node)) {
+		for (Edge edge: outgoingEdgesOf(node)) {
 			result.add(edge.getTarget());
 		}
 
@@ -216,22 +221,22 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 
 		Node source, target;
 
-		for(Edge edge: edgeSet()) {
+		for (Edge edge: edgeSet()) {
 			source = edge.getSource();
 			target = edge.getTarget();
 
-			switch(edge.getCommunicationMode()) {
+			switch (edge.getCommunicationMode()) {
 			case SHM:
-				source.addOutputChannelHandler(new SHMChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName()));
-				target.addInputChannelHandler(new SHMChannelHandler(ChannelHandler.Mode.INPUT, source.getName()));
+				source.addOutputChannel(new SHMChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName()));
+				target.addInputChannel(new SHMChannelHandler(ChannelHandler.Mode.INPUT, source.getName()));
 				break;
 			case TCP:
-				source.addOutputChannelHandler(new TCPChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName()));
-				target.addInputChannelHandler(new TCPChannelHandler(ChannelHandler.Mode.INPUT, source.getName()));
+				source.addOutputChannel(new TCPChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName()));
+				target.addInputChannel(new TCPChannelHandler(ChannelHandler.Mode.INPUT, source.getName()));
 				break;
 			case FILE:
-				source.addOutputChannelHandler(new FileChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName(), this.getAbsoluteDirectory() + "/" + "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat"));
-				target.addInputChannelHandler(new FileChannelHandler(ChannelHandler.Mode.INPUT, source.getName(), this.getAbsoluteDirectory() + "/" + "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat"));
+				source.addOutputChannel(new FileChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName(), this.getAbsoluteDirectory() + "/" + "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat"));
+				target.addInputChannel(new FileChannelHandler(ChannelHandler.Mode.INPUT, source.getName(), this.getAbsoluteDirectory() + "/" + "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat"));
 
 				anonymousFileChannelCounter++;
 

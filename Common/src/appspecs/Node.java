@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.HashMap;
 
 import communication.ChannelHandler;
-import communication.ChannelElement;
+import communication.Record;
 
 import execinfo.NodeGroup;
 
-import utilities.ChannelElementReaderShuffler;
-import utilities.ChannelElementWriterShuffler;
+import utilities.RecordReaderShuffler;
+import utilities.RecordWriterShuffler;
 
 import utilities.MutableInteger;
 
@@ -34,8 +34,8 @@ public abstract class Node implements Serializable, Runnable {
 
 	protected NodeGroup nodeGroup;
 
-	protected ChannelElementReaderShuffler readersShuffler;
-	protected ChannelElementWriterShuffler writersShuffler;
+	protected RecordReaderShuffler readersShuffler;
+	protected RecordWriterShuffler writersShuffler;
 
 	public Node(String name, NodeType type) {
 		setType(type);
@@ -70,15 +70,15 @@ public abstract class Node implements Serializable, Runnable {
 		return inputs.keySet();
 	}
 
-	public Collection<ChannelHandler> getInputChannelHandlers() {
+	public Collection<ChannelHandler> getInputChannels() {
 		return inputs.values();
 	}
 
-	public void addInputChannelHandler(ChannelHandler input) {
+	public void addInputChannel(ChannelHandler input) {
 		inputs.put(input.getName(), input);
 	}
 
-	public ChannelHandler getInputChannelHandler(String source) {
+	public ChannelHandler getInputChannel(String source) {
 		return inputs.get(source);
 	}
 
@@ -88,51 +88,51 @@ public abstract class Node implements Serializable, Runnable {
 		return outputs.keySet();
 	}
 
-	public Collection<ChannelHandler> getOutputChannelHandlers() {
+	public Collection<ChannelHandler> getOutputChannels() {
 		return outputs.values();
 	}
 
-	public void addOutputChannelHandler(ChannelHandler output) {
+	public void addOutputChannel(ChannelHandler output) {
 		outputs.put(output.getName(), output);
 	}
 
-	public ChannelHandler getOutputChannelHandler(String target) {
+	public ChannelHandler getOutputChannel(String target) {
 		return outputs.get(target);
 	}
 
 	/* Read Functions */
 
-	public ChannelElement read(String name) {
-		ChannelHandler channelHandler = getInputChannelHandler(name);
+	public Record readChannel(String channelName) {
+		ChannelHandler channelHandler = getInputChannel(channelName);
 
-		if(channelHandler != null) {
+		if (channelHandler != null) {
 			try {
 				return channelHandler.read();
 			} catch (EOFException exception) {
 				return null;
 			} catch (IOException exception) {
-				System.err.println("Error reading channel element from node " + name + " for node " + this);
+				System.err.println("Error reading channel from node " + channelName + " to node " + this);
 
 				exception.printStackTrace();
 			}
 		}
 
-		System.err.println("Couldn't find channel handler " + name +  " for node " + this);
+		System.err.println("Couldn't find channel handler " + channelName +  " for node " + this);
 
 		return null;
 	}
 
-	public ChannelElement readSomeone() {
-		if(readersShuffler == null) {
+	public Record readArbitraryChannel() {
+		if (readersShuffler == null) {
 			createReaderShuffler();
 		}
 
 		try {
-			return readersShuffler.readSomeone();
+			return readersShuffler.readArbitrary();
 		} catch (EOFException exception) {
 			return null;
 		} catch (IOException exception) {
-			System.err.println("Error reading from arbitrary channel element from node " + this);
+			System.err.println("Error reading from arbitrary channel from node " + this);
 
 			exception.printStackTrace();
 		}
@@ -142,36 +142,36 @@ public abstract class Node implements Serializable, Runnable {
 
 	/* Write Functions */
 
-	public boolean write(ChannelElement channelElement, String name) {
-		ChannelHandler channelHandler = getOutputChannelHandler(name);
+	public boolean writeChannel(Record record, String channelName) {
+		ChannelHandler channelHandler = getOutputChannel(channelName);
 
-		if(channelHandler != null) {
+		if (channelHandler != null) {
 			try {
-				channelHandler.write(channelElement);
+				channelHandler.write(record);
 
 				return true;
 			} catch (IOException exception) {
-				System.err.println("Error writing channel element to node " + name +  " for node " + this);
+				System.err.println("Error writing channel to node " + channelName +  " from node " + this);
 
 				exception.printStackTrace();
 				return false;
 			}
 		}
 
-		System.err.println("Couldn't find channel handler " + name +  " for node " + this);
+		System.err.println("Couldn't find channel handler " + channelName +  " for node " + this);
 
 		return false;
 	}
 
-	public boolean writeSomeone(ChannelElement channelElement) {
-		if(writersShuffler == null) {
+	public boolean writeArbitraryChannel(Record record) {
+		if (writersShuffler == null) {
 			createWriterShuffler();
 		}
 
 		try {
-			return writersShuffler.writeSomeone(channelElement);
+			return writersShuffler.writeArbitrary(record);
 		} catch (IOException exception) {
-			System.err.println("Error writing to arbitary channel element from node " + this);
+			System.err.println("Error writing to arbitary channel from node " + this);
 
 			exception.printStackTrace();
 		}
@@ -179,16 +179,16 @@ public abstract class Node implements Serializable, Runnable {
 		return false;
 	}
 
-	public boolean writeEveryone(ChannelElement channelElement) {
+	public boolean writeAllChannels(Record record) {
 		Set<String> outputChannelNames = getOutputChannelNames();
 
 		boolean finalResult = true;
 
-		for(String outputChannelName: outputChannelNames) {
-			boolean immediateResult = write(channelElement, outputChannelName);
+		for (String outputChannelName: outputChannelNames) {
+			boolean immediateResult = writeChannel(record, outputChannelName);
 
-			if(immediateResult == false) {
-				System.err.println("Error writing to all channel elements (error on channel element " + outputChannelName + ") from node " + this);
+			if (immediateResult == false) {
+				System.err.println("Error writing to all channel elements (error on channel " + outputChannelName + ") from node " + this);
 			}
 
 			finalResult |= immediateResult;
@@ -200,25 +200,25 @@ public abstract class Node implements Serializable, Runnable {
 	/* Close functions */
 
 	public boolean closeOutputs() {
-		Collection<ChannelHandler> outputChannelHandlers = getOutputChannelHandlers();
+		Collection<ChannelHandler> outputChannelHandlers = getOutputChannels();
 
-		return closeChannelHandlers(outputChannelHandlers);
+		return closeChannels(outputChannelHandlers);
 	}
 
-	public boolean closeChannelHandlers(Collection<ChannelHandler> channelHandlers) {
+	public boolean closeChannels(Collection<ChannelHandler> channelHandlers) {
 		boolean finalResult = true;
 
-		for(ChannelHandler channelHandler: channelHandlers) {
+		for (ChannelHandler channelHandler: channelHandlers) {
 			try {
 				boolean immediateResult = channelHandler.close();
 
-				if(immediateResult == false) {
-					System.err.println("Error closing channel handler " + channelHandler.getName() + " for node " + this);
+				if (immediateResult == false) {
+					System.err.println("Error closing channel " + channelHandler.getName() + " for node " + this);
 				}
 
 				finalResult |= immediateResult;
 			} catch (IOException exception) {
-				System.err.println("Error closing channel handler " + channelHandler.getName() + " for node " + this + " (I/O error)");
+				System.err.println("Error closing channel " + channelHandler.getName() + " for node " + this + " (I/O error)");
 
 				exception.printStackTrace();
 				finalResult |= false;
@@ -232,7 +232,7 @@ public abstract class Node implements Serializable, Runnable {
 
 	private void createReaderShuffler() {
 		try {
-			readersShuffler = new ChannelElementReaderShuffler(inputs);
+			readersShuffler = new RecordReaderShuffler(inputs);
 		} catch (IOException exception) {
 			System.err.println("Error creating read shuffler for node " + this);
 
@@ -241,9 +241,9 @@ public abstract class Node implements Serializable, Runnable {
 	}
 
 	private void createWriterShuffler() {
-		Collection<ChannelHandler> channelHandlers = getOutputChannelHandlers();
+		Collection<ChannelHandler> channelHandlers = getOutputChannels();
 
-		writersShuffler = new ChannelElementWriterShuffler(channelHandlers);
+		writersShuffler = new RecordWriterShuffler(channelHandlers);
 	}
 
 	/* Marking functions */
@@ -253,7 +253,7 @@ public abstract class Node implements Serializable, Runnable {
 	}
 
 	public void setMark(MutableInteger mark) {
-		if(!isMarked() || mark == null) {
+		if (!isMarked() || mark == null) {
 			this.mark = mark;
 		}
 		else {

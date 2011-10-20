@@ -19,8 +19,9 @@ import execinfo.ResultSummary;
  * the result summaries for the finalized NodeGroups. 
  * 
  * @author Hammurabi Mendes (hmendes)
+ * @author Marcelo Martins (martins)
  */
-public class ApplicationInformationHolder {
+public class ApplicationPackage {
 	private String applicationName;
 
 	private ApplicationSpecification applicationSpecification;
@@ -37,7 +38,7 @@ public class ApplicationInformationHolder {
 	/**
 	 * Class constructor.
 	 */
-	public ApplicationInformationHolder() {
+	public ApplicationPackage() {
 		this.registeredSocketAddresses = new HashMap<String, InetSocketAddress>();
 
 		this.receivedResultSummaries = new HashSet<ResultSummary>();

@@ -12,33 +12,33 @@ import java.util.concurrent.TimeUnit;
 import java.io.EOFException;
 import java.io.IOException;
 
-public class SHMChannelElementMultiplexer implements ChannelElementReader {
+public class SHMRecordMultiplexer implements RecordReader {
 	private static int DEFAULT_LIMIT = 32;
 	private static int DEFAULT_RETRY = 250;
 
 	protected Set<String> origins;
 
-	protected BlockingQueue<ChannelElement> queue;
+	protected BlockingQueue<Record> queue;
 
-	public SHMChannelElementMultiplexer(Set<String> origins) {
+	public SHMRecordMultiplexer(Set<String> origins) {
 		this.origins = Collections.synchronizedSet(new HashSet<String>());
 
 		this.origins.addAll(origins);
 
-		this.queue = new ArrayBlockingQueue<ChannelElement>(DEFAULT_LIMIT);
+		this.queue = new ArrayBlockingQueue<Record>(DEFAULT_LIMIT);
 	}
 
-	public ChannelElement read() throws EOFException, IOException {
-		ChannelElement channelElement;
+	public Record read() throws EOFException, IOException {
+		Record record;
 
-		while(true) {
+		while (true) {
 			try {
-				channelElement = queue.poll(DEFAULT_RETRY, TimeUnit.MILLISECONDS);
+				record = queue.poll(DEFAULT_RETRY, TimeUnit.MILLISECONDS);
 
-				if(channelElement != null) {
-					return channelElement;
+				if (record != null) {
+					return record;
 				}
-				else if(origins.size() == 0) {
+				else if (origins.size() == 0) {
 					throw new EOFException();
 				}
 			} catch (InterruptedException exception) {
@@ -49,13 +49,13 @@ public class SHMChannelElementMultiplexer implements ChannelElementReader {
 		}
 	}
 
-	public ChannelElement tryRead() throws EOFException, IOException {
+	public Record tryRead() throws EOFException, IOException {
 		return queue.poll();
 	}
 
-	public boolean write(String origin, ChannelElement channelElement) throws IOException {
+	public boolean write(String origin, Record record) throws IOException {
 		try {
-			queue.put(channelElement);
+			queue.put(record);
 		} catch (InterruptedException exception) {
 			System.err.println("Unexpected thread interruption while waiting for write");
 
@@ -69,7 +69,7 @@ public class SHMChannelElementMultiplexer implements ChannelElementReader {
 	public void close(String origin) {
 		boolean result = origins.remove(origin);
 
-		if(result == false) {
+		if (result == false) {
 			System.err.println("Error deleting origin " + origin + " for SHM channel multiplexer");
 		}
 	}

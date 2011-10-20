@@ -15,7 +15,7 @@ import interfaces.Launcher;
 import interfaces.Manager;
 
 /**
- * This class is a concrete implementation of a Launcher.
+ * Concrete implementation of Launcher.
  * 
  * @author Hammurabi Mendes (hmendes)
  */
@@ -28,9 +28,9 @@ public class ConcreteLauncher implements Launcher {
 	/**
 	 * Constructor method.
 	 * 
-	 * @param registryLocation Location of the Registry where we can find the Manager reference.
+	 * @param registryLocation Registry Location where we can find Manager.
 	 * 
-	 * @throws RemoteException If unable to contact either the registry or the manager.
+	 * @throws RemoteException If unable to contact either the registry or manager.
 	 */
 	public ConcreteLauncher(String registryLocation) throws RemoteException {
 		id = "Launcher".concat(RMIHelper.getUniqueID());
@@ -41,9 +41,9 @@ public class ConcreteLauncher implements Launcher {
 	}
 
 	/**
-	 * Register this launcher with the manager.
+	 * Register launcher with manager.
 	 * 
-	 * @return True if the registration was successful; false otherwise.
+	 * @return True if the registration is successful; false otherwise.
 	 */
 	public boolean registerLauncher() {
 		try {
@@ -58,16 +58,16 @@ public class ConcreteLauncher implements Launcher {
 	}
 
 	/**
-	 * Returns the ID of the launcher.
+	 * Returns launcher ID.
 	 * 
-	 * @return The ID of the launcher.
+	 * @return Launcher ID.
 	 */
 	public String getId() {
 		return id;
 	}
 
 	/**
-	 * Submits a NodeGroup for execution. Called by the manager.
+	 * Submits a NodeGroup for execution. Called by manager.
 	 * 
 	 * @param nodeGroup NodeGroup to be executed.
 	 * 
@@ -88,16 +88,16 @@ public class ConcreteLauncher implements Launcher {
 	 * 
 	 * @param nodeGroup NodeGroup to be removed.
 	 * 
-	 * @return True if the NodeGroup informed was previously present in the list of running NodeGroups.
+	 * @return True if NodeGroup is successfully removed.
 	 */
 	public boolean delNodeGroup(NodeGroup nodeGroup) {
 		return nodeGroups.remove(nodeGroup);
 	}
 
 	/**
-	 * Obtains the current running NodeGroups. Called by the manager.
+	 * Obtains current running NodeGroups. Called by manager.
 	 * 
-	 * @return The current running NodeGroups.
+	 * @return Current running NodeGroups.
 	 */
 	public List<NodeGroup> getNodeGroups() {
 		return nodeGroups;
@@ -107,10 +107,10 @@ public class ConcreteLauncher implements Launcher {
 	 * Launcher startup method.
 	 * 
 	 * @param arguments A list containing:
-	 *        1) The registry location.
+	 *        1) Registry location.
 	 */
 	public static void main(String[] arguments) {
-		if(arguments.length != 1) {
+		if (arguments.length != 1) {
 			System.err.println("Usage: ConcreteLauncher <registry_location>");
 
 			System.exit(1);
@@ -121,8 +121,10 @@ public class ConcreteLauncher implements Launcher {
 		ConcreteLauncher concreteLauncher;
 
 		try {
-			// Initiates a concrete launcher and makes it available
-			// for remote method calls.
+			/*
+			 * Initiates a concrete launcher and makes it available
+			 * for remote method calls.
+			 */
 			
 			concreteLauncher = new ConcreteLauncher(registryLocation);
 

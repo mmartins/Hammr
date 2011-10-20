@@ -69,20 +69,20 @@ public class ResultGenerator extends Thread {
 
 			// Make a first pass just to discover the number of nodes
 
-			for(ResultSummary resultSummary: resultSummaries) {
+			for (ResultSummary resultSummary: resultSummaries) {
 				Set<String> nodeNames = resultSummary.getNodeNames();
 
 				numberNodes += nodeNames.size();
 			}
 
-			for(ResultSummary resultSummary: resultSummaries) {
+			for (ResultSummary resultSummary: resultSummaries) {
 				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" running time: " + getHumanReadableTime(resultSummary.getNodeGroupTiming()) + "\n");
 
 				averageNodeGroupTime += resultSummary.getNodeGroupTiming() / resultSummaries.size();
 
 				Set<String> nodeNames = resultSummary.getNodeNames();
 
-				for(String nodeName: nodeNames) {
+				for (String nodeName: nodeNames) {
 					NodeMeasurements nodeMeasurements = resultSummary.getNodeMeasurement(nodeName);
 
 					file.write("\tNode \"" + nodeName + "\" CPU  time: " + getHumanReadableTime(nodeMeasurements.getCpuTime()) + "\n");
@@ -155,7 +155,7 @@ public class ResultGenerator extends Thread {
 
 		// Only insert days if we have more than one day
 
-		if(units[0] > 0) {
+		if (units[0] > 0) {
 			if(previous) {
 				result += ", ";
 			}
@@ -166,7 +166,7 @@ public class ResultGenerator extends Thread {
 
 		// Only insert hours if we have more than one hour
 
-		if(units[1] > 0) {
+		if (units[1] > 0) {
 			if(previous) {
 				result += ", ";
 			}
@@ -177,7 +177,7 @@ public class ResultGenerator extends Thread {
 
 		// Always include minutes
 
-		if(previous) {
+		if (previous) {
 			result += ", ";
 		}
 
@@ -195,7 +195,7 @@ public class ResultGenerator extends Thread {
 
 		// Insert milliseconds only if we don't have days or hours
 
-		if(units[0] == 0 && units[1] == 0 && units[4] > 0) {
+		if (units[0] == 0 && units[1] == 0 && units[4] > 0) {
 			if(previous) {
 				result += ", ";
 			}

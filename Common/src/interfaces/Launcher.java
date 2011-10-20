@@ -8,20 +8,20 @@ import java.rmi.RemoteException;
 import execinfo.NodeGroup;
 
 /**
- * Launcher remote interface. These functions can be called by remote machines.
+ * Launcher remote interface. Called by manager.
  * 
  * @author Hammurabi Mendes (hmendes)
  */
 public interface Launcher extends Remote {
 	/**
-	 * Returns the ID of the launcher.
+	 * Returns launcher ID.
 	 * 
-	 * @return The ID of the launcher.
+	 * @return Launcher ID
 	 */
 	public String getId() throws RemoteException;
 
 	/**
-	 * Submits a NodeGroup for execution. Called by the manager.
+	 * Submits a NodeGroup for execution. Called by manager.
 	 * 
 	 * @param nodeGroup NodeGroup to be executed.
 	 * 
@@ -30,9 +30,9 @@ public interface Launcher extends Remote {
 	public boolean addNodeGroup(NodeGroup nodeGroup) throws RemoteException;
 	
 	/**
-	 * Obtains the current running NodeGroups. Called by the manager.
+	 * Obtains the current running NodeGroups. Called by manager.
 	 * 
-	 * @return The current running NodeGroups.
+	 * @return Current running NodeGroups.
 	 */
 	public List<NodeGroup> getNodeGroups() throws RemoteException;
 }

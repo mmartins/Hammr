@@ -9,8 +9,8 @@ import java.util.HashSet;
 
 import utilities.InputGenerator;
 
-import communication.ChannelElement;
-import mapreduce.communication.MRChannelElement;
+import communication.Record;
+import mapreduce.communication.MRRecord;
 
 public class CountingInputGenerator extends InputGenerator {
 	public CountingInputGenerator(String[] inputOutputPairs) {
@@ -25,15 +25,15 @@ public class CountingInputGenerator extends InputGenerator {
 		return reader.readLine();
 	}
 
-	protected Set<ChannelElement> generateInput(String buffer) {
-		Set<ChannelElement> result = new HashSet<ChannelElement>();
+	protected Set<Record> generateInput(String buffer) {
+		Set<Record> result = new HashSet<Record>();
 
 		String delimiters = "[^\\w]+";
 
 		String[] words = buffer.split(delimiters);
 
-		for(String word: words) {
-			result.add(new MRChannelElement<String,Long>(word.toLowerCase(), 0L));
+		for (String word: words) {
+			result.add(new MRRecord<String,Long>(word.toLowerCase(), 0L));
 		}
 
 		return result;

@@ -7,24 +7,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
-import communication.ChannelElement;
+import communication.Record;
 import communication.ChannelHandler;
 
 import java.io.IOException;
 
-public class ChannelElementWriterShuffler {
+public class RecordWriterShuffler {
 	private List<ChannelHandler> channelHandlers;
 
 	Random random;
 
-	public ChannelElementWriterShuffler(Collection<ChannelHandler> channelHandlers) {
+	public RecordWriterShuffler(Collection<ChannelHandler> channelHandlers) {
 		this.channelHandlers = new ArrayList<ChannelHandler>(channelHandlers);
 
 		random = new Random();
 	}
 
-	public boolean writeSomeone(ChannelElement channelElement) throws IOException {
-		if(channelHandlers.size() == 0) {
+	public boolean writeArbitrary(Record record) throws IOException {
+		if (channelHandlers.size() == 0) {
 			return false;
 		}
 
@@ -32,6 +32,6 @@ public class ChannelElementWriterShuffler {
 
 		ChannelHandler channelHandler = channelHandlers.get(index);
 
-		return channelHandler.write(channelElement);
+		return channelHandler.write(record);
 	}
 }

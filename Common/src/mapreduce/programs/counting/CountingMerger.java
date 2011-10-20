@@ -2,19 +2,19 @@ package mapreduce.programs.counting;
 
 import java.util.Comparator;
 
-import mapreduce.communication.MRChannelElement;
+import mapreduce.communication.MRRecord;
 import mapreduce.programs.Merger;
 
-public class CountingMerger<O> extends Merger<O,Long> {
+public class CountingMerger<K> extends Merger<K,Long> {
 	private static final long serialVersionUID = 1L;
 
-	public Comparator<MRChannelElement<O, Long>> getComparator() {
-		return new MRChannelElementComparatorValue<O,Long>();
+	public Comparator<MRRecord<K, Long>> getComparator() {
+		return new MRRecordComparatorValue<K,Long>();
 	}
 }
 
-class MRChannelElementComparator<O> implements Comparator<MRChannelElement<O,Long>> {
-	public int compare(MRChannelElement<O, Long> first, MRChannelElement<O, Long> second) {
+class MRRecordComparator<K> implements Comparator<MRRecord<K,Long>> {
+	public int compare(MRRecord<K, Long> first, MRRecord<K, Long> second) {
 		return first.getValue().compareTo(second.getValue());
 	}
 }

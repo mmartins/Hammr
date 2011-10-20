@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import utilities.OutputExtractor;
 
-import communication.ChannelElement;
-import mapreduce.communication.MRChannelElement;
+import communication.Record;
+import mapreduce.communication.MRRecord;
 
 public class CountingOutputExtractor extends OutputExtractor {
 	public CountingOutputExtractor(String[] inputOutputPairs) {
@@ -16,11 +16,11 @@ public class CountingOutputExtractor extends OutputExtractor {
 		super(inputs, outputs);
 	}
 
-	protected String obtainInformation(ChannelElement genericChannelElement) {
+	protected String obtainInformation(Record genericRecord) {
 		@SuppressWarnings("unchecked")
-		MRChannelElement<String,Long> channelElement = (MRChannelElement<String,Long>) genericChannelElement;
+		MRRecord<String,Long> record = (MRRecord<String,Long>) genericRecord;
 
-		return (channelElement.getObject()) +  " - " + channelElement.getValue() + "\n";
+		return (record.getObject()) +  " - " + record.getValue() + "\n";
 	}
 
 	public static void main(String[] arguments) {

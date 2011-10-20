@@ -24,7 +24,7 @@ public class MapReduceSpecification extends ApplicationSpecification {
 	public void insertMappers(String input, Node splitter, Node[] mappers) throws InexistentInputException {
 		stageSplitter(splitter);
 
-		addInitial(splitter, input);
+		addSourceNode(splitter, input);
 
 		stageMappers(mappers);
 
@@ -34,8 +34,8 @@ public class MapReduceSpecification extends ApplicationSpecification {
 	public void insertMappers(String[] inputs, Node[] mappers) throws InexistentInputException {
 		stageMappers(mappers);
 
-		for(int i = 0; i < inputs.length; i++) {
-			addInitial(mappers[i], inputs[i]);
+		for (int i = 0; i < inputs.length; i++) {
+			addSourceNode(mappers[i], inputs[i]);
 		}
 	}
 
@@ -44,7 +44,7 @@ public class MapReduceSpecification extends ApplicationSpecification {
 
 		stageMerger(merger);
 
-		addFinal(mergeStage[0], output);
+		addDestinationNode(mergeStage[0], output);
 
 		insertEdges(reduceStage, mergeStage, EdgeType.FILE);
 	}
@@ -53,7 +53,7 @@ public class MapReduceSpecification extends ApplicationSpecification {
 		stageReducers(reducers);
 
 		for(int i = 0; i < outputs.length; i++) {
-			addFinal(reducers[i], outputs[i]);
+			addDestinationNode(reducers[i], outputs[i]);
 		}
 	}
 

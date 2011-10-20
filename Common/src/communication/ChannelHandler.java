@@ -12,8 +12,8 @@ public abstract class ChannelHandler implements Serializable {
 	private Mode mode;
 	private String name;
 
-	private ChannelElementReader channelElementReader;
-	private ChannelElementWriter channelElementWriter;
+	private RecordReader recordReader;
+	private RecordWriter recordWriter;
 
 	public ChannelHandler(Type type, Mode mode, String name) {
 		this.type = type;
@@ -46,33 +46,33 @@ public abstract class ChannelHandler implements Serializable {
 		return name;
 	}
 
-	public ChannelElementReader getChannelElementReader() {
-		return channelElementReader;
+	public RecordReader getRecordReader() {
+		return recordReader;
 	}
 
-	public void setChannelElementReader(ChannelElementReader channelElementReader) {
-		this.channelElementReader = channelElementReader;
+	public void setRecordReader(RecordReader recordReader) {
+		this.recordReader = recordReader;
 	}
 
-	public ChannelElementWriter getChannelElementWriter() {
-		return channelElementWriter;
+	public RecordWriter getRecordWriter() {
+		return recordWriter;
 	}
 
-	public void setChannelElementWriter(ChannelElementWriter channelElementWriter) {
-		this.channelElementWriter = channelElementWriter;
+	public void setRecordWriter(RecordWriter recordWriter) {
+		this.recordWriter = recordWriter;
 	}
 
-	public ChannelElement read() throws EOFException, IOException {
-		return channelElementReader.read();
+	public Record read() throws EOFException, IOException {
+		return recordReader.read();
 	}
 
-	public boolean write(ChannelElement channelElement) throws IOException {
-		return channelElementWriter.write(channelElement);
+	public boolean write(Record record) throws IOException {
+		return recordWriter.write(record);
 	}
 
 	public boolean close() throws IOException {
-		if(channelElementWriter != null) {
-			return channelElementWriter.close();
+		if (recordWriter != null) {
+			return recordWriter.close();
 		}
 
 		return true;

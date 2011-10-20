@@ -5,22 +5,22 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 
-import communication.ChannelElement;
+import communication.Record;
 import communication.ChannelHandler;
 
 import java.io.EOFException;
 import java.io.IOException;
 
-public class ChannelElementReaderShuffler {
+public class RecordReaderShuffler {
 	private List<ChannelHandler> inputs;
 
-	public ChannelElementReaderShuffler(Map<String, ChannelHandler> inputs) throws IOException {
+	public RecordReaderShuffler(Map<String, ChannelHandler> inputs) throws IOException {
 		this.inputs = new ArrayList<ChannelHandler>();
 
 		this.inputs.addAll(inputs.values());
 	}
 
-	public ChannelElement readSomeone() throws EOFException, IOException {
+	public Record readSomeone() throws EOFException, IOException {
 		while(inputs.size() > 0) {
 			ChannelHandler channelHandler = inputs.get(0);
 
@@ -38,30 +38,30 @@ public class ChannelElementReaderShuffler {
 
 import java.util.Map;
 
-import communication.ChannelElement;
+import communication.Record;
 import communication.ChannelHandler;
 
-import communication.SHMChannelElementMultiplexer;
+import communication.SHMRecordMultiplexer;
 
 import java.io.EOFException;
 import java.io.IOException;
 
-public class ChannelElementReaderShuffler {
-	private SHMChannelElementMultiplexer multiplexer;
+public class RecordReaderShuffler {
+	private SHMRecordMultiplexer multiplexer;
 
-	public ChannelElementReaderShuffler(Map<String, ChannelHandler> inputs) throws IOException {
-		multiplexer = new SHMChannelElementMultiplexer(inputs.keySet());
+	public RecordReaderShuffler(Map<String, ChannelHandler> inputs) throws IOException {
+		multiplexer = new SHMRecordMultiplexer(inputs.keySet());
 
 		Relayer relayer;
 
-		for(String name: inputs.keySet()) {
+		for (String name: inputs.keySet()) {
 			relayer = new Relayer(name, inputs.get(name), multiplexer);
 
 			relayer.start();
 		}
 	}
 
-	public ChannelElement readSomeone() throws EOFException, IOException {
+	public Record readArbitrary() throws EOFException, IOException {
 		return multiplexer.read();
 	}
 
@@ -70,9 +70,9 @@ public class ChannelElementReaderShuffler {
 
 		private ChannelHandler channelHandler;
 
-		private SHMChannelElementMultiplexer multiplexer;
+		private SHMRecordMultiplexer multiplexer;
 
-		public Relayer(String origin, ChannelHandler channelHandler, SHMChannelElementMultiplexer multiplexer) {
+		public Relayer(String origin, ChannelHandler channelHandler, SHMRecordMultiplexer multiplexer) {
 			this.origin = origin;
 
 			this.channelHandler = channelHandler;
@@ -81,11 +81,11 @@ public class ChannelElementReaderShuffler {
 		}
 
 		public void run() {
-			ChannelElement channelElement;
+			Record record;
 
 			while(true) {
 				try {
-					channelElement = channelHandler.read();
+					record = channelHandler.read();
 				} catch (EOFException exception) {
 					break;
 				} catch (IOException exception) {
@@ -96,7 +96,7 @@ public class ChannelElementReaderShuffler {
 				}
 
 				try {
-					multiplexer.write(origin, channelElement);
+					multiplexer.write(origin, record);
 				} catch (IOException exception) {
 					System.err.println("Error writing channel handler data to local reader shuffler multiplexer");
 

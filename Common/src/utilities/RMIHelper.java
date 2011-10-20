@@ -11,7 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class RMIHelper {
 	public static void exportRemoteObject(Remote object) {
-		if(System.getSecurityManager() == null) {
+		if (System.getSecurityManager() == null) {
 			System.setSecurityManager(new RMISecurityManager());
 		}
 
@@ -27,15 +27,15 @@ public class RMIHelper {
 		exportAndRegisterRemoteObject(null, name, object);
 	}
 
-	public static void exportAndRegisterRemoteObject(String registerLocation, String name, Remote object) {
-		if(System.getSecurityManager() == null) {
+	public static void exportAndRegisterRemoteObject(String registryLocation, String name, Remote object) {
+		if (System.getSecurityManager() == null) {
 			System.setSecurityManager(new RMISecurityManager());
 		}
 
 		try {
 			Remote stub = UnicastRemoteObject.exportObject(object, 0);
 
-			Registry registry = LocateRegistry.getRegistry(registerLocation);
+			Registry registry = LocateRegistry.getRegistry(registryLocation);
 			registry.rebind(name, stub);
 		} catch (Exception exception) {
 			System.err.println("Error exporting or registering object: " + exception.toString());
@@ -47,13 +47,13 @@ public class RMIHelper {
 		return locateRemoteObject(null, name);
 	}
 
-	public static Remote locateRemoteObject(String registerLocation, String name) {
-		if(System.getSecurityManager() == null) {
+	public static Remote locateRemoteObject(String registryLocation, String name) {
+		if (System.getSecurityManager() == null) {
 			System.setSecurityManager(new RMISecurityManager());
 		}
 
 		try {
-			Registry registry = LocateRegistry.getRegistry(registerLocation);
+			Registry registry = LocateRegistry.getRegistry(registryLocation);
 
 			Remote stub = registry.lookup(name);
 
