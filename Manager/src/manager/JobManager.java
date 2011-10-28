@@ -25,7 +25,7 @@ import exceptions.CyclicDependencyException;
 import execinfo.ResultSummary;
 
 import scheduler.Scheduler;
-import scheduler.ConcreteScheduler;
+import scheduler.JobScheduler;
 
 import utilities.RMIHelper;
 
@@ -35,7 +35,7 @@ import utilities.RMIHelper;
  * @author Hammurabi Mendes (hmendes)
  * @author Marcelo Martins (martins)
  */
-public class ConcreteManager implements Manager {
+public class JobManager implements Manager {
 	private String baseDirectory;
 
 	// Active launchers, mapped by ID
@@ -51,7 +51,7 @@ public class ConcreteManager implements Manager {
 	 * 
 	 * @param baseDirectory Working directory of the manager.
 	 */
-	public ConcreteManager(String baseDirectory) {
+	public JobManager(String baseDirectory) {
 		this.baseDirectory = baseDirectory;
 
 		this.registeredLaunchers = Collections.synchronizedMap(new LinkedHashMap<String, Launcher>());
@@ -120,7 +120,7 @@ public class ConcreteManager implements Manager {
 				return false;
 			}
 
-			if (!scheduler.scheduleNodeGroupBundle()) {
+			if (!scheduler.scheduleStage()) {
 				System.err.println("Initial schedule indicated that no free node group bundles are present");
 
 				return false;
@@ -238,14 +238,14 @@ public class ConcreteManager implements Manager {
 			return false;
 		}
 
-		applicationPackage.addReceivedResultSummaries(resultSummary);
+		applicationPackage.addResultSummary(resultSummary);
 
 		try {
 			if (scheduler.finished()) {
 				finishApplication(resultSummary.getNodeGroupApplication());
 			}
 			else {
-				scheduler.scheduleNodeGroupBundle();
+				scheduler.scheduleStage();
 			}
 
 			return true;
@@ -274,7 +274,7 @@ public class ConcreteManager implements Manager {
 		applicationPackage.setApplicationName(applicationName);
 		applicationPackage.setApplicationSpecification(applicationSpecification);
 
-		applicationPackage.setApplicationScheduler(new ConcreteScheduler(this));
+		applicationPackage.setApplicationScheduler(new JobScheduler(this));
 
 		applicationPackage.markStart();
 
@@ -306,7 +306,7 @@ public class ConcreteManager implements Manager {
 
 		applicationPackage.markFinish();
 
-		processApplicationResult(applicationName, applicationPackage.getTotalRunningTime(), applicationPackage.getReceivedResultSummaries());
+		processApplicationResult(applicationName, applicationPackage.getTotalRunningTime(), applicationPackage.getResultCollection());
 
 		return true;
 	}
@@ -376,8 +376,8 @@ public class ConcreteManager implements Manager {
 		// Initiates a concrete manager and makes it available
 		// for remote method calls.
 
-		ConcreteManager concreteManager = new ConcreteManager(arguments[1]);
+		JobManager jobManager = new JobManager(arguments[1]);
 
-		RMIHelper.exportAndRegisterRemoteObject(registryLocation, "Manager", concreteManager);
+		RMIHelper.exportAndRegisterRemoteObject(registryLocation, "JobManager", jobManager);
 	}
 }

@@ -9,7 +9,7 @@ import execinfo.ResultSummary;
 import execinfo.NodeMeasurements;
 
 /**
- * Generates a summary for the whole application execution, in a separate thread.
+ * Generates a summary for the whole application execution as a separate thread.
  * 
  * @author Hammurabi Mendes (hmendes)
  */
@@ -20,30 +20,30 @@ public class ResultGenerator extends Thread {
 
 	private long runningTime;
 
-	// Result summaries received for the NodeGroups of this application
+	// Result-summary collection of application's NodeGroups
 	
-	private Set<ResultSummary> resultSummaries;
+	private Set<ResultSummary> resultCollection;
 
 	/**
 	 * Constructor method.
 	 * 
-	 * @param baseDirectory Directory where the report will be generated.
+	 * @param baseDirectory Directory where report will be generated.
 	 * @param application Name of the application being summarized.
 	 * @param runningTime Application running time (real).
-	 * @param resultSummaries Result summaries received in the application execution.
+	 * @param resultCollection Result collection from application execution.
 	 */
-	public ResultGenerator(String baseDirectory, String application, long runningTime, Set<ResultSummary> resultSummaries) {
+	public ResultGenerator(String baseDirectory, String application, long runningTime, Set<ResultSummary> resultCollection) {
 		this.baseDirectory = baseDirectory;
 
 		this.application = application;
 
 		this.runningTime = runningTime;
 
-		this.resultSummaries = resultSummaries;
+		this.resultCollection = resultCollection;
 	}
 
 	/**
-	 * Generates the report, containing:
+	 * Generates result report, containing:
 	 * 	     1) Individual Node running times (real/CPU/user);
 	 *       2) Individual NodeGroup running time (real);
 	 *       3) Average Node running time (real/CPU/user);
@@ -69,16 +69,16 @@ public class ResultGenerator extends Thread {
 
 			// Make a first pass just to discover the number of nodes
 
-			for (ResultSummary resultSummary: resultSummaries) {
+			for (ResultSummary resultSummary: resultCollection) {
 				Set<String> nodeNames = resultSummary.getNodeNames();
 
 				numberNodes += nodeNames.size();
 			}
 
-			for (ResultSummary resultSummary: resultSummaries) {
+			for (ResultSummary resultSummary: resultCollection) {
 				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" running time: " + getHumanReadableTime(resultSummary.getNodeGroupTiming()) + "\n");
 
-				averageNodeGroupTime += resultSummary.getNodeGroupTiming() / resultSummaries.size();
+				averageNodeGroupTime += resultSummary.getNodeGroupTiming() / resultCollection.size();
 
 				Set<String> nodeNames = resultSummary.getNodeNames();
 

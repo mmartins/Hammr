@@ -6,20 +6,20 @@ import java.util.Set;
 
 import execinfo.NodeGroup;
 
-public class NodeGroupBundle extends HashSet<NodeGroup> implements Serializable {
+public class Stage extends HashSet<NodeGroup> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public NodeGroupBundle() {
+	public Stage() {
 		super();
 	}
 
-	public NodeGroupBundle(NodeGroup nodeGroup) {
+	public Stage(NodeGroup nodeGroup) {
 		this();
 
 		addNodeGroup(nodeGroup);
 	}
 
-	public NodeGroupBundle(Set<NodeGroup> nodeGroups) {
+	public Stage(Set<NodeGroup> nodeGroups) {
 		this();
 
 		addNodeGroups(nodeGroups);
@@ -32,13 +32,13 @@ public class NodeGroupBundle extends HashSet<NodeGroup> implements Serializable 
 	}
 
 	public boolean addNodeGroup(NodeGroup nodeGroup) {
-		if(nodeGroup.getNodeGroupBundle() != null) {
+		if(nodeGroup.getStage() != null) {
 			assert false;
 
 			return false;
 		}
 
-		nodeGroup.setNodeGroupBundle(this);
+		nodeGroup.setStage(this);
 
 		super.add(nodeGroup);
 
@@ -47,7 +47,7 @@ public class NodeGroupBundle extends HashSet<NodeGroup> implements Serializable 
 
 	public boolean addNodeGroups(Set<NodeGroup> nodeGroups) {
 		for(NodeGroup nodeGroup: nodeGroups) {
-			if(nodeGroup.getNodeGroupBundle() != null) {
+			if(nodeGroup.getStage() != null) {
 				assert false;
 
 				return false;
@@ -55,7 +55,7 @@ public class NodeGroupBundle extends HashSet<NodeGroup> implements Serializable 
 		}
 
 		for(NodeGroup nodeGroup: nodeGroups) {
-			nodeGroup.setNodeGroupBundle(this);
+			nodeGroup.setStage(this);
 
 			super.add(nodeGroup);
 		}	

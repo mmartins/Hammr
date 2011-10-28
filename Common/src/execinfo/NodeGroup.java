@@ -19,7 +19,7 @@ public class NodeGroup extends HashSet<Node> implements Serializable {
 
 	private MutableInteger mark;
 
-	private NodeGroupBundle nodeGroupBundle;
+	private Stage stage;
 
 	public NodeGroup(String applicationName, Node node) {
 		super();
@@ -110,18 +110,18 @@ public class NodeGroup extends HashSet<Node> implements Serializable {
 		return (mark != null);
 	}
 
-	public void setNodeGroupBundle(NodeGroupBundle nodeGroupBundle) {
-		this.nodeGroupBundle = nodeGroupBundle;
+	public void setStage(Stage stage) {
+		this.stage = stage;
 	}
 
-	public NodeGroupBundle getNodeGroupBundle() {
-		return nodeGroupBundle;
+	public Stage getStage() {
+		return stage;
 	}
 
 	public void prepareSchedule(long serialNumber) {
 		setSerialNumber(serialNumber);
 
-		setNodeGroupBundle(null);
+		setStage(null);
 	}
 
 	public String toString() {

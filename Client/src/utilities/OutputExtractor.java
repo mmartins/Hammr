@@ -81,7 +81,7 @@ public abstract class OutputExtractor {
 					break;
 				}
 
-				writers[i].write(obtainInformation(record));
+				writers[i].write(getData(record));
 			}
 		}
 
@@ -94,5 +94,5 @@ public abstract class OutputExtractor {
 		}
 	}
 
-	protected abstract String obtainInformation(Record record);
+	protected abstract String getData(Record record);
 }

@@ -76,7 +76,7 @@ public class MRClient {
 
 				String[] outputFilenames = new String[numberReducers];
 
-				for(int i = 0; i < inputFilenames.length; i++) {
+				for (int i = 0; i < inputFilenames.length; i++) {
 					outputFilenames[i] = inputFilenames[i] + ".out";
 				}
 

@@ -16,7 +16,7 @@ public class CountingOutputExtractor extends OutputExtractor {
 		super(inputs, outputs);
 	}
 
-	protected String obtainInformation(Record genericRecord) {
+	protected String getData(Record genericRecord) {
 		@SuppressWarnings("unchecked")
 		MRRecord<String,Long> record = (MRRecord<String,Long>) genericRecord;
 

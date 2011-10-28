@@ -30,7 +30,7 @@ public class ApplicationPackage {
 
 	private Map<String, InetSocketAddress> registeredSocketAddresses;
 
-	private Set<ResultSummary> receivedResultSummaries;
+	private Set<ResultSummary> resultCollection;
 	
 	private long globalTimerStart = -1L;
 	private long globalTimerFinish = -1L;
@@ -41,7 +41,7 @@ public class ApplicationPackage {
 	public ApplicationPackage() {
 		this.registeredSocketAddresses = new HashMap<String, InetSocketAddress>();
 
-		this.receivedResultSummaries = new HashSet<ResultSummary>();
+		this.resultCollection = new HashSet<ResultSummary>();
 	}
 
 	/**
@@ -120,41 +120,41 @@ public class ApplicationPackage {
 	}
 
 	/**
-	 * Inserts a received NodeGroup runtime information into the holder.
+	 * Inserts a received NodeGroup runtime information into holder.
 	 * 
 	 * @param resultSummary The received runtime information.
 	 */
-	public void addReceivedResultSummaries(ResultSummary resultSummary) {
-		this.receivedResultSummaries.add(resultSummary);
+	public void addResultSummary(ResultSummary resultSummary) {
+		resultCollection.add(resultSummary);
 	}
 
 	/**
-	 * Obtain the previously received NodeGroup runtime information summaries.
+	 * Obtains NodeGroup runtime information summary collection.
 	 * 
-	 * @return The previously received NodeGroup runtime information summaries.
+	 * @return NodeGroup runtime information summary collection.
 	 */
-	public Set<ResultSummary> getReceivedResultSummaries() {
-		return receivedResultSummaries;
+	public Set<ResultSummary> getResultCollection() {
+		return resultCollection;
 	}
 	
 	/**
-	 * Obtain and registers the current real start time of the application.
+	 * Registers application's (real) start time.
 	 */
 	public void markStart() {
 		globalTimerStart = System.currentTimeMillis();
 	}
 	
 	/**
-	 * Obtain and registers the current real finish time of the application.
+	 * Registers application's (real) finish time.
 	 */
 	public void markFinish() {
 		globalTimerFinish = System.currentTimeMillis();
 	}
 	
 	/**
-	 * Obtain the total running (real) time of the application.
+	 * Obtain application's total running (real) time.
 	 * 
-	 * @return The total running (real) time of the application.
+	 * @return Total running (real) time of application.
 	 */
 	public long getTotalRunningTime() {
 		return globalTimerFinish - globalTimerStart;

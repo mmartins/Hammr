@@ -14,13 +14,13 @@ import appspecs.ApplicationSpecification;
 public interface Scheduler {
 	/**
 	 * Try to schedule the next wave of NodeGroups: NodeGroupBundles are NodeGroups that should
-	 * be schedule at the same time.
+	 * be scheduled at the same time.
 	 * 
 	 * @return False if no NodeGroupBundle is available to execution; true otherwise.
 	 * 
 	 * @throws InsufficientLaunchersException If no alive Launcher can receive the next wave of NodeGroups.
 	 */
-	public boolean scheduleNodeGroupBundle() throws InsufficientLaunchersException;
+	public boolean scheduleStage() throws InsufficientLaunchersException;
 	
 	/**
 	 * Informs the scheduler a particular NodeGroup has finished its execution.
@@ -33,20 +33,20 @@ public interface Scheduler {
 	public boolean handleTermination(Long serialNumber);
 
 	/**
-	 * Setups the scheduler for the new application being executed.
+	 * Sets up scheduler for new application execution.
 	 * @param applicationSpecification Application specification.
 	 * 
 	 * @return True if the setup finished successfully; false otherwise.
 	 * 
-	 * @throws TemporalDependencyException If the application specification has a temporal dependency problem.
-	 * @throws CyclicDependencyException If the application specification has a cyclic dependency problem.
+	 * @throws TemporalDependencyException If application specification has a temporal dependency problem.
+	 * @throws CyclicDependencyException If application specification has a cyclic dependency problem.
 	 */
 	public boolean setup(ApplicationSpecification applicationSpecification) throws TemporalDependencyException, CyclicDependencyException;
 	
 	/**
-	 * Tests whether all the Node/NodeGroups were already executed.
+	 * Tests for Node/NodeGroups task completion.
 	 * 
-	 * @return True if all the Node/NodeGroups were already executed, false otherwise.
+	 * @return True if all Node/NodeGroups have finished their execution; false otherwise.
 	 */
 	public boolean finished();
 }
