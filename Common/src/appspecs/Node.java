@@ -1,6 +1,7 @@
 package appspecs;
 
 import java.io.EOFException;
+
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -14,6 +15,7 @@ import communication.ChannelHandler;
 import communication.Record;
 
 import execinfo.NodeGroup;
+import execinfo.ProgressReport;
 
 import utilities.RecordReaderShuffler;
 import utilities.RecordWriterShuffler;
@@ -34,6 +36,8 @@ public abstract class Node implements Serializable, Runnable {
 
 	protected NodeGroup nodeGroup;
 
+	protected ProgressReport progressReport;
+	
 	protected RecordReaderShuffler readersShuffler;
 	protected RecordWriterShuffler writersShuffler;
 
@@ -42,6 +46,7 @@ public abstract class Node implements Serializable, Runnable {
 
 		inputs = new HashMap<String, ChannelHandler>();
 		outputs = new HashMap<String, ChannelHandler>();
+		progressReport = new ProgressReport();
 	}
 
 	public Node() {
@@ -275,6 +280,14 @@ public abstract class Node implements Serializable, Runnable {
 		return nodeGroup;
 	}
 
+	public ProgressReport getProgressReport() {
+		return progressReport;
+	}
+	
+	public void setProgressReport(ProgressReport progressReport) {
+		this.progressReport.setProgress(progressReport.getProgress());
+	}
+	
 	/* Run & print functions */
 
 	public abstract void run();
