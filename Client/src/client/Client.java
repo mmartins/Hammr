@@ -1,33 +1,45 @@
+/*
+Copyright (c) 2011, Hammurabi Mendes
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package client;
-
-import java.util.Random;
-
-import java.util.List;
-import java.util.ArrayList;
-
-import java.rmi.RemoteException;
-
-import mapreduce.appspecs.MapReduceSpecification;
 
 import interfaces.Manager;
 
-import appspecs.ApplicationSpecification;
-import appspecs.EdgeType;
-import appspecs.Node;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-import programs.ReaderArbitraryWriterArbitrary;
-
-import appspecs.exceptions.InexistentInputException;
-import appspecs.exceptions.OverlappingOutputException;
-
+import mapreduce.appspecs.MapReduceSpecification;
+import mapreduce.programs.counting.CountingMapper;
+import mapreduce.programs.counting.CountingMerger;
+import mapreduce.programs.counting.CountingReducer;
+import nodes.ReaderArbitraryWriterArbitrary;
+import nodes.TrivialNode;
 import utilities.RMIHelper;
+import utilities.filesystem.Directory;
+import utilities.filesystem.FileHelper;
+import utilities.filesystem.Filename;
+import appspecs.ApplicationSpecification;
+import appspecs.Node;
+import enums.CommunicationType;
+import exceptions.InexistentInputException;
+import exceptions.OverlapingFilesException;
 
 public class Client {
 	private String registryLocation;
 
-	private String baseDirectory;
+	private Directory baseDirectory;
 
-	public Client(String registryLocation, String baseDirectory) {
+	public Client(String registryLocation, Directory baseDirectory) {
 		this.registryLocation = registryLocation;
 
 		this.baseDirectory = baseDirectory;
@@ -38,14 +50,8 @@ public class Client {
 
 		ApplicationSpecification applicationSpecification = new ApplicationSpecification("test1", baseDirectory);
 
-		if (!applicationSpecification.initialize()) {
-			System.err.println("The directory " + applicationSpecification.getAbsoluteDirectory() + " does not exist");
-
-			System.exit(1);
-		}
-
-		String inputFilename;
-		String outputFilename;
+		Filename inputFilename;
+		Filename outputFilename;
 
 		Node[] nodesStage1 = new Node[1];
 
@@ -56,30 +62,30 @@ public class Client {
 		applicationSpecification.insertNodes(nodesStage1);
 
 		for (int i = 0; i < nodesStage1.length; i++) {
-			inputFilename = "input-stage1-" + i + ".dat";
+			inputFilename = FileHelper.getFileInformation(baseDirectory.getPath(), "input-stage1-" + i + ".dat", baseDirectory.getProtocol());
+
+			applicationSpecification.addInput(nodesStage1[i], inputFilename);
+		}
+
+		for(int i = 0; i < nodesStage1.length; i++) {
+			outputFilename = FileHelper.getFileInformation(baseDirectory.getPath(), "output-stage1-" + i + ".dat", baseDirectory.getProtocol());
 
 			try {
-				applicationSpecification.addSourceNode(nodesStage1[i], inputFilename);
-			} catch (InexistentInputException exception) {
+				applicationSpecification.addOutput(nodesStage1[i], outputFilename);
+			} catch (OverlapingFilesException exception) {
 				System.err.println(exception);
 
 				System.exit(1);
 			}
 		}
 
-		for (int i = 0; i < nodesStage1.length; i++) {
-			outputFilename = "output-stage1-" + i + ".dat";
+		try {
+			applicationSpecification.finalize();
+		} catch (OverlapingFilesException exception) {
+			System.err.println(exception);
 
-			try {
-				applicationSpecification.addDestinationNode(nodesStage1[i], outputFilename);
-			} catch (OverlappingOutputException exception) {
-				System.err.println(exception);
-
-				System.exit(1);
-			}
+			System.exit(1);
 		}
-
-		applicationSpecification.finalize();
 
 		try {
 			manager.registerApplication(applicationSpecification);
@@ -91,19 +97,13 @@ public class Client {
 		}
 	}
 
-	public void performTest2(EdgeType edgeType) {
+	public void performTest2(CommunicationType communicationType) {
 		Manager manager = (Manager) RMIHelper.locateRemoteObject(registryLocation, "Manager");
 
 		ApplicationSpecification applicationSpecification = new ApplicationSpecification("test2", baseDirectory);
 
-		if (!applicationSpecification.initialize()) {
-			System.err.println("The directory " + applicationSpecification.getAbsoluteDirectory() + " does not exist");
-
-			System.exit(1);
-		}
-
-		String inputFilename;
-		String outputFilename;
+		Filename inputFilename;
+		Filename outputFilename;
 
 		Node[] nodesStage1 = new Node[1];
 
@@ -113,16 +113,10 @@ public class Client {
 
 		applicationSpecification.insertNodes(nodesStage1);
 
-		for (int i = 0; i < nodesStage1.length; i++) {
-			inputFilename = "input-stage1-" + i + ".dat";
+		for(int i = 0; i < nodesStage1.length; i++) {
+			inputFilename = FileHelper.getFileInformation(baseDirectory.getPath(), "input-stage1-" + i + ".dat", baseDirectory.getProtocol());
 
-			try {
-				applicationSpecification.addSourceNode(nodesStage1[i], inputFilename);
-			} catch (InexistentInputException exception) {
-				System.err.println(exception);
-
-				System.exit(1);
-			}
+		applicationSpecification.addInput(nodesStage1[i], inputFilename);
 		}
 
 		Node[] nodesStage2 = new Node[1];
@@ -134,20 +128,26 @@ public class Client {
 		applicationSpecification.insertNodes(nodesStage2);
 
 		for (int i = 0; i < nodesStage2.length; i++) {
-			outputFilename = "output-stage2-" + i + ".dat";
+			outputFilename = FileHelper.getFileInformation(baseDirectory.getPath(), "output-stage2-" + i + ".dat", baseDirectory.getProtocol());
 
 			try {
-				applicationSpecification.addDestinationNode(nodesStage2[i], outputFilename);
-			} catch (OverlappingOutputException exception) {
+				applicationSpecification.addOutput(nodesStage2[i], outputFilename);
+			} catch (OverlapingFilesException exception) {
 				System.err.println(exception);
 
 				System.exit(1);
 			}
 		}
 
-		applicationSpecification.insertEdges(nodesStage1, nodesStage2, edgeType, -1);
+		applicationSpecification.insertEdges(nodesStage1, nodesStage2, communicationType, -1);
 
-		applicationSpecification.finalize();
+		try {
+			applicationSpecification.finalize();
+		} catch (OverlapingFilesException exception) {
+			System.err.println(exception);
+
+			System.exit(1);
+		}
 
 		try {
 			manager.registerApplication(applicationSpecification);
@@ -164,12 +164,6 @@ public class Client {
 
 		ApplicationSpecification applicationSpecification = new ApplicationSpecification("test3", baseDirectory);
 
-		if(!applicationSpecification.initialize()) {
-			System.err.println("The directory " + applicationSpecification.getAbsoluteDirectory() + " does not exist");
-
-			System.exit(1);
-		}
-
 		Node[] nodes = new Node[numberNodesEdges];
 
 		for (int i = 0; i < nodes.length; i++) {
@@ -178,15 +172,9 @@ public class Client {
 
 		applicationSpecification.insertNodes(nodes);
 
-		String inputFilename = "fake-input.dat";
+		Filename inputFilename = FileHelper.getFileInformation(baseDirectory.getPath(), "fake-input.dat", baseDirectory.getProtocol());
 
-		try {
-			applicationSpecification.addSourceNode(nodes[0], inputFilename);
-		} catch (InexistentInputException exception) {
-			System.err.println(exception);
-
-			System.exit(1);
-		}
+		applicationSpecification.addInput(nodes[0], inputFilename);
 
 		Random random = new Random();
 
@@ -198,14 +186,14 @@ public class Client {
 		int numberEdges = 0;
 
 		for (int i = 0; i < nodes.length; i++) {
-			for(int j = i + 1; j < nodes.length; j++) {
+			for (int j = i + 1; j < nodes.length; j++) {
 				dice = random.nextInt() % 1000;
 
-				if(dice <= 0) {
+				if (dice <= 0) {
 					source[0] = nodes[i];
 					target[0] = nodes[j];
 
-					applicationSpecification.insertEdges(source, target, EdgeType.TCP);
+					applicationSpecification.insertEdges(source, target, CommunicationType.TCP);
 					numberEdges++;
 				}
 			}
@@ -213,7 +201,13 @@ public class Client {
 
 		System.out.println("Edges created: " + numberEdges);
 
-		applicationSpecification.finalize();
+		try {
+			applicationSpecification.finalize();
+		} catch (OverlapingFilesException exception) {
+			System.err.println(exception);
+
+			System.exit(1);
+		}
 
 		try {
 			manager.registerApplication(applicationSpecification);
@@ -225,21 +219,97 @@ public class Client {
 		}
 	}
 
-	public static void main(String[] arguments) {
-		if (arguments.length <= 2) {
-			System.err.println("Usage: Client <registry_location> <base_directory> <command> [<command_argument> ... <comand_argument>]");
+	public void performMapReduce(String[] inputs, MapReduceSpecification.Type edgeType, boolean finalMerge) {
+		int numberMappers;
+		int numberReducers;
+
+		numberMappers = numberReducers = inputs.length;
+
+		Manager manager = (Manager) RMIHelper.locateRemoteObject(registryLocation, "Manager");
+
+		// Create the MapReduce specification
+
+		MapReduceSpecification mapReduceSpecification = new MapReduceSpecification("mapreduce", baseDirectory);
+
+		// Insert the mappers
+
+		Node[] nodesStage1 = new Node[numberMappers];
+
+		for (int i = 0; i < nodesStage1.length; i++) {
+			nodesStage1[i] = new CountingMapper<String>(numberReducers);
+		}
+
+		try {
+			// Create the input filenames
+
+			Filename[] inputFilenames = new Filename[numberMappers];
+
+			for (int i = 0; i < inputs.length; i++) {
+				inputFilenames[i] = FileHelper.getFileInformation(baseDirectory.getPath(), inputs[i], baseDirectory.getProtocol());
+			}
+
+			mapReduceSpecification.insertMappers(inputFilenames, nodesStage1);
+		} catch (InexistentInputException exception) {
+			System.err.println(exception);
+
+			System.exit(1);
+		}
+		
+		// Insert the reducers
+
+		Node[] nodesStage2 = new Node[numberReducers];
+
+		for (int i = 0; i < nodesStage2.length; i++) {
+			nodesStage2[i] = new CountingReducer<String>();
+		}
+
+		try {
+			if(finalMerge) {
+				mapReduceSpecification.insertReducers(FileHelper.getFileInformation(baseDirectory.getPath(), "output-merger.dat", baseDirectory.getProtocol()), new CountingMerger<String>(), nodesStage2);
+			}
+			else {
+				// Append a ".out" extension to the input filenames to form the output filenames
+
+				Filename[] outputFilenames = new Filename[numberReducers];
+
+				for (int i = 0; i < inputs.length; i++) {
+					outputFilenames[i] = FileHelper.getFileInformation(baseDirectory.getPath(), inputs[i] + ".out", baseDirectory.getProtocol());
+				}
+
+				mapReduceSpecification.insertReducers(outputFilenames, nodesStage2);
+			}
+		} catch (OverlapingFilesException exception) {
+			System.err.println(exception);
+						System.exit(1);
+		}
+
+		try {
+			mapReduceSpecification.setupCommunication(edgeType);
+		} catch (OverlapingFilesException exception) {
+			System.err.println(exception);
 
 			System.exit(1);
 		}
 
-		String registryLocation = arguments[0];
+		try {
+			manager.registerApplication(mapReduceSpecification);
+		} catch (RemoteException exception) {
+			System.err.println("Unable to contact manager");
+			exception.printStackTrace();
 
-		String baseDirectory = arguments[1];
+			System.exit(1);
+		}
+	}
+	
+	public static void main(String[] arguments) {
+		String registryLocation = System.getProperty("java.rmi.server.location");
 
-		String command = arguments[2];
+		String baseDirectory = System.getProperty("hammr.client.basedir"); 
+
+		String command = arguments[1];
 
 		if (command.equals("test1")) {
-			Client client = new Client(registryLocation, baseDirectory);
+			Client client = new Client(registryLocation, new Directory(baseDirectory));
 
 			client.performTest1();
 
@@ -247,21 +317,21 @@ public class Client {
 		}
 
 		if (command.equals("test2")) {
-			Client client = new Client(registryLocation, baseDirectory);
+			Client client = new Client(registryLocation, new Directory(baseDirectory));
 
-			client.performTest2(EdgeType.TCP);
+			client.performTest2(CommunicationType.TCP);
 
 			System.exit(0);
 		}
 
 		if (command.equals("test3")) {
-			if(arguments.length <= 3) {
-				System.err.println("Usage: Client <registry_location> <base_directory> test3 <number_nodes_edges>");
+			if (arguments.length <= 1) {
+				System.err.println("Usage: Client test3 <number_nodes_edges>");
 
 				System.exit(1);
 			}
 
-			Client client = new Client(registryLocation, baseDirectory);
+			Client client = new Client(registryLocation, new Directory(baseDirectory));
 
 			int numberNodesEdges = Integer.parseInt(arguments[3]);
 
@@ -271,22 +341,22 @@ public class Client {
 		}
 
 		if (command.equals("perform_mapreduce")) {
-			if(arguments.length <= 5) {
-				System.err.println("Usage: Client <registry_location> <base_directory> perform_mapreduce <type> <join> [<input_filename> ... <input_filename>]");
+			if (arguments.length <= 3) {
+				System.err.println("Usage: Client perform_mapreduce <type> <join> [<input_filename> ... <input_filename>]");
 				System.err.println("<type>: \"TCP\" or \"FILE\"");
 				System.err.println("<join> \"true\" or \"false\"");
 
 				System.exit(1);
 			}
 
-			MRClient client = new MRClient(registryLocation, baseDirectory);
+			Client client = new Client(registryLocation, new Directory(baseDirectory));
 
 			MapReduceSpecification.Type type = MapReduceSpecification.Type.FILEBASED;
 
-			if (arguments[3].equals("TCP")) {
+			if (arguments[1].equals("TCP")) {
 				type = MapReduceSpecification.Type.TCPBASED;
 			}
-			else if (arguments[3].equals("FILE")) {
+			else if (arguments[1].equals("FILE")) {
 				type = MapReduceSpecification.Type.FILEBASED;
 			}
 			else {
@@ -297,10 +367,10 @@ public class Client {
 
 			boolean join = false;
 
-			if (arguments[4].equals("true")) {
+			if (arguments[2].equals("true")) {
 				join = true;
 			}
-			else if (arguments[4].equals("false")) {
+			else if (arguments[2].equals("false")) {
 				join = false;
 			}
 			else {
@@ -311,7 +381,7 @@ public class Client {
 
 			List<String> temporaryInputFilenames = new ArrayList<String>();
 
-			for (int i = 5; i < arguments.length; i++) {
+			for (int i = 3; i < arguments.length; i++) {
 				temporaryInputFilenames.add(arguments[i]);
 			}
 

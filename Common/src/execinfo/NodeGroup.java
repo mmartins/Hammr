@@ -1,20 +1,30 @@
+/*
+Copyright (c) 2010, Hammurabi Mendes
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package execinfo;
 
 import java.io.Serializable;
-
-
 import java.util.Collection;
-
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-import appspecs.Node;
 import utilities.MutableInteger;
+import appspecs.Node;
 
-import execinfo.ProgressReport;
-
-public class NodeGroup extends HashSet<Node> implements Serializable {
+public class NodeGroup implements Serializable {
 	private static final long serialVersionUID = 1L;
+
+	private Set<Node> nodes;
 
 	private String applicationName;
 	private long serialNumber;
@@ -25,25 +35,20 @@ public class NodeGroup extends HashSet<Node> implements Serializable {
 	
 	private ProgressReport progressReport;
 	
-	public NodeGroup(String applicationName, Node node) {
-		super();
+	public NodeGroup(String application, Node node) {
+		nodes = new HashSet<Node>();
 
 		setApplicationName(applicationName);
 		addNode(node);
 		ProgressReport progressReport = new ProgressReport();
 	}
 
-	public NodeGroup(String applicationName, Set<Node> nodes) {
-		super();
+	public NodeGroup(String application, Set<Node> nodes) {
+		nodes = new HashSet<Node>();
 
 		setApplicationName(applicationName);
 		addNodes(nodes);
-	}
-
-	public boolean add() {
-		assert false;
-
-		return false;
+		ProgressReport progressReport = new ProgressReport();
 	}
 
 	private boolean addNode(Node node) {
@@ -55,7 +60,7 @@ public class NodeGroup extends HashSet<Node> implements Serializable {
 
 		node.setNodeGroup(this);
 
-		super.add(node);
+		nodes.add(node);
 
 		return true;
 	}
@@ -72,14 +77,22 @@ public class NodeGroup extends HashSet<Node> implements Serializable {
 		for(Node node: nodes) {
 			node.setNodeGroup(this);
 
-			super.add(node);
+			nodes.add(node);
 		}
 
 		return true;
 	}
 
 	public Set<Node> getNodes() {
-		return this;
+		return nodes;
+	}
+
+	public Iterator<Node> getNodesIterator() {
+		return nodes.iterator();
+	}
+
+	public int getSize() {
+		return nodes.size();
 	}
 
 	public void setApplicationName(String applicationName) {

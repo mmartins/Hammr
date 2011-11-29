@@ -1,33 +1,38 @@
+/*
+Copyright (c) 2010, Hammurabi Mendes
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package manager;
 
 import interfaces.Launcher;
 import interfaces.Manager;
 
+import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
-
-import java.util.Random;
-import java.util.Collections;
-
-import java.util.Set;
-import java.util.Map;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
-import java.net.InetSocketAddress;
-
+import scheduler.JobScheduler;
+import scheduler.Scheduler;
+import utilities.RMIHelper;
 import appspecs.ApplicationSpecification;
-
+import exceptions.CyclicDependencyException;
+import exceptions.InexistentInputException;
 import exceptions.InsufficientLaunchersException;
 import exceptions.TemporalDependencyException;
-import exceptions.CyclicDependencyException;
-
 import execinfo.ResultSummary;
-
-import scheduler.Scheduler;
-import scheduler.JobScheduler;
-
-import utilities.RMIHelper;
 
 /**
  * Concrete implementation of Manager.
@@ -36,6 +41,9 @@ import utilities.RMIHelper;
  * @author Marcelo Martins (martins)
  */
 public class JobManager implements Manager {
+	
+	private static JobManager instance;
+
 	private String baseDirectory;
 
 	// Active launchers, mapped by ID
@@ -45,6 +53,41 @@ public class JobManager implements Manager {
 	private Map<String, ApplicationPackage> applicationPackages;
 
 	private Random random;
+
+	static {
+		String registryLocation = System.getProperty("java.rmi.server.location");
+		String baseDirectory = System.getProperty("hammr.manager.basedir");
+
+		instance = setupManager(registryLocation, baseDirectory);
+	}
+
+	/**
+	 * Setups a manager for execution.
+	 * 
+	 * @param registryLocation Location of the registry used to store the manager reference.
+	 * 
+	 * @return A manager ready for execution.
+	 */
+	private static JobManager setupManager(String registryLocation, String baseDirectory) {
+		// Initiates a concrete manager
+
+		JobManager manager = new JobManager(baseDirectory);
+
+		// Makes the manager available for remote calls
+
+		RMIHelper.exportAndRegisterRemoteObject(registryLocation, "Manager", manager);
+
+		return manager;
+	}
+
+	/**
+	 * Return the singleton instance of the manager.
+	 * 
+	 * @return The singleton instance of the manager.
+	 */
+	public static JobManager getInstance() {
+		return instance;
+	}
 
 	/**
 	 * Constructor method.
@@ -107,20 +150,13 @@ public class JobManager implements Manager {
 			return false;
 		}
 
-		ApplicationPackage applicationPackage = setupApplication(applicationName, applicationSpecification);
-
-		Scheduler scheduler = applicationPackage.getApplicationScheduler();
+		// Setup the scheduler, and try to schedule an initial wave of NodeGroups
 
 		try {
-			// Setup the scheduler, and try to schedule an initial wave of NodeGroups
-
-			if (!scheduler.setup(applicationSpecification)) {
-				System.err.println("Error setting up scheduler");
-
-				return false;
-			}
-
-			if (!scheduler.scheduleStage()) {
+			ApplicationPackage applicationPackage;
+			applicationPackage = setupApplication(applicationName, applicationSpecification);
+			Scheduler scheduler = applicationPackage.getApplicationScheduler();
+			if (!scheduler.schedule()) {
 				System.err.println("Initial schedule indicated that no free node group bundles are present");
 
 				return false;
@@ -130,18 +166,8 @@ public class JobManager implements Manager {
 
 			finishApplication(applicationName);
 			return false;
-		} catch (TemporalDependencyException exception) {
-			System.err.println("Scheduler setup found a temporal dependency problem");
-
-			finishApplication(applicationName);
-			return false;
-		} catch (CyclicDependencyException exception) {
-			System.err.println("Scheduler setup found a cyclic dependency problem");
-
-			finishApplication(applicationName);
-			return false;
 		}
-
+		
 		return true;
 	}
 
@@ -241,11 +267,11 @@ public class JobManager implements Manager {
 		applicationPackage.addResultSummary(resultSummary);
 
 		try {
-			if (scheduler.finished()) {
+			if (scheduler.finishedIteration()) {
 				finishApplication(resultSummary.getNodeGroupApplication());
 			}
 			else {
-				scheduler.scheduleStage();
+				scheduler.schedule();
 			}
 
 			return true;
@@ -271,15 +297,35 @@ public class JobManager implements Manager {
 	private synchronized ApplicationPackage setupApplication(String applicationName, ApplicationSpecification applicationSpecification) {
 		ApplicationPackage applicationPackage = new ApplicationPackage();
 
+		Scheduler applicationScheduler = new JobScheduler(this);
 		applicationPackage.setApplicationName(applicationName);
 		applicationPackage.setApplicationSpecification(applicationSpecification);
-
-		applicationPackage.setApplicationScheduler(new JobScheduler(this));
-
-		applicationPackage.markStart();
+		applicationPackage.setApplicationScheduler(applicationScheduler);
 
 		applicationPackages.put(applicationName, applicationPackage);
+		
+		applicationPackage.markStart();
 
+		try {
+			applicationScheduler.prepareApplication(applicationSpecification);
+			applicationScheduler.prepareIteration();
+		} catch (TemporalDependencyException exception) {
+			System.err.println("Application setup found a temporal dependency problem");
+
+			finishApplication(applicationName);
+			return null;
+		} catch (CyclicDependencyException exception) {
+			System.err.println("Application setup found a cyclic dependency problem");
+
+			finishApplication(applicationName);
+			return null;
+		} catch (InexistentInputException exception) {
+			System.err.println("Application setup indiated that some files are missing: " + exception.toString());
+
+			finishApplication(applicationName);
+		}
+		
+		
 		return applicationPackage;
 	}
 
@@ -358,6 +404,13 @@ public class JobManager implements Manager {
 	}
 
 	/**
+	 * Override basic toString()
+	 */
+	public String toString() {
+		return "Manager running on directory \"" + baseDirectory + "\"";
+	}
+
+	/**
 	 * Manager startup method.
 	 * 
 	 * @param arguments A list containing:
@@ -365,19 +418,6 @@ public class JobManager implements Manager {
 	 *        2) The manager working directory.
 	 */
 	public static void main(String[] arguments) {
-		if (arguments.length != 2) {
-			System.err.println("Usage: ConcreteManager <registry_location> <base_directory>");
-
-			System.exit(1);
-		}	
-
-		String registryLocation = arguments[0];
-
-		// Initiates a concrete manager and makes it available
-		// for remote method calls.
-
-		JobManager jobManager = new JobManager(arguments[1]);
-
-		RMIHelper.exportAndRegisterRemoteObject(registryLocation, "JobManager", jobManager);
+		System.out.println("Running " + JobManager.getInstance().toString());
 	}
 }

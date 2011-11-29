@@ -1,60 +1,98 @@
+/*
+Copyright (c) 2011, Hammurabi Mendes
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package appspecs;
 
-import java.util.Iterator;
-
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.jgrapht.graph.*;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
-import utilities.FileHelper;
+import utilities.filesystem.Directory;
+import utilities.filesystem.FileHelper;
+import utilities.filesystem.Filename;
+import utilities.filesystem.Protocol;
 
-import communication.ChannelHandler;
-import communication.FileChannelHandler;
-import communication.SHMChannelHandler;
-import communication.TCPChannelHandler;
+import communication.channel.FileInputChannel;
+import communication.channel.FileOutputChannel;
+import communication.channel.SHMInputChannel;
+import communication.channel.SHMOutputChannel;
+import communication.channel.TCPInputChannel;
+import communication.channel.TCPOutputChannel;
 
-import appspecs.exceptions.InexistentInputException;
-import appspecs.exceptions.OverlappingOutputException;
+import enums.CommunicationType;
+import exceptions.OverlapingFilesException;
 
 public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	private static final long serialVersionUID = 1L;
 
-	private Set<Node> sources;
-	private Set<Node> destinations;
+	protected String name;
+	protected Directory baseDirectory;
 
-	private String name;
-	private String directoryPrefix;
+	protected Map<Filename, Set<FileInputChannel>> inputs;
+	protected Map<Filename, FileOutputChannel> outputs;
 
-	private Set<String> outputFilenames;
 
-	private long inputCounter = 1L;
-	private long outputCounter = 1L;
+	protected Set<Node> fileConsumers;
+	protected Set<Node> fileProducers;
+
+	protected Decider decider;
 
 	protected String nameGenerationString = "node-";
 	protected long nameGenerationCounter = 0L;
 
-	public ApplicationSpecification(String name, String directoryPrefix) {
+	public ApplicationSpecification(String name, Directory baseDirectory) {
 		super(Edge.class);
 
 		this.name = name;
-		this.directoryPrefix = directoryPrefix;
+		this.baseDirectory = baseDirectory;
 
-		sources = new HashSet<Node>();
-		destinations = new HashSet<Node>();
+		fileConsumers = new HashSet<Node>();
+		fileProducers = new HashSet<Node>();
 
-		outputFilenames = new HashSet<String>();
+		inputs = new HashMap<Filename, Set<FileInputChannel>>();
+		outputs = new HashMap<Filename, FileOutputChannel>();
 	}
 
 	public ApplicationSpecification() {
-		this("default_application", "/cluster_data");
+		this("default_application", FileHelper.getDirectoryInformation("/tmp/userdata", Protocol.POSIX_COMPATIBLE));
 	}
 
-	public ApplicationSpecification(String name, String directoryPrefix, Node[] nodes, Edge[] edges) {
-		this(name, directoryPrefix);
+	public ApplicationSpecification(String name, Directory baseDirectory, Node[] nodes, Edge[] edges) {
+		this(name, baseDirectory);
 
 		insertNodes(nodes);
 		insertEdges(edges);
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Decider getDecider() {
+		return decider;
+	}
+
+	public void setDecider(Decider decider) {
+		this.decider = decider;
 	}
 
 	public void insertNodes(Node[] nodes) {
@@ -71,11 +109,11 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 		}
 	}
 
-	public void insertEdges(Node[] origins, Node[] destinations, EdgeType edgeType) {
-		insertEdges(origins, destinations, edgeType, -1);
+	public void insertEdges(Node[] origins, Node[] destinations, CommunicationType communicationType) {
+		insertEdges(origins, destinations, communicationType, -1);
 	}
 
-	public void insertEdges(Node[] origins, Node[] destinations, EdgeType edgeType, Integer quantity) {
+	public void insertEdges(Node[] origins, Node[] destinations, CommunicationType communicationType, Integer quantity) {
 		Node currentOrigin = null;
 		Node currentDestination = null;
 
@@ -88,7 +126,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 				for(int j = 0; j < destinations.length; j++) {
 					currentDestination = destinations[j];
 
-					addEdge(currentOrigin, currentDestination, new Edge(edgeType));
+					addEdge(currentOrigin, currentDestination, new Edge(communicationType));
 				}
 			}
 			else {
@@ -98,7 +136,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 				for (int j = 0; j < quantity; j++) {
 					currentDestination = destinations[destinationPosition++ % destinations.length];
 
-					addEdge(currentOrigin, currentDestination, new Edge(edgeType));
+					addEdge(currentOrigin, currentDestination, new Edge(communicationType));
 				}
 			}
 		}
@@ -111,79 +149,51 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	}
 
 	public void incorporateGraphs(ApplicationSpecification... others) {
-		for(ApplicationSpecification other: others) {
+		for (ApplicationSpecification other: others) {
 			incorporateGraph(other);
 		}
 	}
 
-	public void addSourceNode(Node node, String filename) throws InexistentInputException {
-		if (!FileHelper.exists(getAbsoluteFileName(filename))) {
-			throw new InexistentInputException(getAbsoluteFileName(filename));
+	public void addInput(Node node, Filename filename) {
+		if (inputs.get(filename) == null) {
+			inputs.put(filename, new HashSet<FileInputChannel>());
 		}
 
-		/* TODO: What if node already has input  channel? */
-		node.setType(NodeType.INITIAL);
-		node.addInputChannel(new FileChannelHandler(ChannelHandler.Mode.INPUT, "input-" + (inputCounter++), getAbsoluteFileName(filename)));
+		FileInputChannel inputChannel = new FileInputChannel(filename);
 
-		sources.add(node);
+		node.addInputChannel(inputChannel);
+
+		inputs.get(filename).add(inputChannel);
+		fileConsumers.add(node);
 	}
 
-	public Set<Node> getSourceNodes() {
-		return sources;
+	public Set<Filename> getInputFilenames() {
+		return inputs.keySet();
 	}
 
-	public void setSourceNodes(Set<Node> sources) {
-		this.sources = sources;
+	public Set<Node> getFileConsumers() {
+		return fileConsumers;
 	}
 
-	public void addDestinationNode(Node node, String filename) throws OverlappingOutputException {
-		if (outputFilenames.contains(filename)) {
-			throw new OverlappingOutputException(filename);
+	public void addOutput(Node node, Filename fileOutput) throws OverlapingFilesException {
+		if (outputs.get(fileOutput) != null) {
+			throw new OverlapingFilesException(fileOutput);
 		}
 
-		outputFilenames.add(filename);
+		FileOutputChannel outputChannel = new FileOutputChannel(fileOutput);
 
-		/* TODO: What if node already has output channel? */
-		node.setType(NodeType.FINAL);
-		node.addOutputChannel(new FileChannelHandler(ChannelHandler.Mode.OUTPUT, "output-" + (outputCounter++), getAbsoluteFileName(filename)));
+		node.addOutputChannel(outputChannel);
 
-		destinations.add(node);
+		outputs.put(fileOutput, outputChannel);
+		fileProducers.add(node);
 	}
 
-	public Set<Node> getDestinationNodes() {
-		return destinations;
+	public Set<Filename> getOutputFilenames() {
+		return outputs.keySet();
 	}
 
-	public void setDestinationNodes(Set<Node> destinations) {
-		this.destinations = destinations;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setDirectoryPrefix(String directoryPrefix) {
-		this.directoryPrefix = directoryPrefix;
-	}
-
-	public String getDirectoryPrefix() {
-		return directoryPrefix;
-	}
-
-	public String getAbsoluteDirectory() {
-		return getDirectoryPrefix() + "/" + getName();
-	}
-
-	public String getAbsoluteFileName(String filename) {
-		if (filename.startsWith("/")) {
-			return filename;
-		}
-
-		return getAbsoluteDirectory() + "/" + filename;
+	public Set<Node> getFileProducers() {
+		return fileProducers;
 	}
 
 	public Iterator<Node> nodeIterator() {
@@ -208,15 +218,21 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 		return outgoingEdgesOf(node);
 	}
 
-	public boolean initialize() {
-		return FileHelper.exists(getAbsoluteDirectory());
-	}
-
 	public String generateUniqueName() {
 		return nameGenerationString + (nameGenerationCounter++);
 	}
 
-	public void finalize() {
+	public void finalize() throws OverlapingFilesException {
+		// Check if input or output filenames overlap
+
+		for(Filename inputFilename: getInputFilenames()) {
+			for(Filename outputFilename: getOutputFilenames()) {
+				if(inputFilename.equals(outputFilename)) {
+					throw new OverlapingFilesException(inputFilename);
+				}
+			}
+		}
+
 		long anonymousFileChannelCounter = 1000L;
 
 		Node source, target;
@@ -227,21 +243,42 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 
 			switch (edge.getCommunicationMode()) {
 			case SHM:
-				source.addOutputChannel(new SHMChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName()));
-				target.addInputChannel(new SHMChannelHandler(ChannelHandler.Mode.INPUT, source.getName()));
+				source.addOutputChannel(new SHMOutputChannel(target.getName()));
+				target.addInputChannel(new SHMInputChannel(source.getName()));
 				break;
 			case TCP:
-				source.addOutputChannel(new TCPChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName()));
-				target.addInputChannel(new TCPChannelHandler(ChannelHandler.Mode.INPUT, source.getName()));
+				source.addOutputChannel(new TCPOutputChannel(target.getName()));
+				target.addInputChannel(new TCPInputChannel(source.getName()));
 				break;
 			case FILE:
-				source.addOutputChannel(new FileChannelHandler(ChannelHandler.Mode.OUTPUT, target.getName(), this.getAbsoluteDirectory() + "/" + "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat"));
-				target.addInputChannel(new FileChannelHandler(ChannelHandler.Mode.INPUT, source.getName(), this.getAbsoluteDirectory() + "/" + "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat"));
+				Filename anonymous = FileHelper.getFileInformation(baseDirectory.getPath(), "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat", baseDirectory.getProtocol());
+
+				source.addOutputChannel(new FileOutputChannel(anonymous));
+				target.addInputChannel(new FileInputChannel(anonymous));
 
 				anonymousFileChannelCounter++;
 
 				break;
 			}
+		}
+
+	}
+
+	public void relinkOutputsInputs() {
+		List<Filename> inputFilenames = new ArrayList<Filename>(getInputFilenames());
+		List<Filename> outputFilenames = new ArrayList<Filename>(getOutputFilenames());
+
+		List<Node> listFileConsumers = new ArrayList<Node>(fileConsumers);
+
+		Collections.shuffle(inputFilenames);
+		Collections.shuffle(outputFilenames);
+
+		Collections.shuffle(listFileConsumers);
+
+		int minimum = Math.min(inputFilenames.size(), outputFilenames.size());
+
+		for(int i = 0; i < minimum; i++) {
+			FileHelper.move(outputFilenames.get(i), inputFilenames.get(i));
 		}
 	}
 }

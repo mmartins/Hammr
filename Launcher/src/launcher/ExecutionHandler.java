@@ -1,41 +1,47 @@
+/*
+Copyright (c) 2011, Hammurabi Mendes
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package launcher;
-
-import java.util.Iterator;
-
-import java.util.Map;
-import java.util.HashMap;
-
-import java.rmi.RemoteException;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
-
-import java.net.InetSocketAddress;
-
-import appspecs.Node;
-
-import execinfo.NodeGroup;
-import execinfo.ResultSummary;
-import execinfo.NodeMeasurements;
-
-import communication.ChannelHandler;
-
-import communication.SHMChannelHandler;
-import communication.TCPChannelHandler;
-import communication.FileChannelHandler;
-
-import communication.SHMRecordMultiplexer;
-import communication.SHMRecordWriter;
-
-import communication.TCPRecordMultiplexer;
-import communication.TCPRecordWriter;
-
-import communication.FileRecordReader;
-import communication.FileRecordWriter;
 
 import interfaces.Manager;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
+import java.net.InetSocketAddress;
+import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import appspecs.Node;
+
+import communication.channel.FileInputChannel;
+import communication.channel.FileOutputChannel;
+import communication.channel.InputChannel;
+import communication.channel.OutputChannel;
+import communication.channel.SHMInputChannel;
+import communication.channel.SHMOutputChannel;
+import communication.channel.TCPInputChannel;
+import communication.channel.TCPOutputChannel;
+import communication.readers.FileRecordReader;
+import communication.readers.SHMRecordMultiplexer;
+import communication.readers.TCPRecordMultiplexer;
+import communication.writers.FileRecordWriter;
+import communication.writers.SHMRecordWriter;
+import communication.writers.TCPRecordWriter;
+
 import exceptions.InexistentApplicationException;
+import execinfo.NodeGroup;
+import execinfo.NodeMeasurements;
+import execinfo.ResultSummary;
 
 /**
  * This class is responsible for running a specific NodeGroup previously submitted to the Launcher.
@@ -86,6 +92,7 @@ public class ExecutionHandler extends Thread {
 	/**
 	 * Runs NodeGroup members in separate threads, one for each Node.
 	 */
+	@Override
 	public void run() {
 		// Store runtime information; sent back to master
 		// at the end of execution.
@@ -118,7 +125,7 @@ public class ExecutionHandler extends Thread {
 	 * socket address.
 	 * 
 	 * @throws Exception
-	 *             If one of the following situations occur
+	 *             If one of the following situations occur:
 	 *             1) Error creating client-side or server-side TCP channels;
 	 *             2) Address of server-side TCP channel required by NodeGroup 
 	 *             is not registered in master;
@@ -126,7 +133,7 @@ public class ExecutionHandler extends Thread {
 	 */
 	private void setupCommunication() throws Exception {
 		/*
-		 * Create all pipe handlers
+		 * Create all pipe handlers (readers and writers)
 		 * If two pipe edges target the same node, only one pipe handler (and
 		 * corresponding physical pipe) is created
 		 */
@@ -136,9 +143,9 @@ public class ExecutionHandler extends Thread {
 		for (Node node: nodeGroup.getNodes()) {
 			SHMRecordMultiplexer shmRecordMultiplexer = null;
 
-			for (ChannelHandler channelHandler: node.getInputChannels()) {
-				if (channelHandler.getType() == ChannelHandler.Type.SHM) {
-					SHMChannelHandler shmChannelHandler = (SHMChannelHandler) channelHandler;
+			for (InputChannel inputChannel: node.getInputChannels()) {
+				if (inputChannel instanceof SHMInputChannel) {
+					SHMInputChannel shmInputChannel = (SHMInputChannel) inputChannel;
 
 					if (shmRecordMultiplexer == null) {
 						shmRecordMultiplexer = new SHMRecordMultiplexer(node.getInputChannelNames());
@@ -151,24 +158,24 @@ public class ExecutionHandler extends Thread {
 					}
 
 					// For SHM, all inputs come from the unique input pipe
-					shmChannelHandler.setRecordReader(shmRecordMultiplexer);
+					shmInputChannel.setRecordReader(shmRecordMultiplexer);
 				}
 			}
 		}
 
 		for (Node node: nodeGroup.getNodes()) {
-			for (ChannelHandler channelHandler: node.getOutputChannels()) {
-				if(channelHandler.getType() == ChannelHandler.Type.SHM) {
-					SHMChannelHandler shmChannelHandler = (SHMChannelHandler) channelHandler;
+			for (OutputChannel outputChannel: node.getOutputChannels()) {
+				if (outputChannel instanceof SHMOutputChannel) {
+					SHMOutputChannel shmOutputChannel = (SHMOutputChannel) outputChannel;
 
 					/*
 					 * For SHM, all the outputs go to the unique output pipe 
 					 * for each node
 					 */
 
-					SHMRecordWriter shmRecordWriter = new SHMRecordWriter(node.getName(), mapRecordOutputStream.get(channelHandler.getName()));
+					SHMRecordWriter shmRecordWriter = new SHMRecordWriter(node.getName(), mapRecordOutputStream.get(shmOutputChannel.getName()));
 
-					shmChannelHandler.setRecordWriter(shmRecordWriter);
+					shmOutputChannel.setRecordWriter(shmRecordWriter);
 				}
 			}
 		}
@@ -182,20 +189,20 @@ public class ExecutionHandler extends Thread {
 		for (Node node: nodeGroup.getNodes()) {
 			TCPRecordMultiplexer tcpRecordMultiplexer = null;
 
-			for (ChannelHandler channelHandler: node.getInputChannels()) {
-				if (channelHandler.getType() == ChannelHandler.Type.TCP) {
-					TCPChannelHandler tcpChannelHandler = (TCPChannelHandler) channelHandler;
+			for (InputChannel inputChannel: node.getInputChannels()) {
+				if (inputChannel instanceof TCPInputChannel) {
+					TCPInputChannel tcpInputChannel = (TCPInputChannel) inputChannel;
 
 					if (tcpRecordMultiplexer == null) {
 						tcpRecordMultiplexer = new TCPRecordMultiplexer(node.getInputChannelNames());
 
-						tcpChannelHandler.setSocketAddress(tcpRecordMultiplexer.getAddress());
+						tcpInputChannel.setSocketAddress(tcpRecordMultiplexer.getAddress());
 
 						/* 
 						 * For TCP, when creating the input server, map the
 						 * associated output server addresses for other nodes
 						 */
-						boolean result = manager.registerSocketAddress(nodeGroup.getApplicationName(), node.getName(), tcpChannelHandler.getSocketAddress());
+						boolean result = manager.registerSocketAddress(nodeGroup.getApplicationName(), node.getName(), tcpInputChannel.getSocketAddress());
 
 						if (result == false) {
 							System.err.println("Unable to insert socket address for application " + nodeGroup.getApplicationName() + " in manager!");
@@ -205,27 +212,27 @@ public class ExecutionHandler extends Thread {
 					}
 
 					// For TCP, all inputs come from the unique input server
-					tcpChannelHandler.setRecordReader(tcpRecordMultiplexer);
+					tcpInputChannel.setRecordReader(tcpRecordMultiplexer);
 				}
 			}
 		}
 
 		for (Node node: nodeGroup.getNodes()) {
-			for (ChannelHandler channelHandler: node.getOutputChannels()) {
-				if (channelHandler.getType() == ChannelHandler.Type.TCP) {
-					TCPChannelHandler tcpChannelHandler = (TCPChannelHandler) channelHandler;
+			for (OutputChannel outputChannel: node.getOutputChannels()) {
+				if (outputChannel instanceof TCPOutputChannel) {
+					TCPOutputChannel tcpOutputChannel = (TCPOutputChannel) outputChannel;
 
 					/*
 					 *  For TCP, (1) obtain the address of the output server
 					 *  from manager
 					 */
-					InetSocketAddress socketAddress = manager.obtainSocketAddress(nodeGroup.getApplicationName(), tcpChannelHandler.getName());
+					InetSocketAddress socketAddress = manager.obtainSocketAddress(nodeGroup.getApplicationName(), tcpOutputChannel.getName());
 
 					if(socketAddress == null) {
 						throw new InexistentApplicationException(nodeGroup.getApplicationName());
 					}
 
-					tcpChannelHandler.setSocketAddress(socketAddress);
+					tcpOutputChannel.setSocketAddress(socketAddress);
 
 					/*
 					 *  For TCP, (2) all the outputs go to the unique server 
@@ -234,7 +241,7 @@ public class ExecutionHandler extends Thread {
 
 					TCPRecordWriter tcpRecordWriter = new TCPRecordWriter(node.getName(), socketAddress);
 
-					tcpChannelHandler.setRecordWriter(tcpRecordWriter);
+					tcpOutputChannel.setRecordWriter(tcpRecordWriter);
 				}
 			}
 		}
@@ -246,23 +253,23 @@ public class ExecutionHandler extends Thread {
 		 */
 
 		for (Node node: nodeGroup.getNodes()) {
-			for (ChannelHandler channelHandler: node.getInputChannels()) {
-				if (channelHandler.getType() == ChannelHandler.Type.FILE) {
-					FileChannelHandler fileChannelHandler = (FileChannelHandler) channelHandler;
+			for (InputChannel inputChannel: node.getInputChannels()) {
+				if (inputChannel instanceof FileInputChannel) {
+					FileInputChannel fileInputChannel = (FileInputChannel) inputChannel;
 
-					FileRecordReader fileRecordReader = new FileRecordReader(fileChannelHandler.getLocation());
+					FileRecordReader fileRecordReader = new FileRecordReader(fileInputChannel.getFilename());
 
-					fileChannelHandler.setRecordReader(fileRecordReader);
+					fileInputChannel.setRecordReader(fileRecordReader);
 				}
 			}
 
-			for (ChannelHandler channelHandler: node.getOutputChannels()) {
-				if (channelHandler.getType() == ChannelHandler.Type.FILE) {
-					FileChannelHandler fileChannelHandler = (FileChannelHandler) channelHandler;
+			for (OutputChannel outputChannel: node.getOutputChannels()) {
+				if (outputChannel instanceof FileOutputChannel) {
+					FileOutputChannel fileOutputChannel = (FileOutputChannel) outputChannel;
 
-					FileRecordWriter fileRecordWriter = new FileRecordWriter(fileChannelHandler.getLocation());
+					FileRecordWriter fileRecordWriter = new FileRecordWriter(fileOutputChannel.getFilename());
 
-					fileChannelHandler.setRecordWriter(fileRecordWriter);
+					fileOutputChannel.setRecordWriter(fileRecordWriter);
 				}
 			}
 		}
@@ -275,18 +282,19 @@ public class ExecutionHandler extends Thread {
 	 * @return Result summary to be sent back to master.
 	 */
 	private ResultSummary performExecution() {
-		NodeProfileHandler[] nodeHandlers = new NodeProfileHandler[nodeGroup.size()];
+		NodeProfileHandler[] nodeHandlers = new NodeProfileHandler[nodeGroup.getSize()];
 
-		Iterator<Node> iterator = nodeGroup.iterator();
+		Iterator<Node> iterator = nodeGroup.getNodesIterator();
 
 		long globalTimerStart = System.currentTimeMillis();
 
-		for (int i = 0; i < nodeGroup.size(); i++) {
+		for (int i = 0; i < nodeGroup.getSize(); i++) {
 			nodeHandlers[i] = new NodeProfileHandler(iterator.next());
+
 			nodeHandlers[i].start();
 		}
 
-		for (int i = 0; i < nodeGroup.size(); i++) {
+		for (int i = 0; i < nodeGroup.getSize(); i++) {
 			try {
 				nodeHandlers[i].join();
 			} catch (InterruptedException exception) {
@@ -303,7 +311,7 @@ public class ExecutionHandler extends Thread {
 
 		resultSummary.setNodeGroupTiming(globalTimerFinish - globalTimerStart);
 
-		for (int i = 0; i < nodeGroup.size(); i++) {
+		for (int i = 0; i < nodeGroup.getSize(); i++) {
 			resultSummary.addNodeMeasurements(nodeHandlers[i].getNode().getName(), nodeHandlers[i].getNodeMeasurements());
 		}
 
@@ -364,6 +372,7 @@ public class ExecutionHandler extends Thread {
 		/**
 		 * Runs Node in a separate thread and obtain runtime measurements.
 		 */
+		@Override
 		public void run() {
 			System.out.println("Executing " + node);
 

@@ -1,56 +1,65 @@
+/*
+Copyright (c) 2011, Hammurabi Mendes
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package appspecs;
 
 import java.io.EOFException;
-
 import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.Collection;
-
-import java.util.Set;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import communication.ChannelHandler;
-import communication.Record;
+import utilities.MutableInteger;
+
+import communication.channel.InputChannel;
+import communication.channel.OutputChannel;
+import communication.channel.Record;
+import communication.shufflers.RecordReaderShuffler;
+import communication.shufflers.RecordWriterShuffler;
 
 import execinfo.NodeGroup;
 import execinfo.ProgressReport;
-
-import utilities.RecordReaderShuffler;
-import utilities.RecordWriterShuffler;
-
-import utilities.MutableInteger;
 
 public abstract class Node implements Serializable, Runnable {
 	private static final long serialVersionUID = 1L;
 
 	protected String name;
 
-	protected NodeType type;
+	protected Map<String, InputChannel> inputs;
+	protected Map<String, OutputChannel> outputs;
 
-	protected Map<String, ChannelHandler> inputs;
-	protected Map<String, ChannelHandler> outputs;
+	protected RecordReaderShuffler readersShuffler;
+	protected RecordWriterShuffler writersShuffler;
+
+	private Aggregator<?> aggregator;
+
+	/* Runtime information */
 
 	protected MutableInteger mark;
 
 	protected NodeGroup nodeGroup;
 
 	protected ProgressReport progressReport;
-	
-	protected RecordReaderShuffler readersShuffler;
-	protected RecordWriterShuffler writersShuffler;
-
-	public Node(String name, NodeType type) {
-		setType(type);
-
-		inputs = new HashMap<String, ChannelHandler>();
-		outputs = new HashMap<String, ChannelHandler>();
-		progressReport = new ProgressReport();
-	}
 
 	public Node() {
-		this(null, NodeType.COMMON);
+		this(null);
+	}
+
+	public Node(String name) {
+		progressReport = new ProgressReport();
+		
+		inputs = new HashMap<String, InputChannel>();
+		outputs = new HashMap<String, OutputChannel>();
 	}
 
 	public void setName(String name) {
@@ -61,29 +70,21 @@ public abstract class Node implements Serializable, Runnable {
 		return name;
 	}
 
-	public void setType(NodeType type) {
-		this.type = type;
-	}
-
-	public NodeType getType() {
-		return type;
-	}
-
 	/* INPUT getters/adders */
 
 	public Set<String> getInputChannelNames() {
 		return inputs.keySet();
 	}
 
-	public Collection<ChannelHandler> getInputChannels() {
+	public Collection<InputChannel> getInputChannels() {
 		return inputs.values();
 	}
 
-	public void addInputChannel(ChannelHandler input) {
+	public void addInputChannel(InputChannel input) {
 		inputs.put(input.getName(), input);
 	}
 
-	public ChannelHandler getInputChannel(String source) {
+	public InputChannel getInputChannel(String source) {
 		return inputs.get(source);
 	}
 
@@ -93,26 +94,26 @@ public abstract class Node implements Serializable, Runnable {
 		return outputs.keySet();
 	}
 
-	public Collection<ChannelHandler> getOutputChannels() {
+	public Collection<OutputChannel> getOutputChannels() {
 		return outputs.values();
 	}
 
-	public void addOutputChannel(ChannelHandler output) {
+	public void addOutputChannel(OutputChannel output) {
 		outputs.put(output.getName(), output);
 	}
 
-	public ChannelHandler getOutputChannel(String target) {
+	public OutputChannel getOutputChannel(String target) {
 		return outputs.get(target);
 	}
 
 	/* Read Functions */
 
 	public Record readChannel(String channelName) {
-		ChannelHandler channelHandler = getInputChannel(channelName);
+		InputChannel inputChannel = getInputChannel(channelName);
 
-		if (channelHandler != null) {
+		if(inputChannel != null) {
 			try {
-				return channelHandler.read();
+				return inputChannel.read();
 			} catch (EOFException exception) {
 				return null;
 			} catch (IOException exception) {
@@ -122,7 +123,7 @@ public abstract class Node implements Serializable, Runnable {
 			}
 		}
 
-		System.err.println("Couldn't find channel handler " + channelName +  " for node " + this);
+		System.err.println("Couldn't find input channel " + channelName +  " for node " + this);
 
 		return null;
 	}
@@ -148,22 +149,22 @@ public abstract class Node implements Serializable, Runnable {
 	/* Write Functions */
 
 	public boolean writeChannel(Record record, String channelName) {
-		ChannelHandler channelHandler = getOutputChannel(channelName);
+		OutputChannel outputChannel = getOutputChannel(channelName);
 
-		if (channelHandler != null) {
+		if (outputChannel != null) {
 			try {
-				channelHandler.write(record);
+				outputChannel.write(record);
 
 				return true;
 			} catch (IOException exception) {
-				System.err.println("Error writing channel to node " + channelName +  " from node " + this);
+				System.err.println("Error writing record to node " + channelName +  " from node " + this);
 
 				exception.printStackTrace();
 				return false;
 			}
 		}
 
-		System.err.println("Couldn't find channel handler " + channelName +  " for node " + this);
+		System.err.println("Couldn't find output channel " + name +  " for node " + this);
 
 		return false;
 	}
@@ -205,25 +206,25 @@ public abstract class Node implements Serializable, Runnable {
 	/* Close functions */
 
 	public boolean closeOutputs() {
-		Collection<ChannelHandler> outputChannelHandlers = getOutputChannels();
+		Collection<OutputChannel> outputChannels = getOutputChannels();
 
-		return closeChannels(outputChannelHandlers);
+		return closeChannels(outputChannels);
 	}
 
-	public boolean closeChannels(Collection<ChannelHandler> channelHandlers) {
+	public boolean closeChannels(Collection<OutputChannel> channels) {
 		boolean finalResult = true;
 
-		for (ChannelHandler channelHandler: channelHandlers) {
+		for (OutputChannel channel: channels) {
 			try {
-				boolean immediateResult = channelHandler.close();
+				boolean immediateResult = channel.close();
 
 				if (immediateResult == false) {
-					System.err.println("Error closing channel " + channelHandler.getName() + " for node " + this);
+					System.err.println("Error closing channel " + channel.getName() + " for node " + this);
 				}
 
 				finalResult |= immediateResult;
 			} catch (IOException exception) {
-				System.err.println("Error closing channel " + channelHandler.getName() + " for node " + this + " (I/O error)");
+				System.err.println("Error closing channel " + channel.getName() + " for node " + this + " (I/O error)");
 
 				exception.printStackTrace();
 				finalResult |= false;
@@ -246,12 +247,24 @@ public abstract class Node implements Serializable, Runnable {
 	}
 
 	private void createWriterShuffler() {
-		Collection<ChannelHandler> channelHandlers = getOutputChannels();
+		Collection<OutputChannel> outputChannels = getOutputChannels();
 
-		writersShuffler = new RecordWriterShuffler(channelHandlers);
+		writersShuffler = new RecordWriterShuffler(outputChannels);
 	}
 
-	/* Marking functions */
+	/* Aggregator functions */
+
+	public void setAggregator(Aggregator<?> aggregator) {
+		this.aggregator = aggregator;
+	}
+
+	public Aggregator<?> getAggregator() {
+		return aggregator;
+	}
+
+	/* Runtime information (marking / grouping) */
+
+	/* Mark functions */
 
 	public MutableInteger getMark() {
 		return mark;
