@@ -225,7 +225,7 @@ JNIEXPORT jobject JNICALL Java_platforms_x86_X86_1DVFS_getFreqStats
 	/* Get FreqStat constructor and create object of said class */
 	//cls = (*env)->FindClass(env, "FreqStats");
 
-	cls = (*env)->FindClass(env, "platforms/x86/FreqStats");
+	cls = (*env)->FindClass(env, "utilities/dvfs/FreqStats");
 	if (cls == NULL)
 		return NULL;
 

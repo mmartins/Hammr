@@ -33,8 +33,8 @@ import execinfo.NodeGroup;
  * 
  * @author Hammurabi Mendes (hmendes)
  */
-public class ConcreteLauncher implements Launcher {
-	private static ConcreteLauncher instance;
+public class JobLauncher implements Launcher {
+	private static JobLauncher instance;
 
 	private String id;
 	private Manager manager;
@@ -57,11 +57,11 @@ public class ConcreteLauncher implements Launcher {
 	 * 
 	 * @return A launcher ready for execution.
 	 */
-	private static ConcreteLauncher setupLauncher(String registryLocation) {
+	private static JobLauncher setupLauncher(String registryLocation) {
 		try {
 			// Initiates a concrete launcher
 
-			ConcreteLauncher launcher = new ConcreteLauncher(registryLocation);
+			JobLauncher launcher = new JobLauncher(registryLocation);
 
 			// Makes the launcher available for remote calls
 
@@ -90,7 +90,7 @@ public class ConcreteLauncher implements Launcher {
 	 * 
 	 * @return The singleton instance of the launcher.
 	 */
-	public static ConcreteLauncher getInstance() {
+	public static JobLauncher getInstance() {
 		return instance;
 	}
 
@@ -102,7 +102,7 @@ public class ConcreteLauncher implements Launcher {
 	 * @throws RemoteException If unable to contact either the registry or the manager.
 	 * @throws UnknownHostException If unable to determine the local hostname.
 	 */
-	private ConcreteLauncher(String registryLocation) throws RemoteException, UnknownHostException {
+	private JobLauncher(String registryLocation) throws RemoteException, UnknownHostException {
 		id = "Launcher".concat(RMIHelper.getUniqueID());
 
 		manager = (Manager) RMIHelper.locateRemoteObject(registryLocation, "Manager");
@@ -218,6 +218,6 @@ public class ConcreteLauncher implements Launcher {
 	 *        1) Registry location.
 	 */
 	public static void main(String[] arguments) {
-		System.out.println("Running " + ConcreteLauncher.getInstance().getId());
+		System.out.println("Running " + JobLauncher.getInstance().getId());
 	}
 }

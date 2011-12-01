@@ -25,51 +25,21 @@ OF SUCH DAMAGE.
 
 */
 
-package platforms.x86;
+package interfaces;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import utilities.dvfs.FreqStats;
 
-
-public class FreqStats
-{
-	private Map<Long, Long> stats;
-
-	public FreqStats()
-	{
-		stats = new HashMap<Long, Long>();
-	}
-
-	public void addEntry(long freq, long duration)
-	{
-		stats.put(freq, duration);
-	}
-
-	public void removeEntry(long freq)
-	{
-		stats.remove(freq);
-	}
-
-	public long getDuration(long freq)
-	{
-		return stats.get(freq);
-	}
-
-	public Set<Long> getFreqs()
-	{
-		return stats.keySet();
-	}
-
-	public Collection<Long> getDurations()
-	{
-		return stats.values();
-	}
-
-	public long size()
-	{
-		return stats.size();
-	}
+public interface DVFS {
+	
+	public int getNumCPUs();
+	
+	public long[] getTransitionLatencies();
+	
+	public long[] getFrequencies();
+	
+	public long[][] getAvailableFrequencies();
+	
+	public void setFrequencies(long[] frequencies);
+	
+	public FreqStats[] getFreqStats();
 }
-

@@ -17,6 +17,7 @@ import java.io.Serializable;
  * Package for node timing measurements.
  * 
  * @author Hammurabi Mendes (hmendes)
+ * @author Marcelo Martins (martins)
  */
 public class NodeMeasurements implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -24,6 +25,7 @@ public class NodeMeasurements implements Serializable {
 	private long realTime;
 	private long cpuTime;
 	private long userTime;
+	private long energy;
 
 	/**
 	 * Constructor method.
@@ -31,11 +33,13 @@ public class NodeMeasurements implements Serializable {
 	 * @param realTime	Node's execution real time.
 	 * @param cpuTime	Node's execution CPU time.
 	 * @param userTime	Node's execution user time.
+	 * @param energy	Node's execution energy.
 	 */
-	public NodeMeasurements(long realTime, long cpuTime, long userTime) {
+	public NodeMeasurements(long realTime, long cpuTime, long userTime, long energy) {
 		this.realTime = realTime;
 		this.cpuTime = cpuTime;
 		this.userTime = userTime;
+		this.energy = energy;
 	}
 
 	/**
@@ -63,5 +67,14 @@ public class NodeMeasurements implements Serializable {
 	 */
 	public long getUserTime() {
 		return userTime;
+	}
+	
+	/**
+	 * Getter for energy associated with Node's run
+	 * 
+	 * @return energy (J)
+	 */
+	public long getEnergy() {
+		return energy;
 	}
 }

@@ -52,7 +52,7 @@ import execinfo.ResultSummary;
 public class ExecutionHandler extends Thread {
 	private Manager manager;
 
-	private ConcreteLauncher concreteLauncher;
+	private JobLauncher jobLauncher;
 
 	private NodeGroup nodeGroup;
 
@@ -60,13 +60,13 @@ public class ExecutionHandler extends Thread {
 	 * Constructor.
 	 * 
 	 * @param manager Reference to manager.
-	 * @param concreteLauncher Reference to local launcher.
+	 * @param jobLauncher Reference to local launcher.
 	 * @param nodeGroup NodeGroup that should run.
 	 */
-	public ExecutionHandler(Manager manager, ConcreteLauncher concreteLauncher, NodeGroup nodeGroup) {
+	public ExecutionHandler(Manager manager, JobLauncher jobLauncher, NodeGroup nodeGroup) {
 		this.manager = manager;
 
-		this.concreteLauncher = concreteLauncher;
+		this.jobLauncher = jobLauncher;
 
 		this.nodeGroup = nodeGroup;
 	}
@@ -327,7 +327,7 @@ public class ExecutionHandler extends Thread {
 	 * @return True if master is properly notified; false otherwise.
 	 */
 	private boolean finishExecution(ResultSummary resultSummary) {
-		concreteLauncher.delNodeGroup(nodeGroup);
+		jobLauncher.delNodeGroup(nodeGroup);
 
 		try {
 			manager.handleTermination(resultSummary);
@@ -360,6 +360,9 @@ public class ExecutionHandler extends Thread {
 		private long userLocalTimerStart;
 		private long userLocalTimerFinish;
 
+		private long energyStart;
+		private long energyFinish;
+		
 		/**
 		 * Class constructor.
 		 * 
@@ -388,6 +391,7 @@ public class ExecutionHandler extends Thread {
 
 			cpuLocalTimerStart = profiler.getCurrentThreadCpuTime();
 			userLocalTimerStart = profiler.getCurrentThreadUserTime();
+			energyStart = node.getEnergy();
 
 			node.run();
 
@@ -395,6 +399,7 @@ public class ExecutionHandler extends Thread {
 
 			cpuLocalTimerFinish = profiler.getCurrentThreadCpuTime();
 			userLocalTimerFinish = profiler.getCurrentThreadUserTime();
+			energyFinish = node.getEnergy();
 		}
 
 		/**
@@ -438,12 +443,22 @@ public class ExecutionHandler extends Thread {
 		}
 
 		/**
+		 * Getter for Node's energy expenditure
+		 * 
+		 * @return The energy spent to execute Node.
+		 */
+		public long getEnergy() {
+			// Return energy in Joules
+			
+			return (energyFinish - energyStart);
+		}
+		/**
 		 * Getter for the whole set of node measurements.
 		 * 
 		 * @return The whole set of node measurements.
 		 */
 		public NodeMeasurements getNodeMeasurements() {
-			return new NodeMeasurements(getRealTime(), getCpuTime(), getUserTime());
+			return new NodeMeasurements(getRealTime(), getCpuTime(), getUserTime(), getEnergy());
 		}
 	}
 }

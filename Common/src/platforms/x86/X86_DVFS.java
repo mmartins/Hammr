@@ -27,12 +27,10 @@ OF SUCH DAMAGE.
 
 package platforms.x86;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import interfaces.DVFS;
+import utilities.dvfs.FreqStats;
 
-public class X86_DVFS {
+public class X86_DVFS implements DVFS {
 
 	public native long getTransitionLatency(int cpu);
 	public native int getHardwareLimits(int cpu);
@@ -49,7 +47,60 @@ public class X86_DVFS {
 	public native FreqStats getFreqStats(int cpu);
 	
 	private long minFreq, maxFreq;
+	private int numCPUs;
 
+	public X86_DVFS() {
+		numCPUs = Runtime.getRuntime().availableProcessors();
+	}
+	
+	public int getNumCPUs() {
+		return numCPUs;
+	}
+	
+	public long[] getTransitionLatencies() {
+		long[] latencies = new long[numCPUs];
+		
+		for (int i = 0; i < latencies.length; i++) {
+			latencies[i] = getTransitionLatency(i);
+		}
+		
+		return latencies;
+	}
+	
+	public long[] getFrequencies() {
+		long[] frequencies = new long[numCPUs];
+		
+		for (int i = 0; i < frequencies.length; i++) {
+			frequencies[i] = getFrequency(i);
+		}
+		
+		return frequencies;
+	}
+	
+	public long[][] getAvailableFrequencies() {
+		long[][] availFreqs = new long[numCPUs][];
+		
+		for (int i = 0; i < availFreqs.length; i++) {
+			availFreqs[i] = getAvailableFrequencies(i);
+		}
+		return availFreqs;
+	}
+	
+	public void setFrequencies(long[] frequencies) {
+		for (int i = 0; i < numCPUs; i++) {
+			setFrequency(i, frequencies[i]);
+		}
+	}
+	
+	public FreqStats[] getFreqStats() {
+		FreqStats[] stats = new FreqStats[numCPUs];
+		
+		for (int i = 0; i < stats.length; i++) {
+			stats[i] = getFreqStats(i);
+		}
+		
+		return stats;
+	}
 	
 	/**
 	 * @param args
@@ -58,7 +109,7 @@ public class X86_DVFS {
 	{
 		X86_DVFS dvfs = new X86_DVFS();
 		Runtime runtime = Runtime.getRuntime();
-		int numCPUs = runtime.availableProcessors();
+		int numCPUs = dvfs.getNumCPUs();
 		FreqStats stats;
 
 		System.out.println("Number of cores: " + numCPUs);

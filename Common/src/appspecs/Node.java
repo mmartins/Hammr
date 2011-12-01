@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import platforms.x86.X86_Energy;
+
 import utilities.MutableInteger;
 
 import communication.channel.InputChannel;
@@ -50,6 +52,8 @@ public abstract class Node implements Serializable, Runnable {
 	protected NodeGroup nodeGroup;
 
 	protected ProgressReport progressReport;
+	
+	protected Energy energy;
 
 	public Node() {
 		this(null);
@@ -57,6 +61,7 @@ public abstract class Node implements Serializable, Runnable {
 
 	public Node(String name) {
 		progressReport = new ProgressReport();
+		energy = new X86_Energy();
 		
 		inputs = new HashMap<String, InputChannel>();
 		outputs = new HashMap<String, OutputChannel>();
@@ -299,6 +304,10 @@ public abstract class Node implements Serializable, Runnable {
 	
 	public void setProgressReport(ProgressReport progressReport) {
 		this.progressReport.setProgress(progressReport.getProgress());
+	}
+
+	public long getEnergy() {
+		return energy.getEnergy();
 	}
 	
 	/* Run & print functions */
