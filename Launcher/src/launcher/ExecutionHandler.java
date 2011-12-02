@@ -12,6 +12,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package launcher;
 
 import interfaces.Manager;
+import interfaces.StateManager;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
@@ -20,6 +21,8 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import utilities.RMIHelper;
 
 import appspecs.Node;
 
@@ -56,6 +59,8 @@ public class ExecutionHandler extends Thread {
 
 	private NodeGroup nodeGroup;
 
+	static String registryLocation = System.getProperty("java.rmi.server.location");
+	
 	/**
 	 * Constructor.
 	 * 
@@ -68,7 +73,13 @@ public class ExecutionHandler extends Thread {
 
 		this.jobLauncher = jobLauncher;
 
+		StateManager groupManager = (StateManager) RMIHelper.locateRemoteObject(registryLocation, "GroupManager");
+		StateManager stageManager = (StateManager) RMIHelper.locateRemoteObject(registryLocation, "StageManager");
+		
 		this.nodeGroup = nodeGroup;
+		this.nodeGroup.setGroupManager(groupManager);
+		this.nodeGroup.getStage().setStageManager(stageManager);
+
 	}
 
 	/**

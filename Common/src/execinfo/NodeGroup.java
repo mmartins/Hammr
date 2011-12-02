@@ -12,6 +12,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
+import interfaces.StateManager;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,9 +35,11 @@ public class NodeGroup implements Serializable {
 
 	private Stage stage;
 	
+	private StateManager groupManager;
+	
 	private ProgressReport progressReport;
 	
-	public NodeGroup(String application, Node node) {
+	public NodeGroup(String applicationName, Node node) {
 		nodes = new HashSet<Node>();
 
 		setApplicationName(applicationName);
@@ -43,7 +47,7 @@ public class NodeGroup implements Serializable {
 		ProgressReport progressReport = new ProgressReport();
 	}
 
-	public NodeGroup(String application, Set<Node> nodes) {
+	public NodeGroup(String applicationName, Set<Node> nodes) {
 		nodes = new HashSet<Node>();
 
 		setApplicationName(applicationName);
@@ -134,6 +138,14 @@ public class NodeGroup implements Serializable {
 
 	public Stage getStage() {
 		return stage;
+	}
+	
+	public void setGroupManager(StateManager groupManager) {
+		this.groupManager = groupManager;
+	}
+	
+	public StateManager getGroupManager() {
+		return groupManager;
 	}
 	
 	public ProgressReport getProgressReport() {

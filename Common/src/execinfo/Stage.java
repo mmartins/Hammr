@@ -11,6 +11,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
+import interfaces.StateManager;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,6 +23,8 @@ public class Stage implements Serializable {
 	private ProgressReport progressReport;
 
 	private Set<NodeGroup> nodeGroups;
+	
+	private StateManager stageManager;
 	
 	public Stage() {
 		nodeGroups = new HashSet<NodeGroup>();
@@ -80,6 +84,14 @@ public class Stage implements Serializable {
 
 	public int getSize() {
 		return nodeGroups.size();
+	}
+
+	public void setStageManager(StateManager stageManager) {
+		this.stageManager = stageManager;
+	}
+	
+	public StateManager getStageManager() {
+		return stageManager;
 	}
 	
 	public ProgressReport getProgress() {
