@@ -9,42 +9,14 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package utilities.filesystem;
+package communication.interfaces;
 
-import java.io.Serializable;
+import java.io.IOException;
 
-public class Filename implements Serializable {
-	private static final long serialVersionUID = 1L;
+import communication.channel.ChannelElement;
 
-	private String location;
-	private Protocol protocol;
-
-	public Filename(String location) {
-		this(location, Protocol.POSIX_COMPATIBLE);
-	}
-
-	public Filename(String location, Protocol protocol) {
-		this.location = location;
-		this.protocol = protocol;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public Protocol getProtocol() {
-		return protocol;
-	}
-
-	public boolean equals(Filename other) {
-		return (this.getLocation() == other.getLocation() && this.getProtocol() == other.getProtocol());
-	}
-
-	public int hashCode() {
-		return location.hashCode() + protocol.hashCode();
-	}
-	
-	public String toString() {
-		return protocol + location;
-	}
+public interface ChannelElementWriter {
+	public boolean write(ChannelElement channelElement) throws IOException;
+	public boolean flush() throws IOException;
+	public boolean close() throws IOException;
 }

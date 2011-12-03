@@ -12,6 +12,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package scheduler;
 
 import appspecs.ApplicationSpecification;
+
 import exceptions.CyclicDependencyException;
 import exceptions.InexistentInputException;
 import exceptions.InexistentOutputException;
@@ -25,7 +26,7 @@ import exceptions.TemporalDependencyException;
  */
 public interface Scheduler {
 	/**
-	 * Setups scheduler for new application.
+	 * Setups the scheduler for the new application being executed.
 	 * 
 	 * @param applicationSpecification Application specification.
 	 * 
@@ -86,5 +87,4 @@ public interface Scheduler {
 	 * scheduler implementation only has one possible termination notification, since it doesn't handle failures.
 	 */
 	public boolean handleTermination(Long serialNumber);
-
 }

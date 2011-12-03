@@ -16,6 +16,7 @@ import utilities.filesystem.Filename;
 import appspecs.ApplicationSpecification;
 import appspecs.Node;
 import enums.CommunicationType;
+
 import exceptions.InexistentInputException;
 import exceptions.OverlapingFilesException;
 
@@ -69,11 +70,11 @@ public class MapReduceSpecification extends ApplicationSpecification {
 		}
 	}
 
-	public void setupCommunication(Type type) throws OverlapingFilesException {
-		if(type == Type.TCPBASED) {
+	public void setupCommunication(boolean useTCP) throws OverlapingFilesException {
+		if(useTCP) {
 			insertEdges(mapStage, reduceStage, CommunicationType.TCP);
 		}
-		else if(type == Type.FILEBASED) {
+		else {
 			insertEdges(mapStage, reduceStage, CommunicationType.FILE);
 		}
 
@@ -124,9 +125,5 @@ public class MapReduceSpecification extends ApplicationSpecification {
 	private void setupReducerNaming() {
 		nameGenerationString = "reducer-";
 		nameGenerationCounter = 0L;
-	}
-
-	public enum Type {
-		TCPBASED, FILEBASED;
 	}
 }

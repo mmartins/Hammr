@@ -32,6 +32,8 @@ import communication.shufflers.RecordWriterShuffler;
 import execinfo.NodeGroup;
 import execinfo.ProgressReport;
 
+import execinfo.NodeGroup;
+
 public abstract class Node implements Serializable, Runnable {
 	private static final long serialVersionUID = 1L;
 
@@ -47,13 +49,17 @@ public abstract class Node implements Serializable, Runnable {
 
 	/* Runtime information */
 
-	protected MutableInteger mark;
+	private Aggregator<?> aggregator;
 
-	protected NodeGroup nodeGroup;
+	/* Runtime information */
 
 	protected ProgressReport progressReport;
 	
 	protected Energy energy;
+
+	protected MutableInteger mark;
+
+	protected NodeGroup nodeGroup;
 
 	public Node() {
 		this(null);

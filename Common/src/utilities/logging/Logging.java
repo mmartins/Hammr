@@ -14,6 +14,10 @@ package utilities.logging;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+<<<<<<< HEAD
+=======
+
+>>>>>>> d398a6bce8b005e21fe66932959f36740382ee6d
 import java.util.Calendar;
 
 public class Logging {

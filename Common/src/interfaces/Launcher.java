@@ -11,12 +11,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package interfaces;
 
+import java.util.Collection;
+>>>>>>> d398a6bce8b005e21fe66932959f36740382ee6d
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
 import execinfo.LauncherStatus;
 import execinfo.NodeGroup;
+
+import execinfo.LauncherStatus;
 
 /**
  * Launcher remote interface. These functions can be called by remote machines.

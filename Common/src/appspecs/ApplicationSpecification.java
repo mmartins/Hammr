@@ -35,6 +35,7 @@ import communication.channel.TCPInputChannel;
 import communication.channel.TCPOutputChannel;
 
 import enums.CommunicationType;
+
 import exceptions.OverlapingFilesException;
 
 public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
@@ -185,6 +186,7 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 		node.addOutputChannel(outputChannel);
 
 		outputs.put(fileOutput, outputChannel);
+
 		fileProducers.add(node);
 	}
 
@@ -253,8 +255,8 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 			case FILE:
 				Filename anonymous = FileHelper.getFileInformation(baseDirectory.getPath(), "anonymous-filechannel-" + anonymousFileChannelCounter + ".dat", baseDirectory.getProtocol());
 
-				source.addOutputChannel(new FileOutputChannel(anonymous));
-				target.addInputChannel(new FileInputChannel(anonymous));
+				source.addOutputChannel(new FileOutputChannel(target.getName(), anonymous));
+				target.addInputChannel(new FileInputChannel(source.getName(), anonymous));
 
 				anonymousFileChannelCounter++;
 

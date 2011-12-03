@@ -9,42 +9,42 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package utilities.filesystem;
+package communication.channel;
 
 import java.io.Serializable;
 
-public class Filename implements Serializable {
+public class ChannelElement implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String location;
-	private Protocol protocol;
+	private Object object;
+	private String description;
 
-	public Filename(String location) {
-		this(location, Protocol.POSIX_COMPATIBLE);
+	public ChannelElement(Object object, String description) {
+		this.object = object;
+		this.description = description;
 	}
 
-	public Filename(String location, Protocol protocol) {
-		this.location = location;
-		this.protocol = protocol;
+	public ChannelElement(Object object) {
+		this(object, null);
 	}
 
-	public String getLocation() {
-		return location;
+	public Object getObject() {
+		return object;
 	}
 
-	public Protocol getProtocol() {
-		return protocol;
+	public void setObject(Object object) {
+		this.object = object;
 	}
 
-	public boolean equals(Filename other) {
-		return (this.getLocation() == other.getLocation() && this.getProtocol() == other.getProtocol());
+	public String getDescription() {
+		return description;
 	}
 
-	public int hashCode() {
-		return location.hashCode() + protocol.hashCode();
+	public void setDescription(String description) {
+		this.description = description;
 	}
-	
+
 	public String toString() {
-		return protocol + location;
+		return object.toString();
 	}
 }

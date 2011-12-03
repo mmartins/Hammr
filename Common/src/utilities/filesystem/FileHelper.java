@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import utilities.filesystem.Protocol;
+
 import utilities.filesystem.hdfs.HDFSDriver;
 import utilities.filesystem.posix.PosixDriver;
 

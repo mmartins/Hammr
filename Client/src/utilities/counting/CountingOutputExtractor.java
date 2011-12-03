@@ -13,14 +13,12 @@ package utilities.counting;
 
 import java.io.IOException;
 
-import utilities.OutputExtractor;
-
 import mapreduce.communication.MRRecord;
-import communication.channel.Record;
-
-
-import utilities.filesystem.Filename;
+import utilities.OutputExtractor;
 import utilities.filesystem.Directory;
+import utilities.filesystem.Filename;
+
+import communication.channel.Record;
 
 public class CountingOutputExtractor extends OutputExtractor {
 	public CountingOutputExtractor(Directory directory, String[] inputOutputPairs) {
@@ -39,7 +37,21 @@ public class CountingOutputExtractor extends OutputExtractor {
 	}
 
 	public static void main(String[] arguments) {
-		CountingOutputExtractor extractor = new CountingOutputExtractor(new Directory("."), arguments);
+		if (arguments.length <= 3) {
+			System.err.println("Usage: CountingOutputExtractor <directory> <input> ... <input> : <output> ... <output>");
+
+			System.exit(1);
+		}
+
+		String directory = arguments[0];
+
+		String[] filenames = new String[arguments.length - 1];
+
+		for (int i = 1; i < arguments.length; i++) {
+			filenames[i - 1] = arguments[i];
+		}
+
+		CountingOutputExtractor extractor = new CountingOutputExtractor(new Directory(directory), filenames);
 
 		try {
 			extractor.run();

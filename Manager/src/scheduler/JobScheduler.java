@@ -15,6 +15,7 @@ import interfaces.Launcher;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -106,7 +107,7 @@ public class JobScheduler implements Scheduler {
 
 		System.out.println("Identified node group bundles:");
 
-		for(Stage x: stages.values()) {
+		for (Stage x: stages.values()) {
 			System.out.println(x);
 		}
 
@@ -446,40 +447,32 @@ public class JobScheduler implements Scheduler {
 	private void scheduleNodeGroup(NodeGroup nodeGroup) throws InsufficientLaunchersException {
 		nodeGroup.prepareSchedule(serialNumberCounter++);
 
-		while (true) {
+		List<Launcher> currentLaunchers = new ArrayList<Launcher>(concreteManager.getRegisteredLaunchers());
+
+		Collections.shuffle(currentLaunchers);
+
+		for (int i = 0; i < currentLaunchers.size(); i++) {
 			try {
-				Launcher launcher = getRandomLauncher();
+				Launcher launcher = currentLaunchers.get(i);
 
 				scheduledNodeGroups.put(nodeGroup.getSerialNumber(), nodeGroup);
 
-				launcher.addNodeGroup(nodeGroup);
+				if (launcher.addNodeGroup(nodeGroup)) {
+					return;
+				}
+				else {
+					System.err.println("Failed using launcher (launcher unusable), trying next one...");
 
-				break;
+					scheduledNodeGroups.remove(nodeGroup.getSerialNumber());
+				}
 			} catch (RemoteException exception) {
-				System.err.println("Failed using launcher, trying next one...");
+				System.err.println("Failed using launcher (launcher unreachable), trying next one...");
 
 				scheduledNodeGroups.remove(nodeGroup.getSerialNumber());
-
-				exception.printStackTrace();
 			}
 		}	
-	}
-
-	/**
-	 * Obtains a random alive Launcher from the Manager.
-	 * 
-	 * @return A random alive Launcher.
-	 * 
-	 * @throws InsufficientLaunchersException If there are no alive Launchers.
-	 */
-	private Launcher getRandomLauncher() throws InsufficientLaunchersException {
-		Launcher launcher =  concreteManager.getRandomLauncher();
-
-		if (launcher == null) {
-			throw new InsufficientLaunchersException();
-		}
-
-		return launcher;
+		
+		throw new InsufficientLaunchersException();
 	}
 
 	/**

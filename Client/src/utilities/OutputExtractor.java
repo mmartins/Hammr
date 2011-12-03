@@ -42,7 +42,7 @@ public abstract class OutputExtractor {
 				continue;
 			}
 
-			if(!foundColumn) {
+			if (!foundColumn) {
 				inputList.add(FileHelper.getFileInformation(directory.getPath(), inputsOutputs[i], directory.getProtocol()));
 			}
 			else {

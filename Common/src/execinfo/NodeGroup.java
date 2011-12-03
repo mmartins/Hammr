@@ -1,6 +1,9 @@
 /*
 Copyright (c) 2010, Hammurabi Mendes
+<<<<<<< HEAD
 
+=======
+>>>>>>> d398a6bce8b005e21fe66932959f36740382ee6d
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

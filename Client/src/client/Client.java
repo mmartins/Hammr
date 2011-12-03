@@ -23,6 +23,7 @@ import mapreduce.programs.counting.CountingMapper;
 import mapreduce.programs.counting.CountingMerger;
 import mapreduce.programs.counting.CountingReducer;
 import nodes.ReaderArbitraryWriterArbitrary;
+import nodes.ReaderSomeoneWriterSomeone;
 import nodes.TrivialNode;
 import utilities.RMIHelper;
 import utilities.filesystem.Directory;
@@ -116,7 +117,7 @@ public class Client {
 		for(int i = 0; i < nodesStage1.length; i++) {
 			inputFilename = FileHelper.getFileInformation(baseDirectory.getPath(), "input-stage1-" + i + ".dat", baseDirectory.getProtocol());
 
-		applicationSpecification.addInput(nodesStage1[i], inputFilename);
+			applicationSpecification.addInput(nodesStage1[i], inputFilename);
 		}
 
 		Node[] nodesStage2 = new Node[1];
@@ -219,7 +220,7 @@ public class Client {
 		}
 	}
 
-	public void performMapReduce(String[] inputs, MapReduceSpecification.Type edgeType, boolean finalMerge) {
+	public void performMapReduce(String[] inputs, boolean useTCP, boolean initialSplit, boolean finalMerge) {
 		int numberMappers;
 		int numberReducers;
 
@@ -240,21 +241,26 @@ public class Client {
 		}
 
 		try {
-			// Create the input filenames
-
-			Filename[] inputFilenames = new Filename[numberMappers];
-
-			for (int i = 0; i < inputs.length; i++) {
-				inputFilenames[i] = FileHelper.getFileInformation(baseDirectory.getPath(), inputs[i], baseDirectory.getProtocol());
+			if (initialSplit) {
+				mapReduceSpecification.insertMappers(FileHelper.getFileInformation(baseDirectory.getPath(), "input-splitter.dat", baseDirectory.getProtocol()), new ReaderSomeoneWriterSomeone(), nodesStage1);
 			}
+			else {
+				// Create the input filenames
 
-			mapReduceSpecification.insertMappers(inputFilenames, nodesStage1);
+				Filename[] inputFilenames = new Filename[numberMappers];
+
+				for (int i = 0; i < inputs.length; i++) {
+					inputFilenames[i] = FileHelper.getFileInformation(baseDirectory.getPath(), inputs[i], baseDirectory.getProtocol());
+				}
+
+				mapReduceSpecification.insertMappers(inputFilenames, nodesStage1);
+			}
 		} catch (InexistentInputException exception) {
 			System.err.println(exception);
 
 			System.exit(1);
 		}
-		
+
 		// Insert the reducers
 
 		Node[] nodesStage2 = new Node[numberReducers];
@@ -280,11 +286,12 @@ public class Client {
 			}
 		} catch (OverlapingFilesException exception) {
 			System.err.println(exception);
-						System.exit(1);
+
+			System.exit(1);
 		}
 
 		try {
-			mapReduceSpecification.setupCommunication(edgeType);
+			mapReduceSpecification.setupCommunication(useTCP);
 		} catch (OverlapingFilesException exception) {
 			System.err.println(exception);
 
@@ -299,14 +306,14 @@ public class Client {
 
 			System.exit(1);
 		}
-	}
-	
+	}	
+
 	public static void main(String[] arguments) {
 		String registryLocation = System.getProperty("java.rmi.server.location");
 
 		String baseDirectory = System.getProperty("hammr.client.basedir"); 
 
-		String command = arguments[1];
+		String command = arguments[0];
 
 		if (command.equals("test1")) {
 			Client client = new Client(registryLocation, new Directory(baseDirectory));
@@ -341,40 +348,40 @@ public class Client {
 		}
 
 		if (command.equals("perform_mapreduce")) {
-			if (arguments.length <= 3) {
-				System.err.println("Usage: Client perform_mapreduce <type> <join> [<input_filename> ... <input_filename>]");
-				System.err.println("<type>: \"TCP\" or \"FILE\"");
-				System.err.println("<join> \"true\" or \"false\"");
+			if(arguments.length <= 3) {
+				System.err.println("Usage: Client perform_mapreduce <useTCP> <performMerge> [<input_filename> ... <input_filename>]");
+				System.err.println("<useTCP> \"true\" or \"false\""); 
+				System.err.println("<performMerge> \"true\" or \"false\"");
 
 				System.exit(1);
 			}
 
 			Client client = new Client(registryLocation, new Directory(baseDirectory));
 
-			MapReduceSpecification.Type type = MapReduceSpecification.Type.FILEBASED;
+			boolean useTCP = false;
 
-			if (arguments[1].equals("TCP")) {
-				type = MapReduceSpecification.Type.TCPBASED;
+			if (arguments[1].equals("true")) {
+				useTCP = true;
 			}
-			else if (arguments[1].equals("FILE")) {
-				type = MapReduceSpecification.Type.FILEBASED;
+			else if (arguments[1].equals("false")) {
+				useTCP = false;
 			}
 			else {
-				System.err.println("<type>: \"TCP\" or \"FILE\"");
+				System.err.println("<useTCP> \"true\" or \"false\""); 
 
 				System.exit(1);
 			}
 
-			boolean join = false;
+			boolean performMerge = false;
 
 			if (arguments[2].equals("true")) {
-				join = true;
+				performMerge = true;
 			}
 			else if (arguments[2].equals("false")) {
-				join = false;
+				performMerge = false;
 			}
 			else {
-				System.err.println("<join> \"true\" or \"false\"");
+				System.err.println("<performMerge> \"true\" or \"false\"");
 
 				System.exit(1);
 			}
@@ -387,7 +394,7 @@ public class Client {
 
 			String[] finalInputFilenames = temporaryInputFilenames.toArray(new String[temporaryInputFilenames.size()]);
 
-			client.performMapReduce(finalInputFilenames, type, join);
+			client.performMapReduce(finalInputFilenames, useTCP, false, performMerge);
 		}
 	}
 }
