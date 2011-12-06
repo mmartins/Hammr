@@ -9,61 +9,63 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package utilities.counting;
+package utilities.shortestpath;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
-import mapreduce.communication.MRRecord;
-import utilities.InputGenerator;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+
+import utilities.GraphOutputExtractor;
+
 import utilities.filesystem.Directory;
-import utilities.filesystem.Filename;
 
-import communication.channel.Record;
+import graphs.programs.shortestpath.SPGraphVertex;
+import graphs.programs.shortestpath.SPGraphEdge;
 
-public class CountingInputGenerator extends InputGenerator {
-	public CountingInputGenerator(Directory directory, String[] inputOutputPairs) {
-		super(directory, inputOutputPairs);
+public class SPGraphOutputExtractor extends GraphOutputExtractor<SPGraphVertex,SPGraphEdge> {
+	public SPGraphOutputExtractor(Directory directory, String[] inputs) {
+		super(directory, inputs);
 	}
 
-	public CountingInputGenerator(Filename[] inputs, Filename[] outputs) {
-		super(inputs, outputs);
+	protected void createGraph() {
+		graph = new DefaultDirectedWeightedGraph<SPGraphVertex,SPGraphEdge>(SPGraphEdge.class);
 	}
 
-	protected Set<Record> generateInput(String buffer) {
-		Set<Record> result = new HashSet<Record>();
-
-		String delimiters = "[^\\w]+";
-
-		String[] words = buffer.split(delimiters);
-
-		for (String word: words) {
-			result.add(new MRRecord<String,Long>(word.toLowerCase(), 0L));
+	protected void printGraph() {
+		for(SPGraphVertex vertex: graph.vertexSet()) {
+			System.out.println(vertex);
 		}
 
-		return result;
+		for(SPGraphEdge edge: graph.edgeSet()) {
+			System.out.println(edge);
+		}
 	}
 
+
 	public static void main(String[] arguments) {
-		if (arguments.length <= 3) {
-			System.err.println("Usage: CountingInputGenerator <directory> <input> ... <input> : <output> ... <output>");
+		if(arguments.length <= 4) {
+			System.err.println("usage: SPGraphOutputExtractor baseDirectory [<input> ... <input>]");
 
 			System.exit(1);
 		}
 
-		String directory = arguments[0];
+		String baseDirectory = arguments[0];
 
-		String[] filenames = new String[arguments.length - 1];
+		List<String> inputsList = new ArrayList<String>();
 
 		for(int i = 1; i < arguments.length; i++) {
-			filenames[i - 1] = arguments[i];
+			inputsList.add(arguments[i]);
 		}
 
-		CountingInputGenerator generator = new CountingInputGenerator(new Directory(directory), filenames);
+		String[] inputsArray = inputsList.toArray(new String[inputsList.size()]);
+
+		SPGraphOutputExtractor extractor = new SPGraphOutputExtractor(new Directory(baseDirectory), inputsArray);
 
 		try {
-			generator.run();
+			extractor.run();
 		} catch (IOException exception) {
 			System.err.println("Error generating input");
 

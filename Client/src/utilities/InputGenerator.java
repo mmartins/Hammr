@@ -11,24 +11,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package utilities;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import java.util.Set;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
-
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import utilities.filesystem.Directory;
+import utilities.filesystem.FileHelper;
+import utilities.filesystem.Filename;
 
 import communication.channel.Record;
 import communication.writers.FileRecordWriter;
 
-import utilities.filesystem.Filename;
-import utilities.filesystem.Directory;
-import utilities.filesystem.FileHelper;
-
-public abstract class InputGenerator {
+public class InputGenerator {
 	private Filename[] inputs;
 	private Filename[] outputs;
 
@@ -71,13 +69,13 @@ public abstract class InputGenerator {
 	public void run() throws IOException {
 		BufferedReader[] readers = new BufferedReader[inputs.length];
 
-		for(int i = 0; i < inputs.length; i++) {
+		for (int i = 0; i < inputs.length; i++) {
 			readers[i] = new BufferedReader(new FileReader(inputs[i].getLocation()));
 		}
 		
 		FileRecordWriter[] writers = new FileRecordWriter[outputs.length];
 		
-		for(int i = 0; i < outputs.length; i++) {
+		for (int i = 0; i < outputs.length; i++) {
 			writers[i] =  new FileRecordWriter(outputs[i]);
 		}
 
@@ -86,7 +84,7 @@ public abstract class InputGenerator {
 		for (int i = 0; i < readers.length; i++) {
 			String buffer;
 
-			while(true) {
+			while (true) {
 				buffer = obtainBuffer(readers[i]);
 
 				if (buffer == null) {
@@ -110,7 +108,15 @@ public abstract class InputGenerator {
 		}
 	}
 
-	protected abstract String obtainBuffer(BufferedReader reader) throws IOException;
+	protected String obtainBuffer(BufferedReader reader) throws IOException {
+		return reader.readLine();
+	}
 
-	protected abstract Set<Record> generateInput(String buffer);
+	protected Set<Record> generateInput(String buffer) {
+		Set<Record> result = new HashSet<Record>();
+
+		result.add(new Record(buffer, null));
+
+		return result;
+	}
 }

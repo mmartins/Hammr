@@ -11,17 +11,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package manager;
 
+import interfaces.Aggregator;
 import interfaces.Launcher;
 import interfaces.Manager;
 
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import scheduler.JobScheduler;
@@ -51,8 +52,6 @@ public class JobManager implements Manager {
 
 	// Active applications, mapped by name
 	private Map<String, ApplicationPackage> applicationPackages;
-
-	private Random random;
 
 	static {
 		String registryLocation = System.getProperty("java.rmi.server.location");
@@ -100,8 +99,6 @@ public class JobManager implements Manager {
 		this.registeredLaunchers = Collections.synchronizedMap(new LinkedHashMap<String, Launcher>());
 
 		this.applicationPackages = Collections.synchronizedMap(new HashMap<String, ApplicationPackage>());
-
-		this.random = new Random();
 	}
 
 	/**
@@ -153,16 +150,33 @@ public class JobManager implements Manager {
 		// Setup the scheduler, and try to schedule an initial wave of NodeGroups
 
 		try {
-			ApplicationPackage applicationPackage;
-			applicationPackage = setupApplication(applicationName, applicationSpecification);
+			ApplicationPackage applicationPackage = setupApplication(applicationName, applicationSpecification);
+			
 			Scheduler scheduler = applicationPackage.getApplicationScheduler();
+			
 			if (!scheduler.schedule()) {
 				System.err.println("Initial schedule indicated that no free node group bundles are present");
-
+				
+				finishApplication(applicationName);
 				return false;
 			}
+		} catch (TemporalDependencyException exception) {
+			System.err.println("Scheduler setup found a temporal dependency problem");
+
+			finishApplication(applicationName);
+			return false;
+		} catch (CyclicDependencyException exception) {
+			System.err.println("Scheduler setup found a cyclic dependency problem");
+
+			finishApplication(applicationName);
+			return false;
 		} catch (InsufficientLaunchersException exception) {
 			System.err.println("Initial schedule indicated an insufficient number of launchers");
+
+			finishApplication(applicationName);
+			return false;
+		} catch (InexistentInputException exception) {
+			System.err.println("Initial schedule indicated that some files are missing: " + exception.toString());
 
 			finishApplication(applicationName);
 			return false;
@@ -177,12 +191,9 @@ public class JobManager implements Manager {
 	 * channels. The corresponding client-side TCP channels query master for
 	 * this information.
 	 * 
-	 * @param applicationName
-	 *            Ditto.
-	 * @param nodeName
-	 *            Ditto.
-	 * @param socketAddress
-	 *            Socket address of server-side TCP channel.
+	 * @param applicationName	Ditto.
+	 * @param nodeName			Ditto.
+	 * @param socketAddress		Socket address of server-side TCP channel.
 	 * 
 	 * @return True unless the map for the specific pair applicationName/node
 	 *         already exists.
@@ -229,6 +240,26 @@ public class JobManager implements Manager {
 		}
 
 		return applicationPackage.getRegisteredSocketAddress(nodeName);
+	}
+
+	/**
+	 * Returns the aggregator specified by the application name and variable name.
+	 * 
+	 * @param applicationName	Ditto.
+	 * @param variableName		Ditto.
+	 * 
+	 * @return The aggregator associated to the specified variable in the specified application. 
+	 */
+	public Aggregator<? extends Serializable, ? extends Serializable> obtainAggregator(String applicationName, String variableName) {
+		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
+
+		if (applicationPackage == null) {
+			System.err.println("Unable to locate application package for application " + applicationName + "!");
+
+			return null;
+		}
+
+		return applicationPackage.getApplicationSpecification().getAggregator(variableName);
 	}
 
 	/**
@@ -284,66 +315,50 @@ public class JobManager implements Manager {
 	}
 
 	/**
-	 * Creates a holder containing the application name, specification, and
-	 * scheduler, and makes it ready for execution
+	 * Creates a holder containing the application name, specification, and scheduler, and makes it
+	 * ready to start executing.
 	 * 
-	 * @param applicationName
-	 *            Ditto.
-	 * @param applicationSpecification
-	 *            Ditto.
+	 * @param applicationName Name of the application.
+	 * @param applicationSpecification Application specification.
 	 * 
 	 * @return The newly created holder.
+	 * 
+	 * @throws TemporalDependencyException If the application specification has a temporal dependency problem.
+	 * @throws CyclicDependencyException If the application specification has a cyclic dependency problem.
+	 * @throws InexistentInputException If one of the inputs for the first iteration are missing.
 	 */
-	private synchronized ApplicationPackage setupApplication(String applicationName, ApplicationSpecification applicationSpecification) {
+	private synchronized ApplicationPackage setupApplication(String applicationName, ApplicationSpecification applicationSpecification) throws TemporalDependencyException, CyclicDependencyException, InexistentInputException {
 		ApplicationPackage applicationPackage = new ApplicationPackage();
 
-		Scheduler applicationScheduler = new JobScheduler(this);
+		Scheduler applicationScheduler = new JobScheduler(applicationName);
+
 		applicationPackage.setApplicationName(applicationName);
 		applicationPackage.setApplicationSpecification(applicationSpecification);
 		applicationPackage.setApplicationScheduler(applicationScheduler);
 
 		applicationPackages.put(applicationName, applicationPackage);
-		
+
 		applicationPackage.markStart();
 
-		try {
-			applicationScheduler.prepareApplication(applicationSpecification);
-			applicationScheduler.prepareIteration();
-		} catch (TemporalDependencyException exception) {
-			System.err.println("Application setup found a temporal dependency problem");
+		applicationScheduler.prepareApplication();
+		applicationScheduler.prepareIteration();
 
-			finishApplication(applicationName);
-			return null;
-		} catch (CyclicDependencyException exception) {
-			System.err.println("Application setup found a cyclic dependency problem");
-
-			finishApplication(applicationName);
-			return null;
-		} catch (InexistentInputException exception) {
-			System.err.println("Application setup indiated that some files are missing: " + exception.toString());
-
-			finishApplication(applicationName);
-		}
-		
-		
 		return applicationPackage;
 	}
 
 	/**
-	 * Deletes holder containing application name, specification, and scheduler,
-	 * effectively finishing its execution.
+	 * Deletes the holder containing the application name, specification, and scheduler, effectively
+	 * finishing its execution.
 	 * 
-	 * @param applicationName
-	 *            Name of the applicationName
+	 * @param applicationName Name of the application
 	 * 
-	 * @return True if the applicationName was finished successfully; false
-	 *         otherwise.
+	 * @return True if the application was finished successfully; false otherwise.
 	 */
 	private synchronized boolean finishApplication(String applicationName) {
 		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
-		if (applicationPackage == null) {
-			System.err.println("Unable to locate applicationName information holder for applicationName " + applicationName + "!");
+		if(applicationPackage == null) {
+			System.err.println("Unable to locate application information holder for application " + applicationName + "!");
 
 			return false;
 		}
@@ -358,36 +373,23 @@ public class JobManager implements Manager {
 	}
 
 	/**
-	 * Obtain the first alive Launcher, selected randomly.
+	 * Returns the list of registered launchers.
 	 * 
-	 * @return The first alive Launcher, selected randomly.
+	 * @return The list of registered launchers.
 	 */
-	public Launcher getRandomLauncher() {
-		ArrayList<Map.Entry<String,Launcher>> aliveLaunchers = new ArrayList<Map.Entry<String,Launcher>>();
+	public Collection<Launcher> getRegisteredLaunchers() {
+		return registeredLaunchers.values();
+	}
 
-		aliveLaunchers.addAll(registeredLaunchers.entrySet());
-
-		while (aliveLaunchers.size() > 0) {
-			int randomIndex = Math.abs(random.nextInt() % aliveLaunchers.size());
-
-			Map.Entry<String,Launcher> randomEntry = aliveLaunchers.get(randomIndex);
-
-			String randomLauncherIdentifier = randomEntry.getKey();
-			Launcher randomLauncherReference = randomEntry.getValue();
-
-			try {
-				assert randomLauncherIdentifier.equals(randomLauncherReference.getId());
-
-				return randomLauncherReference;
-			} catch (RemoteException exception) {
-				System.err.println("Detected failure for launcher " + randomLauncherIdentifier + ", removing it from list...");
-
-				registeredLaunchers.remove(randomLauncherIdentifier);
-				aliveLaunchers.remove(randomEntry);
-			}
-		}
-
-		return null;
+	/**
+	 * Returns the requested application package.
+	 * 
+	 * @param application The requested application.
+	 * 
+	 * @return The requested application package.
+	 */
+	public ApplicationPackage getApplicationPackage(String applicationName) {
+		return applicationPackages.get(applicationName);
 	}
 
 	/**

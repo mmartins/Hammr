@@ -11,6 +11,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package appspecs;
 
+import java.util.concurrent.TimeUnit;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -32,34 +34,43 @@ import communication.shufflers.RecordWriterShuffler;
 import execinfo.NodeGroup;
 import execinfo.ProgressReport;
 
-import execinfo.NodeGroup;
-
 public abstract class Node implements Serializable, Runnable {
 	private static final long serialVersionUID = 1L;
+
+	///////////////////////////////
+	// SPECIFICATION INFORMATION //
+	///////////////////////////////
 
 	protected String name;
 
 	protected Map<String, InputChannel> inputs;
 	protected Map<String, OutputChannel> outputs;
 
+	/* Runtime information */
+	protected Map<String, InputChannel> structuralInputs;
+	protected Map<String, OutputChannel> structuralOutputs;
+
+	protected Map<String, InputChannel> applicationInputs;
+	protected Map<String, OutputChannel> applicationOutputs;
+
 	protected RecordReaderShuffler readersShuffler;
 	protected RecordWriterShuffler writersShuffler;
 
-	private Aggregator<?> aggregator;
+	/////////////////////////
+	// RUNNING INFORMATION //
+	/////////////////////////
 
-	/* Runtime information */
-
-	private Aggregator<?> aggregator;
-
-	/* Runtime information */
+	protected NodeGroup nodeGroup;
 
 	protected ProgressReport progressReport;
 	
 	protected Energy energy;
 
-	protected MutableInteger mark;
+	/////////////////////////
+	// PARSING INFORMATION //
+	/////////////////////////
 
-	protected NodeGroup nodeGroup;
+	protected MutableInteger mark;
 
 	public Node() {
 		this(null);
@@ -71,6 +82,12 @@ public abstract class Node implements Serializable, Runnable {
 		
 		inputs = new HashMap<String, InputChannel>();
 		outputs = new HashMap<String, OutputChannel>();
+
+		applicationInputs = new HashMap<String, InputChannel>();
+		applicationOutputs = new HashMap<String, OutputChannel>();
+
+		structuralInputs = new HashMap<String, InputChannel>();
+		structuralOutputs = new HashMap<String, OutputChannel>();
 	}
 
 	public void setName(String name) {
@@ -87,12 +104,39 @@ public abstract class Node implements Serializable, Runnable {
 		return inputs.keySet();
 	}
 
+	public Set<String> getApplicationInputChannelNames() {
+		return applicationInputs.keySet();
+	}
+
+	public Set<String> getStrucutralInputChannelNames() {
+		return applicationInputs.keySet();
+	}
+
 	public Collection<InputChannel> getInputChannels() {
 		return inputs.values();
 	}
 
-	public void addInputChannel(InputChannel input) {
-		inputs.put(input.getName(), input);
+	public Collection<InputChannel> getApplicationInputChannels() {
+		return applicationInputs.values();
+	}
+
+	public Collection<InputChannel> getStructuralInputChannels() {
+		return structuralInputs.values();
+	}
+
+	public void addInputChannel(String source, InputChannel input, boolean applicationInput) {
+		inputs.put(source, input);
+
+		if (applicationInput) {
+			applicationInputs.put(source, input);
+		}
+		else {
+			structuralInputs.put(source, input);
+		}
+	}
+
+	public InputChannel delInputChannel(String source) {
+		return inputs.remove(source);
 	}
 
 	public InputChannel getInputChannel(String source) {
@@ -105,12 +149,39 @@ public abstract class Node implements Serializable, Runnable {
 		return outputs.keySet();
 	}
 
+	public Set<String> getApplicationOutputChannelNames() {
+		return applicationOutputs.keySet();
+	}
+
+	public Set<String> getStructuralOutputChannelNames() {
+		return structuralOutputs.keySet();
+	}
+
 	public Collection<OutputChannel> getOutputChannels() {
 		return outputs.values();
 	}
 
-	public void addOutputChannel(OutputChannel output) {
-		outputs.put(output.getName(), output);
+	public Collection<OutputChannel> getApplicationOutputChannels() {
+		return applicationOutputs.values();
+	}
+
+	public Collection<OutputChannel> getStructuralOutputChannels() {
+		return structuralOutputs.values();
+	}
+
+	public void addOutputChannel(String target, OutputChannel output, boolean applicationOutput) {
+		outputs.put(target, output);
+
+		if (applicationOutput) {
+			applicationOutputs.put(target, output);
+		}
+		else {
+			structuralOutputs.put(target, output);
+		}
+	}
+
+	public OutputChannel delOutputChannel(String target) {
+		return outputs.remove(target);
 	}
 
 	public OutputChannel getOutputChannel(String target) {
@@ -119,10 +190,10 @@ public abstract class Node implements Serializable, Runnable {
 
 	/* Read Functions */
 
-	public Record readChannel(String channelName) {
+	protected Record readChannel(String channelName) {
 		InputChannel inputChannel = getInputChannel(channelName);
 
-		if(inputChannel != null) {
+		if (inputChannel != null) {
 			try {
 				return inputChannel.read();
 			} catch (EOFException exception) {
@@ -139,7 +210,7 @@ public abstract class Node implements Serializable, Runnable {
 		return null;
 	}
 
-	public Record readArbitraryChannel() {
+	protected Record readArbitraryChannel() {
 		if (readersShuffler == null) {
 			createReaderShuffler();
 		}
@@ -149,7 +220,43 @@ public abstract class Node implements Serializable, Runnable {
 		} catch (EOFException exception) {
 			return null;
 		} catch (IOException exception) {
-			System.err.println("Error reading from arbitrary channel from node " + this);
+			System.err.println("Error reading record from node " + this);
+
+			exception.printStackTrace();
+		}
+
+		return null;
+	}
+
+	protected Record tryReadArbitraryChannel() {
+		// You need to create the read shuffler manually if you want to use this method
+
+		if (readersShuffler == null) {
+			throw new IllegalStateException();
+		}
+
+		try {
+			return readersShuffler.tryReadArbitrary();
+		} catch (IOException exception) {
+			System.err.println("Error reading arbitrary record from node " + this);
+
+			exception.printStackTrace();
+		}
+
+		return null;
+	}
+
+	protected Record tryReadArbitraryChannel(int timeout, TimeUnit timeUnit) {
+		// You need to create the read shuffler manually if you want to use this method
+
+		if (readersShuffler == null) {
+			throw new IllegalStateException();
+		}
+
+		try {
+			return readersShuffler.tryReadArbitrary(timeout, timeUnit);
+		} catch (IOException exception) {
+			System.err.println("Error reading arbitrary record from node " + this);
 
 			exception.printStackTrace();
 		}
@@ -159,7 +266,7 @@ public abstract class Node implements Serializable, Runnable {
 
 	/* Write Functions */
 
-	public boolean writeChannel(Record record, String channelName) {
+	protected boolean writeChannel(Record record, String channelName) {
 		OutputChannel outputChannel = getOutputChannel(channelName);
 
 		if (outputChannel != null) {
@@ -180,7 +287,7 @@ public abstract class Node implements Serializable, Runnable {
 		return false;
 	}
 
-	public boolean writeArbitraryChannel(Record record) {
+	protected boolean writeArbitraryChannel(Record record) {
 		if (writersShuffler == null) {
 			createWriterShuffler();
 		}
@@ -196,7 +303,7 @@ public abstract class Node implements Serializable, Runnable {
 		return false;
 	}
 
-	public boolean writeAllChannels(Record record) {
+	protected boolean writeAllChannels(Record record) {
 		Set<String> outputChannelNames = getOutputChannelNames();
 
 		boolean finalResult = true;
@@ -205,7 +312,7 @@ public abstract class Node implements Serializable, Runnable {
 			boolean immediateResult = writeChannel(record, outputChannelName);
 
 			if (immediateResult == false) {
-				System.err.println("Error writing to all channel elements (error on channel " + outputChannelName + ") from node " + this);
+				System.err.println("Error writing all records (error on channel " + outputChannelName + ") from node " + this);
 			}
 
 			finalResult |= immediateResult;
@@ -216,16 +323,16 @@ public abstract class Node implements Serializable, Runnable {
 
 	/* Close functions */
 
-	public boolean closeOutputs() {
+	protected boolean closeOutputs() {
 		Collection<OutputChannel> outputChannels = getOutputChannels();
 
-		return closeChannels(outputChannels);
+		return closeOutputs(outputChannels);
 	}
 
-	public boolean closeChannels(Collection<OutputChannel> channels) {
+	protected boolean closeOutputs(Collection<OutputChannel> outputChannels) {
 		boolean finalResult = true;
 
-		for (OutputChannel channel: channels) {
+		for (OutputChannel channel: outputChannels) {
 			try {
 				boolean immediateResult = channel.close();
 
@@ -247,7 +354,7 @@ public abstract class Node implements Serializable, Runnable {
 
 	/* ReaderShuffler and WriterShuffler functions */
 
-	private void createReaderShuffler() {
+	protected void createReaderShuffler() {
 		try {
 			readersShuffler = new RecordReaderShuffler(inputs);
 		} catch (IOException exception) {
@@ -257,25 +364,43 @@ public abstract class Node implements Serializable, Runnable {
 		}
 	}
 
-	private void createWriterShuffler() {
+	protected void createReaderShuffler(boolean structural, boolean application) {
+		Map<String, InputChannel> selected = null;
+
+		if (structural && application) {
+			selected = inputs;
+		}
+
+		if (structural && !application) {
+			selected = structuralInputs;
+		}
+
+		if (!structural && application) {
+			selected = applicationInputs;
+		}
+
+		try {
+			readersShuffler = new RecordReaderShuffler(selected);
+		} catch (IOException exception) {
+			System.err.println("Error creating read shuffler for node " + this);
+
+			exception.printStackTrace();
+		}
+	}
+
+	protected void createWriterShuffler() {
 		Collection<OutputChannel> outputChannels = getOutputChannels();
 
 		writersShuffler = new RecordWriterShuffler(outputChannels);
 	}
 
-	/* Aggregator functions */
+	/* Running functions */
 
-	public void setAggregator(Aggregator<?> aggregator) {
-		this.aggregator = aggregator;
+	public void prepareSchedule() {
+		setMark(null);
 	}
 
-	public Aggregator<?> getAggregator() {
-		return aggregator;
-	}
-
-	/* Runtime information (marking / grouping) */
-
-	/* Mark functions */
+	/* Parsing functions */
 
 	public MutableInteger getMark() {
 		return mark;

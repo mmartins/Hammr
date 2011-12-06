@@ -25,7 +25,7 @@ import utilities.filesystem.Filename;
 import communication.channel.Record;
 import communication.readers.FileRecordReader;
 
-public abstract class OutputExtractor {
+public class OutputExtractor {
 	private Filename[] inputs;
 	private Filename[] outputs;
 
@@ -56,12 +56,6 @@ public abstract class OutputExtractor {
 			System.exit(1);
 		}
 
-		if (inputList.size() != outputList.size()) {
-			System.err.println("The specified inputs and outputs should have the same size");
-
-			System.exit(1);
-		}
-
 		this.inputs = inputList.toArray(new Filename[inputList.size()]);
 		this.outputs = outputList.toArray(new Filename[outputList.size()]);
 	}
@@ -80,10 +74,12 @@ public abstract class OutputExtractor {
 
 		BufferedWriter[] writers = new BufferedWriter[outputs.length];
 
-		for(int i = 0; i < outputs.length; i++) {
+		for (int i = 0; i < outputs.length; i++) {
 			writers[i] = new BufferedWriter(new FileWriter(outputs[i].getLocation(), true));
 		}
 
+		int writerCount = 0;
+		
 		for (int i = 0; i < readers.length; i++) {
 			Record record;
 
@@ -94,7 +90,7 @@ public abstract class OutputExtractor {
 					break;
 				}
 
-				writers[i].write(getData(record));
+				writers[(writerCount++) % writers.length].write(getData(record));
 			}
 		}
 
@@ -107,5 +103,7 @@ public abstract class OutputExtractor {
 		}
 	}
 
-	protected abstract String getData(Record record);
+	protected String getData(Record record) {
+		return record.toString();
+	}
 }

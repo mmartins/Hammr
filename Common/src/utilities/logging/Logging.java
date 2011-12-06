@@ -1,6 +1,5 @@
 /*
-Copyright (c) 2010, Hammurabi Mendes
-
+Copyright (c) 2011, Hammurabi Mendes
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -14,10 +13,6 @@ package utilities.logging;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-<<<<<<< HEAD
-=======
-
->>>>>>> d398a6bce8b005e21fe66932959f36740382ee6d
 import java.util.Calendar;
 
 public class Logging {

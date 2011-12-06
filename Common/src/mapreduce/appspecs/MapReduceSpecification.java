@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010, Hammurabi Mendes
+Copyright (c) 2011, Hammurabi Mendes
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -15,7 +15,8 @@ import utilities.filesystem.Directory;
 import utilities.filesystem.Filename;
 import appspecs.ApplicationSpecification;
 import appspecs.Node;
-import enums.CommunicationType;
+
+import enums.CommunicationMode;
 
 import exceptions.InexistentInputException;
 import exceptions.OverlapingFilesException;
@@ -41,7 +42,7 @@ public class MapReduceSpecification extends ApplicationSpecification {
 
 		stageMappers(mappers);
 
-		insertEdges(splitStage, mapStage, CommunicationType.FILE);
+		insertEdges(splitStage, mapStage, CommunicationMode.FILE);
 	}
 
 	public void insertMappers(Filename[] inputs, Node[] mappers) throws InexistentInputException {
@@ -59,7 +60,7 @@ public class MapReduceSpecification extends ApplicationSpecification {
 
 		addOutput(mergeStage[0], output);
 
-		insertEdges(reduceStage, mergeStage, CommunicationType.FILE);
+		insertEdges(reduceStage, mergeStage, CommunicationMode.FILE);
 	}
 
 	public void insertReducers(Filename[] outputs, Node[] reducers) throws OverlapingFilesException {
@@ -72,10 +73,10 @@ public class MapReduceSpecification extends ApplicationSpecification {
 
 	public void setupCommunication(boolean useTCP) throws OverlapingFilesException {
 		if(useTCP) {
-			insertEdges(mapStage, reduceStage, CommunicationType.TCP);
+			insertEdges(mapStage, reduceStage, CommunicationMode.TCP);
 		}
 		else {
-			insertEdges(mapStage, reduceStage, CommunicationType.FILE);
+			insertEdges(mapStage, reduceStage, CommunicationMode.FILE);
 		}
 
 		finalize();

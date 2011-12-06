@@ -9,30 +9,53 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package utilities;
+package nodes;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
-import utilities.filesystem.Filename;
+import communication.channel.ChannelElement;
 
-import communication.channel.Record;
-import communication.readers.FileRecordReader;
+public abstract class TimedStatefulNode extends StatefulNode {
+	private static final long serialVersionUID = 1L;
 
-public class FileContentsPrinter {
-	private Filename filename;
+	private int timeout;
 
-	public FileContentsPrinter(Filename filename) {
-		this.filename = filename;
+	private TimeUnit timeUnit;
+
+	public TimedStatefulNode(int timeout, TimeUnit timeUnit) {
+		this.timeout = timeout;
+
+		this.timeUnit = timeUnit;
 	}
 
-	public void dump() throws FileNotFoundException, IOException {
-		FileRecordReader reader = new FileRecordReader(filename);
+	public void run() {
+		initiateReaderShufflers();
 
-		Record element;
-
-		while((element = reader.read()) != null) {
-			System.out.println(element);
+		if(!performInitialization()) {
+			return;
 		}
+
+		ChannelElement channelElement;
+
+		while(true) {
+			channelElement = tryReadSomeone(timeout, timeUnit);
+
+			if(channelElement == null) {
+				if(dynamicallyVerifyTermination()) {
+					break;
+				}
+			}
+			else {
+				performAction(channelElement);
+			}
+		}
+
+		performTermination();
+
+		closeOutputs();		
 	}
+
+	protected abstract void initiateReaderShufflers();
+
+	protected abstract boolean dynamicallyVerifyTermination();
 }

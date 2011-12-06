@@ -9,42 +9,30 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package communication.channel;
+package graphs.appspecs;
 
-import java.io.Serializable;
+import appspecs.ApplicationSpecification;
 
-public class ChannelElement implements Serializable {
+import appspecs.Node;
+
+import utilities.filesystem.Directory;
+
+import graphs.programs.GraphVertex;
+import graphs.programs.GraphEdge;
+
+public class GraphProcessingSpecification<V extends GraphVertex,E extends GraphEdge> extends ApplicationSpecification {
 	private static final long serialVersionUID = 1L;
 
-	private Object object;
-	private String description;
+	public GraphProcessingSpecification(String name, Directory baseDirectory) {
+		super(name, baseDirectory);
 
-	public ChannelElement(Object object, String description) {
-		this.object = object;
-		this.description = description;
+		nameGenerationString = "worker-";
+		nameGenerationCounter = 0L;
 	}
 
-	public ChannelElement(Object object) {
-		this(object, null);
-	}
+	public void insertWorkers(Node[] workers) {
+		insertNodes(workers);
 
-	public Object getObject() {
-		return object;
-	}
-
-	public void setObject(Object object) {
-		this.object = object;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String toString() {
-		return object.toString();
+		setInitials(workers);
 	}
 }

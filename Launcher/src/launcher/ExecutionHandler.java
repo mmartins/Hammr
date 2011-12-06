@@ -105,8 +105,12 @@ public class ExecutionHandler extends Thread {
 	 */
 	@Override
 	public void run() {
-		// Store runtime information; sent back to master
-		// at the end of execution.
+		// Makes the current launcher and current manager accessible to the nodes
+		nodeGroup.setCurrentLauncher(jobLauncher);
+		nodeGroup.setManager(manager);
+
+		// Stores runtime information; sent back to the master
+		// at the end of the execution.
 		ResultSummary resultSummary;
 
 		try {
@@ -117,6 +121,10 @@ public class ExecutionHandler extends Thread {
 			genericException.printStackTrace();
 
 			resultSummary = new ResultSummary(nodeGroup.getApplicationName(), nodeGroup.getSerialNumber(), ResultSummary.Type.FAILURE);
+
+			for(Node node: nodeGroup.getNodes()) {
+				resultSummary.addNodeMeasurements(node.getName(), null);
+			}
 
 			finishExecution(resultSummary);
 
@@ -239,7 +247,7 @@ public class ExecutionHandler extends Thread {
 					 */
 					InetSocketAddress socketAddress = manager.obtainSocketAddress(nodeGroup.getApplicationName(), tcpOutputChannel.getName());
 
-					if(socketAddress == null) {
+					if (socketAddress == null) {
 						throw new InexistentApplicationException(nodeGroup.getApplicationName());
 					}
 

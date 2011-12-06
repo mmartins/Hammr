@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010, Hammurabi Mendes
+Copyright (c) 2011, Hammurabi Mendes
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -9,31 +9,17 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package communication.writers;
+package graphs.programs;
 
-import java.net.Socket;
-import java.net.InetSocketAddress;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
-import java.io.IOException;
+public class GraphEdge extends DefaultWeightedEdge {
+	private static final long serialVersionUID = 1L;
 
-import communication.channel.ChannelElement;
-import communication.interfaces.ChannelElementWriter;
-
-import communication.streams.ChannelElementOutputStream;
-
-public class TCPChannelElementWriter implements ChannelElementWriter {
 	private String name;
-	private ChannelElementOutputStream channelElementOutputStream;
 
-	public TCPChannelElementWriter(String name, InetSocketAddress socketAddress) throws IOException {
-		this.name = name;
-
-		Socket socket = new Socket(socketAddress.getAddress(), socketAddress.getPort());
-
-		this.channelElementOutputStream = new ChannelElementOutputStream(socket.getOutputStream());
-
-		channelElementOutputStream.writeObject(name);
-	}
+	private String sourceName;
+	private String targetName;
 
 	public String getName() {
 		return name;
@@ -43,24 +29,23 @@ public class TCPChannelElementWriter implements ChannelElementWriter {
 		this.name = name;
 	}
 
-	public boolean write(ChannelElement channelElement) throws IOException {
-		channelElementOutputStream.writeChannelElement(channelElement);
-
-		return true;
+	public String getSourceName() {
+		return sourceName;
 	}
 
-	public boolean flush() throws IOException {
-		channelElementOutputStream.flush();
-		channelElementOutputStream.reset();
-
-		return true;
+	public void setSourceName(String sourceName) {
+		this.sourceName = sourceName;
 	}
 
-	public boolean close() throws IOException {
-		channelElementOutputStream.flush();
+	public String getTargetName() {
+		return targetName;
+	}
 
-		channelElementOutputStream.close();
+	public void setTargetName(String targetName) {
+		this.targetName = targetName;
+	}
 
-		return true;
+	public String toString() {
+		return "[" + name + ": " + sourceName + " -> " + targetName + "]";
 	}
 }

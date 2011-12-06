@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010, Hammurabi Mendes
+Copyright (c) 2011, Hammurabi Mendes
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -10,8 +10,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  */
 
 package scheduler;
-
-import appspecs.ApplicationSpecification;
 
 import exceptions.CyclicDependencyException;
 import exceptions.InexistentInputException;
@@ -28,12 +26,10 @@ public interface Scheduler {
 	/**
 	 * Setups the scheduler for the new application being executed.
 	 * 
-	 * @param applicationSpecification Application specification.
-	 * 
 	 * @throws TemporalDependencyException If the application specification has a temporal dependency problem.
 	 * @throws CyclicDependencyException If the application specification has a cyclic dependency problem.
 	 */
-	public void prepareApplication(ApplicationSpecification applicationSpecification) throws TemporalDependencyException, CyclicDependencyException;
+	public void prepareApplication() throws TemporalDependencyException, CyclicDependencyException;
 
 	/**
 	 * Terminates the application .

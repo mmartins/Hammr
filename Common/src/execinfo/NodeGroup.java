@@ -1,9 +1,13 @@
 /*
+<<<<<<< HEAD
 Copyright (c) 2010, Hammurabi Mendes
 <<<<<<< HEAD
 
 =======
 >>>>>>> d398a6bce8b005e21fe66932959f36740382ee6d
+=======
+Copyright (c) 2011, Hammurabi Mendes
+>>>>>>> hmendes/master
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -15,7 +19,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
+<<<<<<< HEAD
 import interfaces.StateManager;
+=======
+import interfaces.Manager;
+import interfaces.Launcher;
+
+import java.util.Collection;
+>>>>>>> hmendes/master
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -29,16 +40,30 @@ import appspecs.Node;
 public class NodeGroup implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	/////////////////////////
+	// RUNNING INFORMATION //
+	/////////////////////////
+
 	private Set<Node> nodes;
 
 	private String applicationName;
+
 	private long serialNumber;
 
-	private MutableInteger mark;
+	private Launcher currentLauncher;
+	private Launcher previousLauncher;
+
+	private Manager manager;
+
+	/////////////////////////
+	// PARSING INFORMATION //
+	/////////////////////////
 
 	private Stage stage;
 	
 	private StateManager groupManager;
+	
+	private MutableInteger mark;
 	
 	private ProgressReport progressReport;
 	
@@ -56,6 +81,22 @@ public class NodeGroup implements Serializable {
 		setApplicationName(applicationName);
 		addNodes(nodes);
 		ProgressReport progressReport = new ProgressReport();
+	}
+
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
+
+	public String getApplicationName() {
+		return applicationName;
+	}
+
+	public void setSerialNumber(long serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+
+	public long getSerialNumber() {
+		return serialNumber;
 	}
 
 	private boolean addNode(Node node) {
@@ -102,20 +143,36 @@ public class NodeGroup implements Serializable {
 		return nodes.size();
 	}
 
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
+	public Launcher getCurrentLauncher() {
+		return currentLauncher;
 	}
 
-	public String getApplicationName() {
-		return applicationName;
+	public void setCurrentLauncher(Launcher currentLauncher) {
+		this.currentLauncher = currentLauncher;
 	}
 
-	public void setSerialNumber(long serialNumber) {
-		this.serialNumber = serialNumber;
+	public Launcher getPreviousLauncher() {
+		return previousLauncher;
 	}
 
-	public long getSerialNumber() {
-		return serialNumber;
+	public void setPreviousLauncher(Launcher previousLauncher) {
+		this.previousLauncher = previousLauncher;
+	}
+
+	public Manager getManager() {
+		return manager;
+	}
+
+	public void setManager(Manager manager) {
+		this.manager = manager;
+	}
+
+	public void setNodeGroupBundle(NodeGroupBundle nodeGroupBundle) {
+		this.nodeGroupBundle = nodeGroupBundle;
+	}
+
+	public NodeGroupBundle getNodeGroupBundle() {
+		return nodeGroupBundle;
 	}
 
 	public MutableInteger getMark() {
@@ -175,6 +232,8 @@ public class NodeGroup implements Serializable {
 		setSerialNumber(serialNumber);
 
 		setStage(null);
+		
+		setMark(null);
 	}
 
 	public String toString() {

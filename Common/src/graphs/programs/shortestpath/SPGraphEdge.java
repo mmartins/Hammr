@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010, Hammurabi Mendes
+Copyright (c) 2011, Hammurabi Mendes
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -9,28 +9,36 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package nodes;
+package graphs.programs.shortestpath;
 
-import appspecs.Node;
+import graphs.programs.GraphEdge;
 
-import communication.channel.ChannelElement;
-
-public class ReaderSomeoneWriterSomeone extends Node {
+public class SPGraphEdge extends GraphEdge {
 	private static final long serialVersionUID = 1L;
 
-	public void run() {
-		ChannelElement channelElement;
+	private double distance;
 
-		while(true) {
-			channelElement = readSomeone();
+	public SPGraphEdge(double distance) {
+		this.distance = distance;
+	}
 
-			if(channelElement == null) {
-				break;
-			}
+	public SPGraphVertex getSource() {
+		return (SPGraphVertex) super.getSource();
+	}
 
-			writeSomeone(channelElement);
-		}
+	public SPGraphVertex getTarget() {
+		return (SPGraphVertex) super.getTarget();
+	}
 
-		closeOutputs();
+	public double getDistance() {
+		return distance;
+	}
+
+	public void setDistance(double distance) {
+		this.distance = distance;
+	}
+
+	public String toString() {
+		return "{" + super.toString() + " " + distance + "}";
 	}
 }
