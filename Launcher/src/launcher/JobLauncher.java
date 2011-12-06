@@ -220,16 +220,6 @@ public class JobLauncher implements Launcher {
 	}
 
 	/**
-	 * Launcher startup method.
-	 * 
-	 * @param arguments A list containing:
-	 *        1) Registry location.
-	 */
-	public static void main(String[] arguments) {
-		System.out.println("Running " + JobLauncher.getInstance().getId());
-	}
-
-	/**
 	 * Get the object from the launcher cache associated with the specified entry.
 	 * 
 	 * @param entry Entry used to index the launcher cache.
@@ -251,4 +241,11 @@ public class JobLauncher implements Launcher {
 	public Object putCacheEntry(String entry, Object object) {
 		return launcherCache.put(entry, object);
 	}
+
+	/**
+	 * Launcher startup method.
+	 */
+	public static void main(String[] arguments) {
+		System.out.println("Running " + JobLauncher.getInstance().getId());
+	}	
 }

@@ -61,7 +61,7 @@ public abstract class Merger<K,V> extends Node {
 			}
 		}
 
-		closeOutputs();
+		shutdown();
 	}
 
 	public abstract Comparator<MRRecord<K,V>> getComparator();

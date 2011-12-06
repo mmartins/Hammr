@@ -167,7 +167,7 @@ public class ExecutionHandler extends Thread {
 					SHMInputChannel shmInputChannel = (SHMInputChannel) inputChannel;
 
 					if (shmRecordMultiplexer == null) {
-						shmRecordMultiplexer = new SHMRecordMultiplexer(node.getInputChannelNames());
+						shmRecordMultiplexer = new SHMRecordMultiplexer(node.getInputChannelNames(SHMInputChannel.class));
 
 						/*
 						 * For SHM, when creating input pipe, map the
@@ -213,7 +213,7 @@ public class ExecutionHandler extends Thread {
 					TCPInputChannel tcpInputChannel = (TCPInputChannel) inputChannel;
 
 					if (tcpRecordMultiplexer == null) {
-						tcpRecordMultiplexer = new TCPRecordMultiplexer(node.getInputChannelNames());
+						tcpRecordMultiplexer = new TCPRecordMultiplexer(node.getInputChannelNames(TCPInputChannel.class));
 
 						tcpInputChannel.setSocketAddress(tcpRecordMultiplexer.getAddress());
 

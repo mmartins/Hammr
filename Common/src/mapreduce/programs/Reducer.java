@@ -33,7 +33,7 @@ public abstract class Reducer<K,V> extends Node {
 
 		flushReduce();
 
-		closeOutputs();
+		shutdown();
 	}
 
 	protected abstract void reduce(K key, V value);

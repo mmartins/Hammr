@@ -79,7 +79,7 @@ public abstract class Mapper<K,V> extends Node {
 
 		flushMap();
 
-		closeOutputs();
+		shutdown();
 	}
 
 	protected String getDestination(K key) {

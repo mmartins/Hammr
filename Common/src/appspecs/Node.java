@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import platforms.x86.X86_Energy;
 
 import utilities.MutableInteger;
 
+import communication.channel.FileInputChannel;
 import communication.channel.InputChannel;
 import communication.channel.OutputChannel;
 import communication.channel.Record;
@@ -108,12 +110,36 @@ public abstract class Node implements Serializable, Runnable {
 		return applicationInputs.keySet();
 	}
 
+	public Set<String> getInputChannelNames(Class<? extends InputChannel> type) {
+		Set<String> result = new HashSet<String>();
+
+		for (InputChannel inputChannel: getInputChannels()) {
+			if (type.isInstance(inputChannel)) {
+				result.add(inputChannel.getName());
+			}
+		}
+
+		return result;
+	}
+
 	public Set<String> getStrucutralInputChannelNames() {
 		return applicationInputs.keySet();
 	}
 
 	public Collection<InputChannel> getInputChannels() {
 		return inputs.values();
+	}
+
+	public Set<InputChannel> getInputChannels(Class<? extends InputChannel> type) {
+		Set<InputChannel> result = new HashSet<InputChannel>();
+
+		for (InputChannel inputChannel: getInputChannels()) {
+			if (type.isInstance(inputChannel)) {
+				result.add(inputChannel);
+			}
+		}
+
+		return result;
 	}
 
 	public Collection<InputChannel> getApplicationInputChannels() {
@@ -149,6 +175,18 @@ public abstract class Node implements Serializable, Runnable {
 		return outputs.keySet();
 	}
 
+	public Set<String> getOutputChannelNames(Class<? extends OutputChannel> type) {
+		Set<String> result = new HashSet<String>();
+
+		for (OutputChannel outputChannel: getOutputChannels()) {
+			if (type.isInstance(outputChannel)) {
+				result.add(outputChannel.getName());
+			}
+		}
+
+		return result;
+	}
+
 	public Set<String> getApplicationOutputChannelNames() {
 		return applicationOutputs.keySet();
 	}
@@ -159,6 +197,18 @@ public abstract class Node implements Serializable, Runnable {
 
 	public Collection<OutputChannel> getOutputChannels() {
 		return outputs.values();
+	}
+
+	public Set<OutputChannel> getOutputChannels(Class<? extends OutputChannel> type) {
+		Set<OutputChannel> result = new HashSet<OutputChannel>();
+
+		for (OutputChannel outputChannel: getOutputChannels()) {
+			if (type.isInstance(outputChannel)) {
+				result.add(outputChannel);
+			}
+		}
+
+		return result;
 	}
 
 	public Collection<OutputChannel> getApplicationOutputChannels() {
@@ -232,7 +282,7 @@ public abstract class Node implements Serializable, Runnable {
 		// You need to create the read shuffler manually if you want to use this method
 
 		if (readersShuffler == null) {
-			throw new IllegalStateException();
+			createReaderShuffler();
 		}
 
 		try {
@@ -250,7 +300,7 @@ public abstract class Node implements Serializable, Runnable {
 		// You need to create the read shuffler manually if you want to use this method
 
 		if (readersShuffler == null) {
-			throw new IllegalStateException();
+			createReaderShuffler();
 		}
 
 		try {
@@ -322,6 +372,30 @@ public abstract class Node implements Serializable, Runnable {
 	}
 
 	/* Close functions */
+
+	protected void shutdown() {
+		closeInputs(getInputChannels(FileInputChannel.class));
+
+		closeOutputs();
+	}
+
+	protected void closeInputs() {
+		Collection<InputChannel> inputChannels = getInputChannels();
+
+		closeInputs(inputChannels);		
+	}
+
+	protected void closeInputs(Collection<InputChannel> inputChannels) {
+		for (InputChannel inputChannel: inputChannels) {
+			try {
+				inputChannel.close();
+			} catch (IOException exception) {
+				System.err.println("Error closing output channel " + inputChannel.getName() + " for node " + this + " (I/O error)");
+
+				exception.printStackTrace();
+			}
+		}
+	}
 
 	protected boolean closeOutputs() {
 		Collection<OutputChannel> outputChannels = getOutputChannels();
