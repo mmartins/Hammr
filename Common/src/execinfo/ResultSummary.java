@@ -33,9 +33,7 @@ public class ResultSummary implements Serializable {
 		setNodeGroupApplication(nodeGroupApplication);
 		setNodeGroupSerialNumber(nodeGroupSerialNumber);
 
-		if (type == Type.SUCCESS) {
-			measurements = new HashMap<String, NodeMeasurements>();
-		}
+		measurements = new HashMap<String, NodeMeasurements>();
 
 		setType(type);
 	}

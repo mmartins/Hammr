@@ -13,12 +13,12 @@ package graphs.communication;
 
 import graphs.programs.GraphEdge;
 
-import communication.channel.ChannelElement;
+import communication.channel.Record;
 
-public class EdgeChannelElement<E extends GraphEdge> extends ChannelElement {
+public class EdgeRecord<E extends GraphEdge> extends Record {
 	private static final long serialVersionUID = 1L;
 
-	public EdgeChannelElement(E edge) {
+	public EdgeRecord(E edge) {
 		super(edge, null);
 	}
 

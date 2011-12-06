@@ -22,7 +22,7 @@ import communication.streams.RecordOutputStream;
 
 public class FileRecordWriter implements RecordWriter {
 
-	private RecordOutputStream recordOutputStream;
+	private final RecordOutputStream recordOutputStream;
 
 	public FileRecordWriter(Filename filename) throws IOException {
 		recordOutputStream = new RecordOutputStream(FileHelper.openW(filename));

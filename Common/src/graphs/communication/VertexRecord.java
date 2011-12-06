@@ -13,12 +13,12 @@ package graphs.communication;
 
 import graphs.programs.GraphVertex;
 
-import communication.channel.ChannelElement;
+import communication.channel.Record;
 
-public class VertexChannelElement<V extends GraphVertex> extends ChannelElement {
+public class VertexRecord<V extends GraphVertex> extends Record {
 	private static final long serialVersionUID = 1L;
 
-	public VertexChannelElement(V vertex) {
+	public VertexRecord(V vertex) {
 		super(vertex, null);
 	}
 

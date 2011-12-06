@@ -19,14 +19,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
-<<<<<<< HEAD
 import interfaces.StateManager;
-=======
 import interfaces.Manager;
 import interfaces.Launcher;
-
-import java.util.Collection;
->>>>>>> hmendes/master
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -54,11 +49,6 @@ public class NodeGroup implements Serializable {
 	private Launcher previousLauncher;
 
 	private Manager manager;
-
-	/////////////////////////
-	// PARSING INFORMATION //
-	/////////////////////////
-
 	private Stage stage;
 	
 	private StateManager groupManager;
@@ -66,6 +56,10 @@ public class NodeGroup implements Serializable {
 	private MutableInteger mark;
 	
 	private ProgressReport progressReport;
+
+	/////////////////////////
+	// PARSING INFORMATION //
+	/////////////////////////
 	
 	public NodeGroup(String applicationName, Node node) {
 		nodes = new HashSet<Node>();
@@ -165,14 +159,6 @@ public class NodeGroup implements Serializable {
 
 	public void setManager(Manager manager) {
 		this.manager = manager;
-	}
-
-	public void setNodeGroupBundle(NodeGroupBundle nodeGroupBundle) {
-		this.nodeGroupBundle = nodeGroupBundle;
-	}
-
-	public NodeGroupBundle getNodeGroupBundle() {
-		return nodeGroupBundle;
 	}
 
 	public MutableInteger getMark() {

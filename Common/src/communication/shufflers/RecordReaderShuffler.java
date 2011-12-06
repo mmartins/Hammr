@@ -14,6 +14,7 @@ package communication.shufflers;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import communication.channel.InputChannel;
 import communication.channel.Record;
@@ -38,6 +39,18 @@ public class RecordReaderShuffler {
 		return multiplexer.read();
 	}
 
+	public Record tryReadArbitrary() throws IOException {
+		return multiplexer.tryRead();
+	}
+
+	public Record tryReadArbitrary(int timeout, TimeUnit timeUnit) throws IOException {
+		return multiplexer.tryRead(timeout, timeUnit);
+	}
+	
+	public Record peek() {
+		return multiplexer.peek();
+	}
+
 	private class Relayer extends Thread {
 		private String origin;
 
@@ -56,7 +69,7 @@ public class RecordReaderShuffler {
 		public void run() {
 			Record record;
 
-			while(true) {
+			while (true) {
 				try {
 					record = inputChannel.read();
 				} catch (EOFException exception) {

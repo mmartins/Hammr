@@ -13,7 +13,7 @@ package nodes;
 
 import java.util.concurrent.TimeUnit;
 
-import communication.channel.ChannelElement;
+import communication.channel.Record;
 
 public abstract class TimedStatefulNode extends StatefulNode {
 	private static final long serialVersionUID = 1L;
@@ -31,22 +31,22 @@ public abstract class TimedStatefulNode extends StatefulNode {
 	public void run() {
 		initiateReaderShufflers();
 
-		if(!performInitialization()) {
+		if (!performInitialization()) {
 			return;
 		}
 
-		ChannelElement channelElement;
+		Record record;
 
-		while(true) {
-			channelElement = tryReadSomeone(timeout, timeUnit);
+		while (true) {
+			record = tryReadArbitraryChannel(timeout, timeUnit);
 
-			if(channelElement == null) {
+			if (record == null) {
 				if(dynamicallyVerifyTermination()) {
 					break;
 				}
 			}
 			else {
-				performAction(channelElement);
+				performAction(record);
 			}
 		}
 

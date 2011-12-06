@@ -18,8 +18,6 @@ import java.util.Collection;
 import execinfo.LauncherStatus;
 import execinfo.NodeGroup;
 
-import execinfo.LauncherStatus;
-
 /**
  * Launcher remote interface. These functions can be called by remote machines.
  * 

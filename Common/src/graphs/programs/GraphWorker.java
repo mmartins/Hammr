@@ -82,7 +82,7 @@ public abstract class GraphWorker<V extends GraphVertex,E extends GraphEdge> ext
 			List<E> edges = new ArrayList<E>();
 
 			while (true) {
-				record = read(applicationInput);
+				record = readChannel(applicationInput);
 
 				if (record == null) {
 					break;
@@ -139,10 +139,10 @@ public abstract class GraphWorker<V extends GraphVertex,E extends GraphEdge> ext
 			while (iterator.hasNext()) {
 				V vertex = iterator.next();
 
-				write(new VertexRecord<V>(vertex), applicationOutput);
+				writeChannel(new VertexRecord<V>(vertex), applicationOutput);
 
 				for(E edge: graph.outgoingEdgesOf(vertex)) {
-					write(new EdgeRecord<E>(edge), applicationOutput);
+					writeChannel(new EdgeRecord<E>(edge), applicationOutput);
 				}
 			}
 		}

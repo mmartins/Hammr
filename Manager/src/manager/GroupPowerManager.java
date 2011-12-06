@@ -43,7 +43,7 @@ public class GroupPowerManager implements StateManager {
 
 	static {
 		String registryLocation = System.getProperty("java.rmi.server.location");
-		String baseDirectory = System.getProperty("hammr.stage_manager.basedir");
+		String baseDirectory = System.getProperty("hammr.group_manager.basedir");
 
 		instance = setupManager(registryLocation, baseDirectory);
 	}

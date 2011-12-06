@@ -12,26 +12,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package nodes;
 
-import appspecs.Node;
-
 import communication.channel.Record;
 
-public class ReaderArbitraryWriterAll extends Node {
+public class ReaderArbitraryWriterAll extends StatefulNode {
 	private static final long serialVersionUID = 1L;
 
-	public void run() {
-		Record record;
+	protected boolean performInitialization() {
+		return true;
+	}
 
-		while (true) {
-			record = readArbitraryChannel();
+	protected void performAction(Record record) {
+		writeAllChannels(record);
+	}
 
-			if(record == null) {
-				break;
-			}
-
-			writeAllChannels(record);
-		}
-
-		closeOutputs();
+	protected boolean performTermination() {
+		return true;
 	}
 }

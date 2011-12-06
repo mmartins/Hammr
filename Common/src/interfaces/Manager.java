@@ -46,9 +46,7 @@ public interface Manager extends Remote {
      *		2) Scheduler setup for application went wrong;
 	 * 
 	 */
-	public boolean registerApplication(
-			ApplicationSpecification applicationSpecification)
-			throws RemoteException;
+	public boolean registerApplication(ApplicationSpecification applicationSpecification) throws RemoteException;
 
 	/**
 	 * Registers server-side TCP channel socket address with manager. Called
@@ -75,8 +73,7 @@ public interface Manager extends Remote {
 	 * 
 	 * @return The socket address associated with the requested TCP channel.
 	 */
-	public InetSocketAddress obtainSocketAddress(String applicationName,
-			String nodeName) throws RemoteException;
+	public InetSocketAddress obtainSocketAddress(String applicationName, String nodeName) throws RemoteException;
 
 	/**
 	 * Returns the aggregator specified by the application name and variable

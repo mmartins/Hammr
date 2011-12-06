@@ -64,6 +64,22 @@ public class SHMRecordMultiplexer implements RecordReader {
 		return queue.poll();
 	}
 
+	public Record tryRead(int timeout, TimeUnit timeUnit) throws IOException {
+		while(true) {
+			try {
+				return queue.poll(timeout, timeUnit);
+			} catch (InterruptedException exception) {
+				System.err.println("Unexpected thread interruption while waiting for a read");
+
+				exception.printStackTrace();
+			}
+		}
+	}
+
+	public Record peek() {
+		return queue.peek();
+	}
+	
 	public boolean write(String origin, Record record) throws IOException {
 		try {
 			queue.put(record);

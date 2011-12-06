@@ -103,7 +103,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge> {
 
 				SPGraphUpdateMessage updateMessage = new SPGraphUpdateMessage(foreignEdge.getTargetName(), vertex.getDistance() + foreignEdge.getDistance());
 
-				write(updateMessage, ownerWorker);
+				writeChannel(updateMessage, ownerWorker);
 			}
 		}
 	}

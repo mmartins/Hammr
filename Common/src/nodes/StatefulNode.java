@@ -13,26 +13,26 @@ package nodes;
 
 import appspecs.Node;
 
-import communication.channel.ChannelElement;
+import communication.channel.Record;
 
 public abstract class StatefulNode extends Node {
 	private static final long serialVersionUID = 1L;
 
 	public void run() {
-		if(!performInitialization()) {
+		if (!performInitialization()) {
 			return;
 		}
 
-		ChannelElement channelElement;
+		Record record;
 
-		while(true) {
-			channelElement = readSomeone();
+		while (true) {
+			record = readArbitraryChannel();
 
-			if(channelElement == null) {
+			if (record == null) {
 				break;
 			}
 
-			performAction(channelElement);
+			performAction(record);
 		}
 
 		performTermination();
@@ -42,7 +42,7 @@ public abstract class StatefulNode extends Node {
 
 	protected abstract boolean performInitialization();
 
-	protected abstract void performAction(ChannelElement channelElement);
+	protected abstract void performAction(Record record);
 
 	protected abstract boolean performTermination();
 }
