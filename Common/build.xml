@@ -9,7 +9,7 @@
     <property name="Client.location" value="../Client"/>
     <property name="Launcher.location" value="../Launcher"/>
     <property name="Manager.location" value="../Manager"/>
-    <property name="ECLIPSE_HOME" value="../../../../../../Applications/Eclipse"/>
+	<property name="ECLIPSE_HOME" value="../../../bin/eclipse-3.7.1"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>

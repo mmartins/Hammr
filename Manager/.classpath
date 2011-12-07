@@ -4,5 +4,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Common"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/gpfs/main/home/martins/git/Hammr/lib/jgrapht-jdk1.6.jar"/>
+	<classpathentry kind="lib" path="/gpfs/main/home/martins/git/Hammr/lib/commons-math-2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

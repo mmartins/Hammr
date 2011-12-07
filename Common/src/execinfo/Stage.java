@@ -12,14 +12,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package execinfo;
 
 import interfaces.StateManager;
+import execinfo.ProgressReport;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import utilities.RMIHelper;
+
 public class Stage implements Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	private long serialNumber;
+	
 	private ProgressReport progressReport;
 
 	private Set<NodeGroup> nodeGroups;
@@ -27,13 +34,12 @@ public class Stage implements Serializable {
 	private StateManager stageManager;
 	
 	public Stage() {
-		nodeGroups = new HashSet<NodeGroup>();
+		nodeGroups = new HashSet<NodeGroup>();		
 		progressReport = new ProgressReport();
 	}
 
 	public Stage(NodeGroup nodeGroup) {
 		nodeGroups = new HashSet<NodeGroup>();
-
 		addNodeGroup(nodeGroup);
 	}
 
@@ -42,6 +48,15 @@ public class Stage implements Serializable {
 
 		addNodeGroups(nodeGroups);
 	}	
+
+	public void setSerialNumber(long serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+
+	public long getSerialNumber() {
+		return serialNumber;
+	}
+	
 	public boolean addNodeGroup(NodeGroup nodeGroup) {
 		if(nodeGroup.getStage() != null) {
 			assert false;

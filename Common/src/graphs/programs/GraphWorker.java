@@ -11,26 +11,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package graphs.programs;
 
+import graphs.communication.EdgeRecord;
+import graphs.communication.VertexRecord;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Map;
-import java.util.HashMap;
-
-import java.util.Set;
-import java.util.HashSet;
-
-import java.util.List;
-import java.util.ArrayList;
+import nodes.TimedStatefulNode;
 
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
 import communication.channel.Record;
-
-import graphs.communication.EdgeRecord;
-import graphs.communication.VertexRecord;
-
-import nodes.TimedStatefulNode;
 
 public abstract class GraphWorker<V extends GraphVertex,E extends GraphEdge> extends TimedStatefulNode {
 	private static final long serialVersionUID = 1L;

@@ -106,12 +106,14 @@ public class JobScheduler implements Scheduler {
 
 		System.out.println("Time to parse graph for application " + applicationSpecification.getName() + ": " + (graphParsingEndingTimer - graphParsingStartTimer) + " msec");
 
-		// Display identified node group bundles
+		// Display identified stages
 
-		System.out.println("Identified node group bundles:");
+		System.out.println("Identified stages:");
 
-		for (Stage x: stages.values()) {
-			System.out.println(x);
+		for (MutableInteger x: stages.keySet()) {
+			Stage s = stages.get(x);
+			s.setSerialNumber(x.getValue());
+			System.out.println(s);
 		}
 
 		// Detect cyclic dependency problems

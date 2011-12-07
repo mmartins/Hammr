@@ -38,6 +38,15 @@ import java.rmi.RemoteException;
 public interface StateManager extends Remote {
 
 	/**
+	 * Notifies manager of new state holder being started. Called by State holders.
+	 * 
+	 * @param holder Started holder.
+	 * 
+	 * @return True unless holder is not reachable.
+	 */
+	public boolean registerStateHolder(Object holder) throws RemoteException;
+
+	/**
 	 * Post-execution handler for state manager.
 	 * 
 	 * @return True if scheduling works as expected; false otherwise.

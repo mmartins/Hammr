@@ -86,10 +86,14 @@ public class X86_DVFS implements DVFS {
 		return availFreqs;
 	}
 	
-	public void setFrequencies(long[] frequencies) {
+	public boolean setFrequencies(long[] frequencies) {
+		boolean ret = true;
+		
 		for (int i = 0; i < numCPUs; i++) {
-			setFrequency(i, frequencies[i]);
+			ret |= setFrequency(i, frequencies[i]) == 0 ? false : true;
 		}
+		
+		return ret;
 	}
 	
 	public FreqStats[] getFreqStats() {

@@ -1,13 +1,5 @@
 /*
-<<<<<<< HEAD
-Copyright (c) 2010, Hammurabi Mendes
-<<<<<<< HEAD
-
-=======
->>>>>>> d398a6bce8b005e21fe66932959f36740382ee6d
-=======
 Copyright (c) 2011, Hammurabi Mendes
->>>>>>> hmendes/master
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -19,15 +11,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
+import interfaces.DVFS;
 import interfaces.StateManager;
 import interfaces.Manager;
 import interfaces.Launcher;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import platforms.x86.X86_DVFS;
 
 import utilities.MutableInteger;
 import appspecs.Node;
@@ -51,6 +48,8 @@ public class NodeGroup implements Serializable {
 	private Manager manager;
 	private Stage stage;
 	
+	private DVFS groupDVFS;
+	
 	private StateManager groupManager;
 	
 	private MutableInteger mark;
@@ -66,6 +65,7 @@ public class NodeGroup implements Serializable {
 
 		setApplicationName(applicationName);
 		addNode(node);
+		groupDVFS = new X86_DVFS();
 		ProgressReport progressReport = new ProgressReport();
 	}
 
@@ -74,6 +74,7 @@ public class NodeGroup implements Serializable {
 
 		setApplicationName(applicationName);
 		addNodes(nodes);
+		groupDVFS = new X86_DVFS();
 		ProgressReport progressReport = new ProgressReport();
 	}
 
@@ -222,6 +223,32 @@ public class NodeGroup implements Serializable {
 		setMark(null);
 	}
 
+	public boolean reducePerformance() {
+		long[][] freqs = groupDVFS.getAvailableFrequencies();
+		long[] setFreqs = new long[freqs.length];
+		
+		for (int i = 0; i < setFreqs.length; i++) {
+			long min = freqs[i][0];
+			for (long l : freqs[i]) if (min > l) min = l;
+			setFreqs[i] = min;
+		}
+		
+		return groupDVFS.setFrequencies(setFreqs);		
+	}
+	
+	public boolean increasePerformance() {
+		long[][] freqs = groupDVFS.getAvailableFrequencies();
+		long[] setFreqs = new long[freqs.length];
+		
+		for (int i = 0; i < setFreqs.length; i++) {
+			long max = freqs[i][0];
+			for (long l : freqs[i]) if (max < l) max = l;
+			setFreqs[i] = max;
+		}
+		
+		return groupDVFS.setFrequencies(setFreqs);
+	}
+	
 	public String toString() {
 		String result = "[";
 

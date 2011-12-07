@@ -39,7 +39,7 @@ public interface DVFS {
 	
 	public long[][] getAvailableFrequencies();
 	
-	public void setFrequencies(long[] frequencies);
+	public boolean setFrequencies(long[] frequencies);
 	
 	public FreqStats[] getFreqStats();
 }

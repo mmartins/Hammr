@@ -27,6 +27,15 @@ OF SUCH DAMAGE.
 
 package manager;
 
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import execinfo.NodeGroup;
+import execinfo.ProgressReport;
+import execinfo.Stage;
 import interfaces.StateManager;
 import utilities.RMIHelper;
 
@@ -40,6 +49,9 @@ public class StagePowerManager implements StateManager {
 	private static StagePowerManager instance;
 
 	private String baseDirectory;
+
+	// Active groups, mapped by ID
+	private Map<Long, Stage> registeredStages;
 
 	static {
 		String registryLocation = System.getProperty("java.rmi.server.location");
@@ -68,6 +80,25 @@ public class StagePowerManager implements StateManager {
 	}
 
 	/**
+	 * Notifies manager of new group start. Called by Launchers.
+	 * 
+	 * @param group	Started group.
+	 * 
+	 * @return True unless group is not reachable.
+	 */
+	public boolean registerStateHolder(Object holder) {
+		Stage stage = (Stage) holder;
+		long stageId;
+
+		stageId = stage.getSerialNumber();
+
+		registeredStages.put(stageId, stage);
+		System.out.println("Registered stage with ID " + stageId);
+
+		return true;
+	}
+
+	/**
 	 * Return the singleton instance of the stage manager.
 	 * 
 	 * @return The singleton instance of the stage manager.
@@ -77,11 +108,21 @@ public class StagePowerManager implements StateManager {
 	}
 
 	/**
+	 * Returns the list of registered groups.
+	 * 
+	 * @return The list of registered groups.
+	 */
+	public Collection<Stage> getRegisteredStages() {
+		return registeredStages.values();
+	}
+
+	/**
 	 * Constructor method.
 	 * 
 	 * @param baseDirectory Working directory of the manager.
 	 */
 	public StagePowerManager(String baseDirectory) {
+		this.registeredStages = Collections.synchronizedMap(new HashMap<Long, Stage>());
 		this.baseDirectory = baseDirectory;
 	}
 

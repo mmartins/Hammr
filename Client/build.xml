@@ -6,7 +6,7 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="Client">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../../../Applications/Eclipse"/>
+	<property name="ECLIPSE_HOME" value="../../../bin/eclipse-3.7.1"/>
     <property name="Common.location" value="../Common"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>

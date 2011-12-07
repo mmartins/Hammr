@@ -32,8 +32,10 @@ Compile() {
 	ant -buildfile $BASEDIR/Client/build.xml         && \
 	ant -buildfile $BASEDIR/Manager/build.xml        && \
 	ant -buildfile $BASEDIR/Launcher/build.xml       && \
-	mkdir $COMMONDIR/org                             && \
-	cp -r $LIBDIR/jgrapht-org/jgrapht $COMMONDIR/org
+	if [ ! -d "$COMMONDIR/lib" ]; then
+		mkdir $COMMONDIR/lib
+	fi                                               && \
+	cp -r $LIBDIR/* $COMMONDIR/lib
 }
 
 Clean() {
@@ -56,11 +58,11 @@ CheckRMIRegistry() {
 RunManager() {
 	CheckRMIRegistry
 
-	echo "Running manager: codebase=${CODEBASE} and registry=${REGISTRYLOC}"
+	echo "Running managers: codebase=${CODEBASE} and registry=${REGISTRYLOC}"
 	echo "You should have alredy run \"rmiregistry\" on machine ${REGISTRYLOC}"
-	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.JobManager $@ && \
-	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.stage_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.StagePowerManager $@ && ||
-	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.group_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.GroupPowerManager $@
+#	java -cp $CLASSPATH $HEAPPARAMS	-Dhammr.stage_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC	-Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.StagePowerManager $@
+#	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.group_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.GroupPowerManager $@
+	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.JobManager $@ 
 }
 
 RunLauncher() {
