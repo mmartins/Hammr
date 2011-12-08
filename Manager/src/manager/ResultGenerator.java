@@ -56,8 +56,12 @@ public class ResultGenerator extends Thread {
 	 * Generates result report, containing:
 	 * 	     1) Individual Node running times (real/CPU/user);
 	 *       2) Individual NodeGroup running time (real);
-	 *       3) Average Node running time (real/CPU/user);
-	 *       4) Average NodeGroup running time (real).
+	 *       3) Individual Node energy consumption;
+	 *       4) Individual NodeGroup energy consumption;
+	 *       5) Average Node running time (real/CPU/user);
+	 *       6) Average Node energy consumption;
+	 *       7) Average NodeGroup running time (real).
+	 *       
 	 */
 	public void run() {
 		String completeFilename = baseDirectory + "/" + application + ".dat";
@@ -74,6 +78,7 @@ public class ResultGenerator extends Thread {
 			long averageNodeCPUTime = 0;
 			long averageNodeUserTime = 0;
 			long averageNodeRealTime = 0;
+			long averageEnergy = 0;
 
 			int numberNodes = 0;
 
@@ -87,9 +92,10 @@ public class ResultGenerator extends Thread {
 
 			for (ResultSummary resultSummary: resultCollection) {
 				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" running time: " + getHumanReadableTime(resultSummary.getNodeGroupTiming()) + "\n");
+				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" energy: " + getHumanReadableTime(resultSummary.getNodeGroupEnergy()) + "\n");
 
 				averageNodeGroupTime += resultSummary.getNodeGroupTiming() / resultCollection.size();
-
+				
 				Set<String> nodeNames = resultSummary.getNodeNames();
 
 				for (String nodeName: nodeNames) {
@@ -109,6 +115,9 @@ public class ResultGenerator extends Thread {
 
 					file.write("\tNode \"" + nodeName + "\" User time: " + getHumanReadableTime(nodeMeasurements.getUserTime()) + "\n");
 					averageNodeUserTime += (nodeMeasurements.getUserTime() / numberNodes);
+					
+					file.write("\tNode \"" + nodeName + "\" Energy: " + nodeMeasurements.getEnergy() + "\n");
+					averageEnergy += (nodeMeasurements.getEnergy() / numberNodes);
 
 					file.write("\n");
 				}
@@ -118,6 +127,7 @@ public class ResultGenerator extends Thread {
 			file.write("Average Node CPU  time: " + getHumanReadableTime(averageNodeCPUTime) + "\n");
 			file.write("Average Node User time: " + getHumanReadableTime(averageNodeUserTime) + "\n");
 			file.write("Average Node Real time: " + getHumanReadableTime(averageNodeRealTime) + "\n");
+			file.write("Average Energy:         " + averageEnergy + "\n");
 
 			file.close();
 		} catch (IOException exception) {

@@ -17,6 +17,7 @@ LIBDIR="$BASEDIR/lib/"
 
 JGRAPHFILE="$LIBDIR/jgrapht-jdk1.6.jar"
 HADOOPFILE="$LIBDIR/hadoop-core-0.20.205.0.jar"
+MATHFILE="$LIBDIR/commons-math-2.2.jar"
 
 BINDIRS=$COMMONDIR:$BASEDIR/Client/bin:$BASEDIR/Launcher/bin:$BASEDIR/Manager/bin
 
@@ -25,17 +26,17 @@ HEAPPARAMS="-XX:-UseGCOverheadLimit -Xms2500M -Xmx2500M"
 
 export CODEBASE="file://${BASEDIR}/Common/bin/"
 
-export CLASSPATH=$BINDIRS:$JGRAPHFILE:$HADOOPFILE
+export CLASSPATH=$BINDIRS:$JGRAPHFILE:$HADOOPFILE:$MATHFILE
 
 Compile() {
 	ant -buildfile $BASEDIR/Common/build.xml         && \
 	ant -buildfile $BASEDIR/Client/build.xml         && \
 	ant -buildfile $BASEDIR/Manager/build.xml        && \
 	ant -buildfile $BASEDIR/Launcher/build.xml       && \
-	if [ ! -d "$COMMONDIR/lib" ]; then
-		mkdir $COMMONDIR/lib
+	if [ ! -d "$COMMONDIR/org" ]; then
+		mkdir $COMMONDIR/org
 	fi                                               && \
-	cp -r $LIBDIR/* $COMMONDIR/lib
+	cp -r $LIBDIR/jgrapht-org/jgrapht $COMMONDIR/org
 }
 
 Clean() {
@@ -60,8 +61,8 @@ RunManager() {
 
 	echo "Running managers: codebase=${CODEBASE} and registry=${REGISTRYLOC}"
 	echo "You should have alredy run \"rmiregistry\" on machine ${REGISTRYLOC}"
-#	java -cp $CLASSPATH $HEAPPARAMS	-Dhammr.stage_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC	-Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.StagePowerManager $@
-#	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.group_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.GroupPowerManager $@
+	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.stage_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.StagePowerManager $@ &
+	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.group_manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.GroupPowerManager $@ &
 	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.manager.basedir=$MANAGER_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Manager/security.policy manager.JobManager $@ 
 }
 

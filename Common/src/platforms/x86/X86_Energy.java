@@ -11,12 +11,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package platforms.x86;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import appspecs.Energy;
 import utilities.dvfs.FreqStats;
 
-public class X86_Energy implements Energy {
+public class X86_Energy implements Energy,Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private X86_DVFS dvfs;
 	
 	public X86_Energy() {

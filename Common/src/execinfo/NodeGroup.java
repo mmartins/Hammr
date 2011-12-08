@@ -12,20 +12,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package execinfo;
 
 import interfaces.DVFS;
-import interfaces.StateManager;
-import interfaces.Manager;
 import interfaces.Launcher;
+import interfaces.Manager;
+import interfaces.StateManager;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.rmi.RemoteException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import platforms.x86.X86_DVFS;
-
 import utilities.MutableInteger;
 import appspecs.Node;
 
@@ -66,16 +66,16 @@ public class NodeGroup implements Serializable {
 		setApplicationName(applicationName);
 		addNode(node);
 		groupDVFS = new X86_DVFS();
-		ProgressReport progressReport = new ProgressReport();
+		progressReport = new ProgressReport();
 	}
 
 	public NodeGroup(String applicationName, Set<Node> nodes) {
-		nodes = new HashSet<Node>();
+		this.nodes = new HashSet<Node>();
 
 		setApplicationName(applicationName);
 		addNodes(nodes);
 		groupDVFS = new X86_DVFS();
-		ProgressReport progressReport = new ProgressReport();
+		progressReport = new ProgressReport();
 	}
 
 	public void setApplicationName(String applicationName) {
@@ -95,7 +95,7 @@ public class NodeGroup implements Serializable {
 	}
 
 	private boolean addNode(Node node) {
-		if(node.getNodeGroup() != null) {
+		if (node.getNodeGroup() != null) {
 			assert false;
 
 			return false;
@@ -109,18 +109,18 @@ public class NodeGroup implements Serializable {
 	}
 
 	private boolean addNodes(Collection<Node> nodes) {
-		for(Node node: nodes) {
-			if(node.getNodeGroup() != null) {
+		for (Node node: nodes) {
+			if (node.getNodeGroup() != null) {
 				assert false;
 
 				return false;
 			}
 		}
 
-		for(Node node: nodes) {
+		for (Node node: nodes) {
 			node.setNodeGroup(this);
 
-			nodes.add(node);
+			this.nodes.add(node);
 		}
 
 		return true;
@@ -189,17 +189,23 @@ public class NodeGroup implements Serializable {
 	
 	public void setGroupManager(StateManager groupManager) {
 		this.groupManager = groupManager;
+		try {
+			groupManager.registerStateHolder(this);
+		} catch (RemoteException exception) {
+			System.err.println("Unable to contact manager");
+			exception.printStackTrace();
+		}
 	}
 	
 	public StateManager getGroupManager() {
 		return groupManager;
 	}
 	
-	public ProgressReport getProgressReport() {
+	public synchronized ProgressReport getProgressReport() {
 		return progressReport;
 	}
 
-	public ProgressReport setProgressReport() {
+	public synchronized ProgressReport setProgressReport() {
 		return progressReport;
 	}
 	
@@ -215,14 +221,38 @@ public class NodeGroup implements Serializable {
 		return progressReport;
 	}
 	
+	public long getEnergy() {
+		long energy = 0;
+		
+		for (Node node: getNodes()) {
+			energy += node.getEnergy();
+		}
+		
+		return energy;
+	}
 	public void prepareSchedule(long serialNumber) {
 		setSerialNumber(serialNumber);
 
-		setStage(null);
-		
 		setMark(null);
 	}
 
+	public void scheduleProgressReport(long initialDelay, long period) {
+		/*Timer timer = new Timer();
+		
+		TimerTask task = new TimerTask() {
+			public void run() {
+				try {
+					groupManager.receiveState(NodeGroup.this, progressReport);
+				} catch (RemoteException exception) {
+					System.err.println("Unable to contact manager");
+					exception.printStackTrace();
+				}
+			}
+		};
+		
+		timer.scheduleAtFixedRate(task, initialDelay, period);*/
+	}
+	
 	public boolean reducePerformance() {
 		long[][] freqs = groupDVFS.getAvailableFrequencies();
 		long[] setFreqs = new long[freqs.length];
@@ -254,8 +284,8 @@ public class NodeGroup implements Serializable {
 
 		boolean firstNode = true;
 
-		for(Node node: getNodes()) {
-			if(!firstNode) {
+		for (Node node: nodes) {
+			if (!firstNode) {
 				result += ", ";
 			}
 

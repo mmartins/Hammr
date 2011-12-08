@@ -23,6 +23,8 @@ public class ResultSummary implements Serializable {
 	private long nodeGroupSerialNumber;
 
 	private long nodeGroupTiming;
+	
+	private long nodeGroupEnergy;
 
 	// Maps nodes to individual measurements
 	private Map<String, NodeMeasurements> measurements;
@@ -70,6 +72,13 @@ public class ResultSummary implements Serializable {
 		this.nodeGroupTiming = nodeGroupTiming;
 	}
 
+	public long getNodeGroupEnergy() {
+		return nodeGroupEnergy;
+	}
+	
+	public void setNodeGroupEnergy(long nodeGroupEnergy) {
+		this.nodeGroupEnergy = nodeGroupEnergy;
+	}
 	public Set<String> getNodeNames() {
 		return measurements.keySet();
 	}

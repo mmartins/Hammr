@@ -27,10 +27,14 @@ OF SUCH DAMAGE.
 
 package platforms.x86;
 
+import java.io.Serializable;
+
 import interfaces.DVFS;
 import utilities.dvfs.FreqStats;
 
-public class X86_DVFS implements DVFS {
+public class X86_DVFS implements DVFS,Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public native long getTransitionLatency(int cpu);
 	public native int getHardwareLimits(int cpu);
@@ -112,7 +116,6 @@ public class X86_DVFS implements DVFS {
 	public static void main(String[] args)
 	{
 		X86_DVFS dvfs = new X86_DVFS();
-		Runtime runtime = Runtime.getRuntime();
 		int numCPUs = dvfs.getNumCPUs();
 		FreqStats stats;
 
@@ -144,7 +147,7 @@ public class X86_DVFS implements DVFS {
 	}
 	
 	static {
-		System.load("/home/martins/git/Hammr/Common/platforms/x86/libx86DVFS.so");
+		System.load("/home/martins/git/Hammr/Common/bin/platforms/x86/libx86DVFS.so");
 	}
 
 }

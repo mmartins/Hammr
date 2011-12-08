@@ -27,20 +27,19 @@ OF SUCH DAMAGE.
 
 package manager;
 
+import interfaces.StateManager;
+
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
+import utilities.RMIHelper;
 import execinfo.NodeGroup;
 import execinfo.ProgressReport;
-import interfaces.StateManager;
-import utilities.RMIHelper;
-
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
 /**
  * Concrete implementation of Manager.
@@ -298,8 +297,9 @@ public class GroupPowerManager implements StateManager {
 	}
 	
 	public static class GroupPolicy {
-		public static final int PERFORMANCE = 0;
-		public static final int ENERGY = 1;
-		public static final int MODERATE = 2;
+		public static final int NONE = 0;
+		public static final int PERFORMANCE = 1;
+		public static final int ENERGY = 2;
+		public static final int MODERATE = 3;
 	}
 }

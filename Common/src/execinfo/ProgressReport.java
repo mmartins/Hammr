@@ -11,12 +11,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
+import java.io.Serializable;
+
 /**
  * @author Marcelo Martins (martins)
  *
  */
-public class ProgressReport {
+public class ProgressReport implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private double progress;
 	
 	public ProgressReport() {

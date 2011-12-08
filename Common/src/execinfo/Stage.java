@@ -12,15 +12,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package execinfo;
 
 import interfaces.StateManager;
-import execinfo.ProgressReport;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import utilities.RMIHelper;
 
 public class Stage implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -38,13 +34,26 @@ public class Stage implements Serializable {
 		progressReport = new ProgressReport();
 	}
 
+	public Stage(long serialNumber, NodeGroup nodeGroup) {
+		this.serialNumber = serialNumber;
+		this.nodeGroups = new HashSet<NodeGroup>();
+		addNodeGroup(nodeGroup);
+	}
+	
 	public Stage(NodeGroup nodeGroup) {
 		nodeGroups = new HashSet<NodeGroup>();
 		addNodeGroup(nodeGroup);
 	}
 
+	public Stage(long serialNumber, Set<NodeGroup> nodeGroups) {
+		this.serialNumber = serialNumber;
+		this.nodeGroups = new HashSet<NodeGroup>();
+
+		addNodeGroups(nodeGroups);	
+	}
+	
 	public Stage(Set<NodeGroup> nodeGroups) {
-		nodeGroups = new HashSet<NodeGroup>();
+		this.nodeGroups = new HashSet<NodeGroup>();
 
 		addNodeGroups(nodeGroups);
 	}	
@@ -72,18 +81,18 @@ public class Stage implements Serializable {
 	}
 
 	public boolean addNodeGroups(Set<NodeGroup> nodeGroups) {
-		for(NodeGroup nodeGroup: nodeGroups) {
-			if(nodeGroup.getStage() != null) {
+		for (NodeGroup nodeGroup: nodeGroups) {
+			if (nodeGroup.getStage() != null) {
 				assert false;
 
 				return false;
 			}
 		}
 
-		for(NodeGroup nodeGroup: nodeGroups) {
+		for (NodeGroup nodeGroup: nodeGroups) {
 			nodeGroup.setStage(this);
 
-			nodeGroups.add(nodeGroup);
+			this.nodeGroups.add(nodeGroup);
 		}	
 
 		return true;

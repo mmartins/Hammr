@@ -175,7 +175,7 @@ public class JobLauncher implements Launcher {
 	 * @return True if the NodeGroup fits into the number of free slots available; false otherwise.
 	 */
 	public synchronized boolean addNodeGroup(NodeGroup nodeGroup) {
-		if(launcherStatus.getFreeSlots() < nodeGroup.getSize()) {
+		if (launcherStatus.getFreeSlots() < nodeGroup.getSize()) {
 			return false;
 		}
 

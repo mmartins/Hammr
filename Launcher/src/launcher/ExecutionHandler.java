@@ -59,6 +59,9 @@ public class ExecutionHandler extends Thread {
 
 	private NodeGroup nodeGroup;
 
+	/* report period for nodeGroups in milliseconds*/
+	private long reportPeriod;
+	
 	static String registryLocation = System.getProperty("java.rmi.server.location");
 	
 	/**
@@ -79,7 +82,8 @@ public class ExecutionHandler extends Thread {
 		this.nodeGroup = nodeGroup;
 		this.nodeGroup.setGroupManager(groupManager);
 		this.nodeGroup.getStage().setStageManager(stageManager);
-
+		
+		this.reportPeriod = 10000;
 	}
 
 	/**
@@ -100,6 +104,24 @@ public class ExecutionHandler extends Thread {
 		return nodeGroup;
 	}
 
+	/**
+	 * Setter for reportPeriod
+	 * 
+	 * @param reportPeriod Report period in milliseconds
+	 */
+	public void setReportPeriod(int reportPeriod) {
+		this.reportPeriod = reportPeriod;
+	}
+	
+	/**
+	 * Getter for reportPeriod
+	 * 
+	 * @return reportPeriod Report period in milliseconds
+	 */
+	public long getReportPeriod() {
+		return reportPeriod;
+	}
+	
 	/**
 	 * Runs NodeGroup members in separate threads, one for each Node.
 	 */
@@ -131,6 +153,7 @@ public class ExecutionHandler extends Thread {
 			return;
 		}
 
+		nodeGroup.scheduleProgressReport(0L, reportPeriod);
 		resultSummary = performExecution();
 
 		finishExecution(resultSummary);
@@ -301,15 +324,16 @@ public class ExecutionHandler extends Thread {
 	 * @return Result summary to be sent back to master.
 	 */
 	private ResultSummary performExecution() {
-		NodeProfileHandler[] nodeHandlers = new NodeProfileHandler[nodeGroup.getSize()];
+		NodeHandler[] nodeHandlers = new NodeHandler[nodeGroup.getSize()];
 
 		Iterator<Node> iterator = nodeGroup.getNodesIterator();
 
 		long globalTimerStart = System.currentTimeMillis();
+		long globalEnergyStart = 0;
 
 		for (int i = 0; i < nodeGroup.getSize(); i++) {
-			nodeHandlers[i] = new NodeProfileHandler(iterator.next());
-
+			nodeHandlers[i] = new NodeHandler(iterator.next());
+			globalEnergyStart += nodeGroup.getEnergy();
 			nodeHandlers[i].start();
 		}
 
@@ -325,10 +349,16 @@ public class ExecutionHandler extends Thread {
 		}
 
 		long globalTimerFinish = System.currentTimeMillis();
+		long globalEnergyFinish = 0L;
+		
+		for (int i = 0; i < nodeGroup.getSize(); i++) {
+			globalEnergyFinish += nodeGroup.getEnergy();
+		}
 
 		ResultSummary resultSummary = new ResultSummary(nodeGroup.getApplicationName(), nodeGroup.getSerialNumber(), ResultSummary.Type.SUCCESS);
 
 		resultSummary.setNodeGroupTiming(globalTimerFinish - globalTimerStart);
+		resultSummary.setNodeGroupEnergy(globalEnergyFinish - globalEnergyStart);
 
 		for (int i = 0; i < nodeGroup.getSize(); i++) {
 			resultSummary.addNodeMeasurements(nodeHandlers[i].getNode().getName(), nodeHandlers[i].getNodeMeasurements());
@@ -367,7 +397,7 @@ public class ExecutionHandler extends Thread {
 	 * @author Hammurabi Mendes (hmendes)
 	 * @author Marcelo Martins (martins)
 	 */
-	class NodeProfileHandler extends Thread {
+	class NodeHandler extends Thread {
 		private Node node;
 
 		private long realLocalTimerStart;
@@ -387,7 +417,7 @@ public class ExecutionHandler extends Thread {
 		 * 
 		 * @param node Node to be run in a separate thread.
 		 */
-		public NodeProfileHandler(Node node) {
+		public NodeHandler(Node node) {
 			this.node = node;
 		}
 

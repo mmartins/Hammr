@@ -110,10 +110,8 @@ public class JobScheduler implements Scheduler {
 
 		System.out.println("Identified stages:");
 
-		for (MutableInteger x: stages.keySet()) {
-			Stage s = stages.get(x);
-			s.setSerialNumber(x.getValue());
-			System.out.println(s);
+		for (Stage x: stages.values()) {
+			System.out.println(x);
 		}
 
 		// Detect cyclic dependency problems
@@ -148,7 +146,7 @@ public class JobScheduler implements Scheduler {
 				source = edge.getSource();
 				target = edge.getTarget();
 
-				if(source.getNodeGroup().getStage() == target.getNodeGroup().getStage()) {
+				if (source.getNodeGroup().getStage() == target.getNodeGroup().getStage()) {
 					throw new TemporalDependencyException(source, target);
 				}
 			}
@@ -156,7 +154,7 @@ public class JobScheduler implements Scheduler {
 
 		// Exports all the aggregators
 
-		for(String variable: applicationSpecification.getAggregators().keySet()) {
+		for (String variable: applicationSpecification.getAggregators().keySet()) {
 			Aggregator<? extends Serializable,? extends Serializable> aggregator = applicationSpecification.getAggregator(variable);
 
 			RMIHelper.exportRemoteObject(aggregator);
@@ -303,7 +301,7 @@ public class JobScheduler implements Scheduler {
 				}
 			}
 
-			result.put(spammerIdentifier, new Stage(spammerBundle));
+			result.put(spammerIdentifier, new Stage((long)spammerIdentifier.getValue(), spammerBundle));
 		}
 
 		stages = result;
@@ -327,7 +325,7 @@ public class JobScheduler implements Scheduler {
 
 		Map<String, Aggregator<? extends Serializable,? extends Serializable>> aggregators = applicationSpecification.getAggregators();
 
-		if(decider == null) {
+		if (decider == null) {
 			return true;
 		}
 
@@ -351,13 +349,13 @@ public class JobScheduler implements Scheduler {
 
 		List<Filename> missingInputs = new ArrayList<Filename>();;
 
-		for(Filename input: applicationSpecification.getInputFilenames()) {
-			if(!FileHelper.exists(input)) {
+		for (Filename input: applicationSpecification.getInputFilenames()) {
+			if (!FileHelper.exists(input)) {
 				missingInputs.add(input);
 			}
 		}
 
-		if(missingInputs.size() != 0) {
+		if (missingInputs.size() != 0) {
 			throw new InexistentInputException(missingInputs);
 		}
 
@@ -369,13 +367,13 @@ public class JobScheduler implements Scheduler {
 
 		Set<Node> initials = applicationSpecification.getInitials();
 
-		if(initials.size() == 0) {
+		if (initials.size() == 0) {
 			initials = new HashSet<Node>(applicationSpecification.getFileConsumers());
 
-			for(Edge edge: applicationSpecification.edgeSet()) {
+			for (Edge edge: applicationSpecification.edgeSet()) {
 				target = edge.getTarget();
 
-				if(initials.contains(target)) {
+				if (initials.contains(target)) {
 					initials.remove(target);
 				}
 			}
@@ -383,14 +381,14 @@ public class JobScheduler implements Scheduler {
 
 		// Notify the dependency manager that the initial nodes should be immediately available to schedule
 
-		for(Node initial: initials) {
+		for (Node initial: initials) {
 			dependencyManager.insertDependency(null, initial.getNodeGroup().getStage());
 		}
 
 		// Notify the other dependencies for the dependency manager
 
-		for(Edge edge: applicationSpecification.edgeSet()) {
-			if(edge.getCommunicationMode() == CommunicationMode.FILE) {
+		for (Edge edge: applicationSpecification.edgeSet()) {
+			if (edge.getCommunicationMode() == CommunicationMode.FILE) {
 				source = edge.getSource();
 				target = edge.getTarget();
 
@@ -400,10 +398,10 @@ public class JobScheduler implements Scheduler {
 
 		// Prepare all nodes and node groups for scheduling
 
-		for(NodeGroup nodeGroup: nodeGroups.values()) {
+		for (NodeGroup nodeGroup: nodeGroups.values()) {
 			nodeGroup.prepareSchedule(serialNumberCounter++);
 
-			for(Node node: nodeGroup.getNodes()) {
+			for (Node node: nodeGroup.getNodes()) {
 				node.prepareSchedule();
 			}
 		}
@@ -419,13 +417,13 @@ public class JobScheduler implements Scheduler {
 
 		List<Filename> missingOutputs = new ArrayList<Filename>();
 
-		for(Filename output: applicationSpecification.getOutputFilenames()) {
-			if(!FileHelper.exists(output)) {
+		for (Filename output: applicationSpecification.getOutputFilenames()) {
+			if (!FileHelper.exists(output)) {
 				missingOutputs.add(output);
 			}
 		}
 
-		if(missingOutputs.size() != 0) {
+		if (missingOutputs.size() != 0) {
 			throw new InexistentOutputException(missingOutputs);
 		}
 	}
@@ -441,7 +439,7 @@ public class JobScheduler implements Scheduler {
 
 	/**
 	 * Try to schedule the next wave of NodeGroups: Stages are NodeGroups that should
-	 * be schedule at the same time.
+	 * be scheduled at the same time.
 	 * 
 	 * @return False if no Stage is available to execution; true otherwise.
 	 * 
@@ -455,7 +453,7 @@ public class JobScheduler implements Scheduler {
 		Set<Stage> freeStages = dependencyManager.obtainFreeDependents();
 
 		for (Stage freeStage: freeStages) {
-			System.out.println("Scheduling node bundle " + freeStage);
+			System.out.println("Scheduling stage " + freeStage);
 
 			scheduleStage(freeStage);
 		}
@@ -469,7 +467,7 @@ public class JobScheduler implements Scheduler {
 	 * @throws InsufficientLaunchersException If no alive Launcher can receive NodeGroups.
 	 */
 	private void scheduleStage(Stage stage) throws InsufficientLaunchersException {
-		for(NodeGroup nodeGroup: stage.getNodeGroups()) {
+		for (NodeGroup nodeGroup: stage.getNodeGroups()) {
 			scheduleNodeGroup(nodeGroup);
 		}
 	}
@@ -486,7 +484,7 @@ public class JobScheduler implements Scheduler {
 
 		if (previousLauncher != null) {
 			try {
-				if(previousLauncher.addNodeGroup(nodeGroup)) {
+				if (previousLauncher.addNodeGroup(nodeGroup)) {
 					// Add node group to the running group
 					runningNodeGroups.put(nodeGroup.getSerialNumber(), nodeGroup);
 

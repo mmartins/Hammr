@@ -31,6 +31,7 @@ import utilities.RMIHelper;
 import appspecs.ApplicationSpecification;
 import exceptions.CyclicDependencyException;
 import exceptions.InexistentInputException;
+import exceptions.InexistentOutputException;
 import exceptions.InsufficientLaunchersException;
 import exceptions.TemporalDependencyException;
 import execinfo.ResultSummary;
@@ -299,7 +300,16 @@ public class JobManager implements Manager {
 
 		try {
 			if (scheduler.finishedIteration()) {
-				finishApplication(resultSummary.getNodeGroupApplication());
+				scheduler.terminateIteration();
+
+				if (scheduler.finishedApplication()) {
+					scheduler.terminateApplication();
+
+					finishApplication(resultSummary.getNodeGroupApplication());
+				}
+				else {
+					scheduler.prepareIteration();
+				}
 			}
 			else {
 				scheduler.schedule();
@@ -307,7 +317,17 @@ public class JobManager implements Manager {
 
 			return true;
 		} catch (InsufficientLaunchersException exception) {
-			System.err.println("Unable to proceed with scheduling of application " + resultSummary.getNodeGroupApplication() + "! Aborting applicationName...");
+			System.err.println("Unable to proceed with scheduling of application " + resultSummary.getNodeGroupApplication() + "! Aborting application...");
+
+			finishApplication(resultSummary.getNodeGroupApplication());
+			return false;
+		} catch (InexistentOutputException exception) {
+			System.err.println("Unable to proceed with scheduling of application " + resultSummary.getNodeGroupApplication() + "! Aborting application...");
+
+			finishApplication(resultSummary.getNodeGroupApplication());
+			return false;
+		} catch (InexistentInputException exception) {
+			System.err.println("Unable to proceed with scheduling of application " + resultSummary.getNodeGroupApplication() + "! Aborting application...");
 
 			finishApplication(resultSummary.getNodeGroupApplication());
 			return false;
@@ -357,7 +377,7 @@ public class JobManager implements Manager {
 	private synchronized boolean finishApplication(String applicationName) {
 		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
-		if(applicationPackage == null) {
+		if (applicationPackage == null) {
 			System.err.println("Unable to locate application information holder for application " + applicationName + "!");
 
 			return false;
