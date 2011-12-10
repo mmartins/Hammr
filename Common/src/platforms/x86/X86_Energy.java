@@ -14,7 +14,8 @@ package platforms.x86;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import appspecs.Energy;
+import execinfo.Energy;
+
 import utilities.dvfs.FreqStats;
 
 public class X86_Energy implements Energy,Serializable {
@@ -26,10 +27,10 @@ public class X86_Energy implements Energy,Serializable {
 		dvfs = new X86_DVFS();
 	}
 	
-	public long getEnergy() {
+	public double getEnergy() {
 		Runtime runtime = Runtime.getRuntime();
 		int numCPUs = runtime.availableProcessors();
-		long energy = 0L;
+		double energy = 0.0;
 
 		FreqStats[] stats = new FreqStats[numCPUs];
 		
@@ -42,7 +43,8 @@ public class X86_Energy implements Energy,Serializable {
 			/* TODO: Fix the formula below */
 			while (iter.hasNext()) {
 				long freq = iter.next();
-				energy += freq * stats[i].getDuration(freq);
+				/* Convert frequency to MHz and time to seconds */
+				energy += (freq / 1000.0) * (stats[i].getDuration(freq) / 100.0);
 			}
 		}
 		

@@ -25,7 +25,7 @@ public class NodeMeasurements implements Serializable {
 	private long realTime;
 	private long cpuTime;
 	private long userTime;
-	private long energy;
+	private double energy;
 
 	/**
 	 * Constructor method.
@@ -35,7 +35,7 @@ public class NodeMeasurements implements Serializable {
 	 * @param userTime	Node's execution user time.
 	 * @param energy	Node's execution energy.
 	 */
-	public NodeMeasurements(long realTime, long cpuTime, long userTime, long energy) {
+	public NodeMeasurements(long realTime, long cpuTime, long userTime, double energy) {
 		this.realTime = realTime;
 		this.cpuTime = cpuTime;
 		this.userTime = userTime;
@@ -74,7 +74,7 @@ public class NodeMeasurements implements Serializable {
 	 * 
 	 * @return energy (J)
 	 */
-	public long getEnergy() {
+	public double getEnergy() {
 		return energy;
 	}
 }

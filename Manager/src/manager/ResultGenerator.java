@@ -92,7 +92,7 @@ public class ResultGenerator extends Thread {
 
 			for (ResultSummary resultSummary: resultCollection) {
 				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" running time: " + getHumanReadableTime(resultSummary.getNodeGroupTiming()) + "\n");
-				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" energy: " + getHumanReadableTime(resultSummary.getNodeGroupEnergy()) + "\n");
+				file.write("NodeGroup \"" + resultSummary.getNodeGroupSerialNumber() + "\" energy: " + resultSummary.getNodeGroupEnergy() + "\n");
 
 				averageNodeGroupTime += resultSummary.getNodeGroupTiming() / resultCollection.size();
 				

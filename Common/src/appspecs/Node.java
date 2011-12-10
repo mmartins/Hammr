@@ -33,6 +33,7 @@ import communication.channel.Record;
 import communication.shufflers.RecordReaderShuffler;
 import communication.shufflers.RecordWriterShuffler;
 
+import execinfo.Energy;
 import execinfo.NodeGroup;
 import execinfo.ProgressReport;
 
@@ -511,7 +512,7 @@ public abstract class Node implements Serializable, Runnable {
 		this.progressReport.setProgress(progressReport.getProgress());
 	}
 
-	public long getEnergy() {
+	public double getEnergy() {
 		return energy.getEnergy();
 	}
 	

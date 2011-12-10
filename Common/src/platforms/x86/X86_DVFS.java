@@ -57,10 +57,18 @@ public class X86_DVFS implements DVFS,Serializable {
 		numCPUs = Runtime.getRuntime().availableProcessors();
 	}
 	
+	/**
+	 * Return number of CPUs (cores) of node
+	 * @return number of CPUs
+	 */
 	public int getNumCPUs() {
 		return numCPUs;
 	}
 	
+	/**
+	 * Return latency time for state transition for all active CPUs
+	 * @return transition latencies for each CPU (in 10 ms)
+	 */
 	public long[] getTransitionLatencies() {
 		long[] latencies = new long[numCPUs];
 		
@@ -71,6 +79,10 @@ public class X86_DVFS implements DVFS,Serializable {
 		return latencies;
 	}
 	
+	/**
+	 * Returns current frequency (in Hz) for each CPU (core)
+	 * @return frequencies of all CPUs
+	 */
 	public long[] getFrequencies() {
 		long[] frequencies = new long[numCPUs];
 		
@@ -81,6 +93,10 @@ public class X86_DVFS implements DVFS,Serializable {
 		return frequencies;
 	}
 	
+	/**
+	 * Return set of available frequencies (Hz) for each CPU (core)
+	 * @return set of available DVFS frequencies for each CPU
+	 */
 	public long[][] getAvailableFrequencies() {
 		long[][] availFreqs = new long[numCPUs][];
 		
@@ -90,6 +106,11 @@ public class X86_DVFS implements DVFS,Serializable {
 		return availFreqs;
 	}
 	
+	/**
+	 * Sets frequencies for all CPUs (cores)
+	 * @param frequencies Frequency to be set (Hz) for each core
+	 * @return whether frequency set worked or not
+	 */
 	public boolean setFrequencies(long[] frequencies) {
 		boolean ret = true;
 		
@@ -100,6 +121,10 @@ public class X86_DVFS implements DVFS,Serializable {
 		return ret;
 	}
 	
+	/**
+	 * Returns frequency and time of stay for each CPU (core)
+	 * @returns frequency statistics (Hz, 10 ms) for each core
+	 */
 	public FreqStats[] getFreqStats() {
 		FreqStats[] stats = new FreqStats[numCPUs];
 		
@@ -147,7 +172,7 @@ public class X86_DVFS implements DVFS,Serializable {
 	}
 	
 	static {
-		System.load("/home/martins/git/Hammr/Common/bin/platforms/x86/libx86DVFS.so");
+		System.load("/home/brown/git/Hammr/Common/bin/platforms/x86/libx86DVFS.so");
 	}
 
 }

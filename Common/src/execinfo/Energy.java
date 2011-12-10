@@ -25,8 +25,8 @@ OF SUCH DAMAGE.
 
 */
 
-package appspecs;
+package execinfo;
 
 public interface Energy {
-	public long getEnergy();
+	public double getEnergy();
 }

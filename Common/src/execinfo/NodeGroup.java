@@ -22,8 +22,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import platforms.x86.X86_DVFS;
 import utilities.MutableInteger;

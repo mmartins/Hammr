@@ -409,8 +409,8 @@ public class ExecutionHandler extends Thread {
 		private long userLocalTimerStart;
 		private long userLocalTimerFinish;
 
-		private long energyStart;
-		private long energyFinish;
+		private double energyStart;
+		private double energyFinish;
 		
 		/**
 		 * Class constructor.
@@ -496,7 +496,7 @@ public class ExecutionHandler extends Thread {
 		 * 
 		 * @return The energy spent to execute Node.
 		 */
-		public long getEnergy() {
+		public double getEnergy() {
 			// Return energy in Joules
 			
 			return (energyFinish - energyStart);
