@@ -19,7 +19,7 @@ JGRAPHFILE="$LIBDIR/jgrapht-jdk1.6.jar"
 HADOOPFILE="$LIBDIR/hadoop-core-0.20.205.0.jar"
 MATHFILE="$LIBDIR/commons-math-2.2.jar"
 
-BINDIRS=$COMMONDIR:$BASEDIR/Client/bin:$BASEDIR/Launcher/bin:$BASEDIR/Manager/bin
+BINDIRS=$COMMONDIR:$BASEDIR/Client/bin:$BASEDIR/Launcher/bin:$BASEDIR/Manager/bin:$LIBDIR/jgrapht-org/jgrapht
 
 # We are memory hungry! Reserve heap space for the JVM
 HEAPPARAMS="-XX:-UseGCOverheadLimit -Xms2500M -Xmx2500M"
