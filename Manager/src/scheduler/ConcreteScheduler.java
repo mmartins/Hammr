@@ -355,7 +355,7 @@ public class ConcreteScheduler implements Scheduler {
 
 		// Returns true if the decider prepared a following iteration
 
-		return decider.requiresRunning();
+		return !decider.requiresRunning();
 	}
 
 	/**

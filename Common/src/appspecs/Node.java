@@ -236,6 +236,7 @@ public abstract class Node implements Serializable, Runnable {
 	/* Read Functions */
 
 	protected ChannelElement read(String name) {
+		assert(readersShuffler == null);
 		InputChannel inputChannel = getInputChannel(name);
 
 		if(inputChannel != null) {

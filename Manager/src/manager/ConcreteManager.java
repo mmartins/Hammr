@@ -332,12 +332,15 @@ public class ConcreteManager implements Manager {
 				scheduler.terminateIteration();
 
 				if(scheduler.finishedApplication()) {
+					System.out.println("terminateApplication");
 					scheduler.terminateApplication();
 
 					finishApplication(resultSummary.getNodeGroupApplication());
 				}
 				else {
+					System.out.println("prepareIteration");
 					scheduler.prepareIteration();
+					scheduler.schedule();
 				}
 			}
 			else {

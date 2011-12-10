@@ -23,16 +23,26 @@ public class MRChannelElement<O,V> extends ChannelElement {
 
 		this.value = value;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public O getObject() {
 		return (O) super.getObject();
 	}
 
+	public O getKey()
+	{
+		return getObject();
+	}
+	
 	public V getValue() {
 		return value;
 	}
 
+	public void setKey(O key)
+	{
+		setObject(key);
+	}
+	
 	public void setValue(V value) {
 		this.value = value;
 	}

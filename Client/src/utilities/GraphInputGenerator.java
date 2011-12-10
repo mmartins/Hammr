@@ -83,18 +83,20 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 			writers[i] =  new FileChannelElementWriter(outputs[i]);
 		}
 
-		int shareWriters = (graph.vertexSet().size() / writers.length);
+		int vertexPerWriter = (graph.vertexSet().size() / writers.length);
 		int indexWrite = 0;
 
 		BreadthFirstIterator<V,E> iterator2 = new BreadthFirstIterator<V,E>(graph);
-
+		
 		while(iterator2.hasNext()) {
 			V vertex = iterator2.next();
-
-			writers[indexWrite / shareWriters].write(new VertexChannelElement<V>(vertex));
+			
+			int writerIndex = Math.min(indexWrite / vertexPerWriter, outputs.length - 1);
+			
+			writers[writerIndex].write(new VertexChannelElement<V>(vertex));
 
 			for(E edge: graph.outgoingEdgesOf(vertex)) {
-				writers[indexWrite / shareWriters].write(new EdgeChannelElement<E>(edge));
+				writers[writerIndex].write(new EdgeChannelElement<E>(edge));
 			}
 
 			indexWrite++;

@@ -32,6 +32,7 @@ public abstract class TimedStatefulNode extends StatefulNode {
 		this.terminate = false;
 	}
 
+	@Override
 	public void run() {
 		if(!performInitialization()) {
 			return;
@@ -40,6 +41,7 @@ public abstract class TimedStatefulNode extends StatefulNode {
 		ChannelElement channelElement;
 
 		while(true) {
+			
 			channelElement = tryReadSomeone(timeout, timeUnit);
 
 			if(channelElement == null) {
@@ -60,4 +62,5 @@ public abstract class TimedStatefulNode extends StatefulNode {
 	}
 
 	protected abstract void performActionNothingPresent();
+	
 }
