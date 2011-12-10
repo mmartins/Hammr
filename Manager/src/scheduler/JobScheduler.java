@@ -65,6 +65,9 @@ public class JobScheduler implements Scheduler {
 
 	private DependencyManager<NodeGroup, Stage> dependencyManager;
 
+	// List of idle launchers
+	List<Launcher> availableLaunchers;
+	
 	// List of NodeGroups prepared, running, and terminated
 
 	private Map<Long, NodeGroup> runningNodeGroups;
@@ -495,13 +498,16 @@ public class JobScheduler implements Scheduler {
 			}
 		}
 
-		List<Launcher> currentLaunchers = new ArrayList<Launcher>(JobManager.getInstance().getRegisteredLaunchers());
+		// Naive fair scheduler. Each launcher gets a nodeGroup before being reused
+		List<Launcher> availableLaunchers = new ArrayList<Launcher>(JobManager.getInstance().getRegisteredLaunchers());
 
-		Collections.shuffle(currentLaunchers);
-
-		for (int i = 0; i < currentLaunchers.size(); i++) {
+		if (availableLaunchers.isEmpty() == true) {
+			availableLaunchers = new ArrayList<Launcher>(JobManager.getInstance().getRegisteredLaunchers());
+		}
+		
+		for (int i = 0; i < availableLaunchers.size(); i++) {
 			try {
-				Launcher launcher = currentLaunchers.get(i);
+				Launcher launcher = availableLaunchers.remove(i);
 
 				if (launcher.addNodeGroup(nodeGroup)) {
 					// Remember this scheduling decision
