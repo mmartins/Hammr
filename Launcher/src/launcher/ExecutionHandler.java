@@ -325,6 +325,7 @@ public class ExecutionHandler extends Thread {
 		concreteLauncher.delNodeGroup(nodeGroup);
 
 		try {
+			System.out.println("Launcher: finish execution");
 			manager.handleTermination(resultSummary);
 		} catch (RemoteException exception) {
 			System.err.println("Unable to communicate termination to the manager");

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 
 import org.jgrapht.graph.DefaultDirectedGraph;
 
-import utilities.GraphInputGenerator;
 
+import utilities.GraphInputGenerator;
 import utilities.filesystem.Directory;
 
 import graphs.programs.shortestpath.SPGraphVertex;
@@ -104,7 +104,7 @@ public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SP
 
 	public static void main(String[] arguments) {
 		if(arguments.length <= 4) {
-			System.err.println("usage: SPGraphInputGenerator baseDirectory numberVertices probabilityEdges maximumDistance [<input> ... <input>]");
+			System.err.println("usage: RandomGraphInputGenerator baseDirectory numberVertices probabilityEdges maximumDistance [<input> ... <input>]");
 
 			System.exit(1);
 		}
