@@ -38,6 +38,8 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 
 	protected Filename[] outputs;
 
+	protected final int startIndex;
+	
 	public GraphInputGenerator(Directory directory, String[] outputs) {
 		List<Filename> outputList = new ArrayList<Filename>();
 
@@ -46,8 +48,20 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 		}
 
 		this.outputs = outputList.toArray(new Filename[outputList.size()]);
+		startIndex = 0;
 	}
 
+	public GraphInputGenerator(Directory directory, int startIndex, String[] outputs) {
+		List<Filename> outputList = new ArrayList<Filename>();
+
+		for(int i = 0; i < outputs.length; i++) {
+			outputList.add(FileHelper.getFileInformation(directory.getPath(), outputs[i], directory.getProtocol()));
+		}
+
+		this.outputs = outputList.toArray(new Filename[outputList.size()]);
+		this.startIndex = startIndex;
+	}
+	
 	protected abstract void obtainGraph();
 
 	public void run() throws IOException {
@@ -62,7 +76,7 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 		while(iterator1.hasNext()) {
 			V vertex = iterator1.next();
 
-			vertex.setName(String.valueOf(index++));
+			vertex.setName(String.valueOf(startIndex + index++));
 		}
 
 		for(E edge: graph.edgeSet()) {
