@@ -57,13 +57,16 @@ public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SP
 		Random random = new Random();
 
 		Map<Integer,SPGraphVertex> vertexMap = new HashMap<Integer,SPGraphVertex>();
-
+		
 		for(int i = 0; i < numberVertices; i++) {
 			SPGraphVertex vertex = new SPGraphVertex();
 
 			graph.addVertex(vertex);
 
 			vertexMap.put(i, vertex);
+			
+			if(i % 10000 == 0)
+				System.out.printf("processed %d vertex.\n", i);
 		}
 
 		for(int i = 0; i < numberVertices; i++) {
@@ -77,6 +80,9 @@ public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SP
 				if(dice <= probabilityEdges) {
 					graph.addEdge(vertexMap.get(i), vertexMap.get(j), new SPGraphEdge(random.nextDouble() * maximumDistance));
 				}
+				
+				System.out.printf("processed %d edges.\n", i*numberVertices + j);
+				
 			}
 		}		
 	}
