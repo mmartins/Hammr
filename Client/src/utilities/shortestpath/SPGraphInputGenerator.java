@@ -81,8 +81,8 @@ public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SP
 					graph.addEdge(vertexMap.get(i), vertexMap.get(j), new SPGraphEdge(random.nextDouble() * maximumDistance));
 				}
 				
-				System.out.printf("processed %d edges.\n", i*numberVertices + j);
-				
+				if(j % 10000 == 0)
+					System.out.printf("processed %d edges.\n", i*numberVertices + j);
 			}
 		}		
 	}
