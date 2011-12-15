@@ -18,11 +18,9 @@ import communication.channel.ChannelElement;
 public abstract class TimedStatefulNode extends StatefulNode {
 	private static final long serialVersionUID = 1L;
 
-	private int timeout;
+	protected int timeout;
 
-	private TimeUnit timeUnit;
-
-	protected volatile boolean terminate;
+	protected TimeUnit timeUnit;
 
 	public TimedStatefulNode(int timeout, TimeUnit timeUnit) {
 		this.timeout = timeout;
@@ -62,5 +60,7 @@ public abstract class TimedStatefulNode extends StatefulNode {
 	}
 
 	protected abstract void performActionNothingPresent();
-	
+	protected ChannelElement read() {
+		return tryReadSomeone(timeout, timeUnit);
+	}
 }

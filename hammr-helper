@@ -4,6 +4,7 @@
 
 MANAGER_DIR=$(pwd)/Experiments
 CLIENT_DIR=$(pwd)/Experiments/WordCount
+PAGERANK_DIR=$(pwd)/Experiments/PageRank
 
 REGISTRYLOC=localhost
 
@@ -21,7 +22,7 @@ HADOOPFILE="$LIBDIR/hadoop-0.20.2-core.jar"
 BINDIRS=$COMMONDIR:$BASEDIR/Client/bin:$BASEDIR/Launcher/bin:$BASEDIR/Manager/bin
 
 # We are memory hungry! Reserve heap space for the JVM
-HEAPPARAMS="-XX:-UseGCOverheadLimit -Xms2500M -Xmx2500M"
+HEAPPARAMS="-XX:-UseGCOverheadLimit -Xms2500M -Xmx2500M -ea"
 
 export CODEBASE="file://${BASEDIR}/Common/bin/"
 
@@ -81,6 +82,11 @@ RunShortestPath() {
 	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.client.basedir=$CLIENT_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Client/security.policy client.ShortestPathClient $@
 }
 
+RunPagerank() {
+	echo "Running pagerank: codebase=${CODEBASE} and registry=${REGISTRYLOC}"
+	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.client.basedir=$PAGERANK_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Client/security.policy client.PageRankClient $@
+}
+
 RunGenInput() {
 	echo "Running the input generator"
 	java -cp $CLASSPATH $HEAPPARAMS utilities.counting.CountingInputGenerator $@
@@ -108,6 +114,7 @@ case "${COMMAND}" in
     test)         RunTest $@ ;;
     wordcount)    RunWordCount $@ ;;
     shortestpath) RunShortestPath $@ ;;
+    pagerank)     RunPagerank $@ ;; 
 		gen_input)    RunGenInput $@ ;;
 		gen_output)   RunGenOutput $@ ;;
     kill)         Kill $@ ;;

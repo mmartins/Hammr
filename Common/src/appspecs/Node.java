@@ -317,9 +317,7 @@ public abstract class Node implements Serializable, Runnable {
 
 		if(outputChannel != null) {
 			try {
-				outputChannel.write(channelElement);
-
-				return true;
+				return outputChannel.write(channelElement);
 			} catch (IOException exception) {
 				System.err.println("Error writing channel element to node " + name +  " for node " + this);
 

@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import java.util.Map;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import java.net.InetSocketAddress;
 
@@ -50,7 +50,7 @@ public class ApplicationInformationHolder {
 	 * Class constructor.
 	 */
 	public ApplicationInformationHolder() {
-		this.registeredSocketAddresses = new HashMap<String, InetSocketAddress>();
+		this.registeredSocketAddresses = new ConcurrentHashMap<String, InetSocketAddress>();
 
 		this.receivedResultSummaries = new HashSet<ResultSummary>();
 	}
@@ -169,5 +169,9 @@ public class ApplicationInformationHolder {
 	 */
 	public long getTotalRunningTime() {
 		return globalTimerFinish - globalTimerStart;
+	}
+	
+	public void reset() {
+		registeredSocketAddresses.clear();
 	}
 }

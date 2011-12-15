@@ -39,8 +39,8 @@ public abstract class GraphWorker<V extends GraphVertex,E extends GraphEdge> ext
 
 	protected int numberWorker;
 
-	private int numberVertexes;
-	private int numberWorkers;
+	protected int numberVertexes;
+	protected int numberWorkers;
 
 	protected Map<String,V> vertexMap;
 	protected Map<String,E> edgeMap;
@@ -145,6 +145,12 @@ public abstract class GraphWorker<V extends GraphVertex,E extends GraphEdge> ext
 	}
 
 	protected String obtainOwnerWorker(String vertexName) {
-		return "worker-" + (Integer.valueOf(vertexName) / (numberVertexes / numberWorkers));
+		return "worker-" + obtainOwnerWorkerIndex(vertexName);
 	}
+	
+	protected int obtainOwnerWorkerIndex(String vertexName)
+	{
+		return (Integer.valueOf(vertexName) / (numberVertexes / numberWorkers));
+	}
+
 }

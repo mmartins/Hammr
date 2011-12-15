@@ -118,7 +118,7 @@ public class ConcreteManager implements Manager {
 	 * 
 	 * @return True unless the launcher is not reachable.
 	 */
-	public boolean registerLauncher(Launcher launcher) {
+	public synchronized boolean registerLauncher(Launcher launcher) {
 		String launcherId;
 
 		try {
@@ -147,7 +147,7 @@ public class ConcreteManager implements Manager {
 	 *         
 	 *         In these cases, the method returns true.
 	 */
-	public boolean registerApplication(ApplicationSpecification applicationSpecification) {
+	public synchronized boolean registerApplication(ApplicationSpecification applicationSpecification) {
 		String applicationName = applicationSpecification.getName();
 
 		// Trying to register an application that's still running
@@ -257,7 +257,7 @@ public class ConcreteManager implements Manager {
 	 * 
 	 * @return The aggregator associated to the specified variable in the specified application. 
 	 */
-	public ApplicationAggregator<? extends Serializable, ? extends Serializable> obtainAggregator(String application, String variable) {
+	public synchronized ApplicationAggregator<? extends Serializable, ? extends Serializable> obtainAggregator(String application, String variable) {
 		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(application);
 
 		if(applicationInformationHolder == null) {
@@ -278,7 +278,7 @@ public class ConcreteManager implements Manager {
 	 * 
 	 * @return The controller associated to the specified name in the specified application. 
 	 */
-	public ApplicationController obtainController(String application, String name) {
+	public synchronized ApplicationController obtainController(String application, String name) {
 		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(application);
 
 		if(applicationInformationHolder == null) {
@@ -297,7 +297,7 @@ public class ConcreteManager implements Manager {
 	 * 
 	 * @return True if the information was expected at the time this method is called; false otherwise.
 	 */
-	public boolean handleTermination(ResultSummary resultSummary) {
+	public synchronized  boolean handleTermination(ResultSummary resultSummary) {
 		String application = resultSummary.getNodeGroupApplication();
 
 		ApplicationInformationHolder applicationInformationHolder = applicationInformationHolders.get(application);

@@ -42,7 +42,7 @@ public class NodeGroup implements Serializable {
 
 	private Launcher currentLauncher;
 	private Launcher previousLauncher;
-
+	
 	private Manager manager;
 
 	/////////////////////////
