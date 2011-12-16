@@ -6,7 +6,9 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="Client">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../../../Applications/Eclipse"/>
+    <property name="ECLIPSE_HOME" value="../../../../../../usr/lib/eclipse"/>
+    <property name="workspace_loc:Common" value="../Common"/>
+    <property name="workspace_loc:Client" value="."/>
     <property name="Common.location" value="../Common"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -14,11 +16,13 @@
     <path id="Common.classpath">
         <pathelement location="${Common.location}/bin"/>
         <pathelement location="${Common.location}/../lib/jgrapht-jdk1.6.jar"/>
+        <pathelement location="${Common.location}/../lib/hadoop-0.20.2-core.jar"/>
     </path>
     <path id="Client.classpath">
         <pathelement location="bin"/>
         <path refid="Common.classpath"/>
         <pathelement location="../lib/jgrapht-jdk1.6.jar"/>
+        <pathelement location="../lib/hadoop-0.20.2-core.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -33,11 +37,11 @@
         <delete dir="bin"/>
     </target>
     <target depends="clean" name="cleanall">
-        <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${Common.location}/build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
     </target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects">
-        <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="build-project">
+        <ant antfile="${Common.location}/build.xml" dir="${Common.location}" inheritAll="false" target="build-project">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
@@ -64,27 +68,28 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="CountingInputGenerator">
-        <java classname="utilities.counting.CountingInputGenerator" failonerror="true" fork="yes">
-            <arg line="/Users/hmendes/brown/DC/Project/input-mapreduce.txt /Users/hmendes/brown/DC/Project/input-mapreduce.dat"/>
+    <target name="PageRankInputGenerator">
+        <java classname="utilities.pagerank.PageRankInputGenerator" failonerror="true" fork="yes">
+            <arg line="/home/ljin/Hammr-1/Experiments/PageRank 4000 4"/>
             <classpath refid="Client.classpath"/>
         </java>
     </target>
-    <target name="CountingOutputExtractor">
-        <java classname="utilities.counting.CountingOutputExtractor" failonerror="true" fork="yes">
-            <arg line="/Users/hmendes/brown/DC/Project/output-mapreduce.dat /Users/hmendes/brown/DC/Project/output-mapreduce.txt"/>
+    <target name="PageRankClient">
+        <java classname="client.PageRankClient" failonerror="true" fork="yes">
+            <jvmarg line="-Dhammr.client.basedir=/home/ljin/Hammr-1/Experiments/PageRank/ -Djava.rmi.server.location=localhost -Djava.rmi.server.codebase=file://${workspace_loc:Common}/bin/ -Djava.security.policy=${workspace_loc:Client}/security.policy -ea -Xms2500m -Xmx2500m"/>
+            <arg line="4000 graph.0 graph.1 graph.2 graph.3 pagerank.0 pagerank.1 pagerank.2 pagerank.3"/>
             <classpath refid="Client.classpath"/>
         </java>
     </target>
-    <target name="InputGenerator">
-        <java classname="utilities.InputGenerator" failonerror="true" fork="yes">
-            <arg line="/Users/hmendes/brown/DC/Project/input-complete.txt /Users/hmendes/brown/DC/Project/input-complete.dat"/>
+    <target name="RingGraphInputGenerator">
+        <java classname="utilities.pagerank.RingGraphInputGenerator" failonerror="true" fork="yes">
+            <arg line="/home/ljin/Hammr-1/Experiments/PageRank 40 graph.0 graph.1 graph.2 graph.3"/>
             <classpath refid="Client.classpath"/>
         </java>
     </target>
-    <target name="OutputExtractor">
-        <java classname="utilities.OutputExtractor" failonerror="true" fork="yes">
-            <arg line="/Users/hmendes/brown/DC/Project/output-complete.dat /Users/hmendes/brown/DC/Project/output-complete.txt"/>
+    <target name="SPGraphInputGenerator">
+        <java classname="utilities.shortestpath.SPGraphInputGenerator" failonerror="true" fork="yes">
+            <arg line="/home/ljin/Hammr-1/Experiments/PageRank 2000 2000 100 graph.2 graph.3"/>
             <classpath refid="Client.classpath"/>
         </java>
     </target>

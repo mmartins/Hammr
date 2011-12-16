@@ -6,18 +6,23 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="Launcher">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../../../Applications/Eclipse"/>
+    <property name="ECLIPSE_HOME" value="../../../../../../usr/lib/eclipse"/>
+    <property name="workspace_loc:Common" value="../Common"/>
+    <property name="workspace_loc:Launcher" value="."/>
     <property name="Common.location" value="../Common"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
     <path id="Common.classpath">
         <pathelement location="${Common.location}/bin"/>
-        <pathelement location="${Common.location}/../../../../Downloads/jgrapht-0.8.1/jgrapht-0.8.1-local/jgrapht-jdk1.6.jar"/>
+        <pathelement location="${Common.location}/../lib/jgrapht-jdk1.6.jar"/>
+        <pathelement location="${Common.location}/../lib/hadoop-0.20.2-core.jar"/>
     </path>
     <path id="Launcher.classpath">
         <pathelement location="bin"/>
         <path refid="Common.classpath"/>
+        <pathelement location="../lib/jgrapht-jdk1.6.jar"/>
+        <pathelement location="../lib/hadoop-0.20.2-core.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -32,11 +37,11 @@
         <delete dir="bin"/>
     </target>
     <target depends="clean" name="cleanall">
-        <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${Common.location}/build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
     </target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects">
-        <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="build-project">
+        <ant antfile="${Common.location}/build.xml" dir="${Common.location}" inheritAll="false" target="build-project">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
@@ -62,5 +67,11 @@
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
+    </target>
+    <target name="Launcher">
+        <java classname="launcher.ConcreteLauncher" failonerror="true" fork="yes">
+            <jvmarg line="-Djava.rmi.server.location=localhost -Djava.rmi.server.codebase=file://${workspace_loc:Common}/bin/ -Djava.security.policy=${workspace_loc:Launcher}/security.policy -ea"/>
+            <classpath refid="Launcher.classpath"/>
+        </java>
     </target>
 </project>

@@ -9,13 +9,14 @@
     <property name="Client.location" value="../Client"/>
     <property name="Launcher.location" value="../Launcher"/>
     <property name="Manager.location" value="../Manager"/>
-    <property name="ECLIPSE_HOME" value="../../../../../../Applications/Eclipse"/>
+    <property name="ECLIPSE_HOME" value="../../../../../../usr/lib/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
     <path id="Common.classpath">
         <pathelement location="bin"/>
         <pathelement location="../lib/jgrapht-jdk1.6.jar"/>
+        <pathelement location="../lib/hadoop-0.20.2-core.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -40,20 +41,20 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="build.xml" dir="${Client.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Client.location}" inheritAll="false" target="build">
+        <ant antfile="${Client.location}/build.xml" dir="${Client.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${Client.location}/build.xml" dir="${Client.location}" inheritAll="false" target="build">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
         </ant>
-        <ant antfile="build.xml" dir="${Launcher.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Launcher.location}" inheritAll="false" target="build">
+        <ant antfile="${Launcher.location}/build.xml" dir="${Launcher.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${Launcher.location}/build.xml" dir="${Launcher.location}" inheritAll="false" target="build">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
         </ant>
-        <ant antfile="build.xml" dir="${Manager.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Manager.location}" inheritAll="false" target="build">
+        <ant antfile="${Manager.location}/build.xml" dir="${Manager.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${Manager.location}/build.xml" dir="${Manager.location}" inheritAll="false" target="build">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
