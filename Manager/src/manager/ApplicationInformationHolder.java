@@ -11,6 +11,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package manager;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -52,7 +53,7 @@ public class ApplicationInformationHolder {
 	public ApplicationInformationHolder() {
 		this.registeredSocketAddresses = new ConcurrentHashMap<String, InetSocketAddress>();
 
-		this.receivedResultSummaries = new HashSet<ResultSummary>();
+		this.receivedResultSummaries = new LinkedHashSet<ResultSummary>();
 	}
 
 	/**

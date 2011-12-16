@@ -14,6 +14,7 @@ package manager;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.util.List;
 import java.util.Set;
 
 import execinfo.ResultSummary;
@@ -141,86 +142,88 @@ public class ResultGenerator extends Thread {
 
 		// Get milliseconds
 		units[4] = time % 1000;
-
-		// Convert to seconds
-		time = time/1000;
-
-		// Get seconds
-		units[3] = time % 60; 
-
-		// Convert to minutes
-		time = time / 60;
-
-		// Get minutes
-		units[2] = time % 60;
-
-		// Convert to hours
-		time = time / 60;
-
-		// Get hours
-		units[1] = time = time % 24;
-
-		// Convert to days
-		time = time / 24;
-
-		// Get days
-		units[0] = time;
-
-		String result = "";
-
-		boolean previous = false;
-
-		// Only insert days if we have more than one day
-
-		if(units[0] > 0) {
-			if(previous) {
-				result += ", ";
-			}
-
-			result += units[0] + "days";
-			previous = true;
-		}
-
-		// Only insert hours if we have more than one hour
-
-		if(units[1] > 0) {
-			if(previous) {
-				result += ", ";
-			}
-
-			result += units[1] + "hours";
-			previous = true;
-		}
-
-		// Always include minutes
-
-		if(previous) {
-			result += ", ";
-		}
-
-		result += units[2] + "min";
-		previous = true;
-
-		// Always include seconds
-
-		if(previous) {
-			result += ", ";
-		}
-
-		result += units[3] + "sec";
-		previous = true;
-
-		// Insert milliseconds only if we don't have days or hours
-
-		if(units[0] == 0 && units[1] == 0 && units[4] > 0) {
-			if(previous) {
-				result += ", ";
-			}
-
-			result += units[4] + "millisec";
-			previous = true;
-		}
-
-		return result;
+		
+		return units[4] + "millisec";
+		
+//		// Convert to seconds
+//		time = time/1000;
+//
+//		// Get seconds
+//		units[3] = time % 60; 
+//
+//		// Convert to minutes
+//		time = time / 60;
+//
+//		// Get minutes
+//		units[2] = time % 60;
+//
+//		// Convert to hours
+//		time = time / 60;
+//
+//		// Get hours
+//		units[1] = time = time % 24;
+//
+//		// Convert to days
+//		time = time / 24;
+//
+//		// Get days
+//		units[0] = time;
+//
+//		String result = "";
+//
+//		boolean previous = false;
+//
+//		// Only insert days if we have more than one day
+//
+//		if(units[0] > 0) {
+//			if(previous) {
+//				result += ", ";
+//			}
+//
+//			result += units[0] + "days";
+//			previous = true;
+//		}
+//
+//		// Only insert hours if we have more than one hour
+//
+//		if(units[1] > 0) {
+//			if(previous) {
+//				result += ", ";
+//			}
+//
+//			result += units[1] + "hours";
+//			previous = true;
+//		}
+//
+//		// Always include minutes
+//
+//		if(previous) {
+//			result += ", ";
+//		}
+//
+//		result += units[2] + "min";
+//		previous = true;
+//
+//		// Always include seconds
+//
+//		if(previous) {
+//			result += ", ";
+//		}
+//
+//		result += units[3] + "sec";
+//		previous = true;
+//
+//		// Insert milliseconds only if we don't have days or hours
+//
+//		if(units[0] == 0 && units[1] == 0 && units[4] > 0) {
+//			if(previous) {
+//				result += ", ";
+//			}
+//
+//			result += units[4] + "millisec";
+//			previous = true;
+//		}
+//
+//		return result;
 	}
 }
