@@ -534,7 +534,7 @@ public class ConcreteScheduler implements Scheduler {
 		}
 
 		List<Launcher> currentLaunchers = new ArrayList<Launcher>(ConcreteManager.getInstance().getRegisteredLaunchers());
-
+		
 		Collections.shuffle(currentLaunchers);
 
 		for(int i = 0; i < currentLaunchers.size(); i++) {
