@@ -61,6 +61,8 @@ import interfaces.Launcher;
 import manager.ConcreteManager;
 
 public class ConcreteScheduler implements Scheduler {
+	private int count = 0;
+	
 	private String applicationName;
 
 	private ApplicationSpecification applicationSpecification;
@@ -535,11 +537,11 @@ public class ConcreteScheduler implements Scheduler {
 
 		List<Launcher> currentLaunchers = new ArrayList<Launcher>(ConcreteManager.getInstance().getRegisteredLaunchers());
 		
-		Collections.shuffle(currentLaunchers);
+		//Collections.shuffle(currentLaunchers);
 
 		for(int i = 0; i < currentLaunchers.size(); i++) {
 			try {
-				Launcher launcher = currentLaunchers.get(i);
+				Launcher launcher = currentLaunchers.get(count++ % currentLaunchers.size());
 
 				nodeGroup.setCurrentLauncher(launcher);
 

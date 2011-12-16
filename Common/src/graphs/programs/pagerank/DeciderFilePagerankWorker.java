@@ -32,7 +32,7 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 
 	@Override
 	protected void performActionNothingPresent() {
-		Logging.Info("performActionNothingPresent");
+		Logging.Info(String.format("%s: performActionNothingPresent",name));
 		
 		int count = 0;
 		
@@ -48,7 +48,7 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 			double pagerankContribution = fanout == 0 ? 0.0 : entry.getValue() / fanout;
 			
 			if (++count % 10000 == 0) {
-				Logging.Info(String.format("processed %d vertex", count));
+				Logging.Info(String.format("%s: processed %d vertex", name, count));
 			}
 			if(pagerankContribution > epsilon)
 			{
@@ -142,7 +142,7 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 	@Override
 	protected boolean performInitialization() {
 		try {
-			Logging.Info("perfortInitialization");
+			Logging.Info(String.format("%s: perfortInitialization", name));
 			
 			loadCache();
 			
@@ -180,7 +180,7 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 		ChannelElement channelElement;
 
 		
-		Logging.Info("start receiving message");
+		Logging.Info(String.format("%s: start receiving message", name));
 		while(true) {
 			
 			channelElement = readSomeone();
@@ -199,7 +199,7 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 
 		performTermination();
 
-		Logging.Info("done");	
+		Logging.Info(String.format("%s: done",name));	
 		shutdown();		
 	}
 
