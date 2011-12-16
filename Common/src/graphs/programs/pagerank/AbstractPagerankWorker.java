@@ -173,7 +173,7 @@ public abstract class AbstractPagerankWorker extends GraphWorker<GraphVertex,Gra
 	protected boolean loadCache() {
 		boolean ret = false;
 		try {
-			Logging.Info("load cache");
+			Logging.Info(String.format("%s: load cache",name));
 			cache = (PagerankCache) nodeGroup.getCurrentLauncher().getCacheEntry(getCacheKey());
 			Logging.Info("finish loading cache");		
 			
@@ -187,9 +187,9 @@ public abstract class AbstractPagerankWorker extends GraphWorker<GraphVertex,Gra
 				delInputChannel(pagerankInputFilename(numberWorker));
 				ret = true;
 			} else {
-				Logging.Info("loading graph...");
+				Logging.Info(String.format("%s: loading graph...",name));
 				loadGraph();
-				Logging.Info("done");
+				Logging.Info(String.format("%s: done",name));
 				/**
 				 * 
 				 * read pagerank value from last iteration
