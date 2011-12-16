@@ -175,7 +175,7 @@ public abstract class AbstractPagerankWorker extends GraphWorker<GraphVertex,Gra
 		try {
 			Logging.Info(String.format("%s: load cache",name));
 			cache = (PagerankCache) nodeGroup.getCurrentLauncher().getCacheEntry(getCacheKey());
-			Logging.Info("finish loading cache");		
+			Logging.Info(String.format("%s: finish loading cache",name));	
 			
 			if (cache != null) {
 				edgeMap = cache.edgeMap;

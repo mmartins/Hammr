@@ -134,6 +134,8 @@ public class ExecutionHandler extends Thread {
 
 			finishExecution(resultSummary);
 
+			System.gc();
+			
 			return;
 		}
 

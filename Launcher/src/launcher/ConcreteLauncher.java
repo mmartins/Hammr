@@ -244,6 +244,8 @@ public class ConcreteLauncher implements Launcher {
 	 * @return The previous object associated with the specified entry.
 	 */
 	public Object putCacheEntry(String entry, Object object) {
+		launcherCache.remove(entry);
+		System.gc();
 		return launcherCache.put(entry, object);
 	}
 
