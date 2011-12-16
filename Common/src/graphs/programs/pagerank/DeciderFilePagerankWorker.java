@@ -58,8 +58,8 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 				for (GraphEdge edge : edgeSet) {
 					GraphVertex neighbor = graph.getEdgeTarget(edge);
 
-					System.out.printf("worker %d send message to worker %d: %s %f\n", numberWorker,
-							numberWorker, neighbor.getName(), pagerankContribution);
+//					System.out.printf("worker %d send message to worker %d: %s %f\n", numberWorker,
+//							numberWorker, neighbor.getName(), pagerankContribution);
 					
 					write(new MRChannelElement<Integer, Double>(Integer.parseInt(neighbor.getName()),
 							pagerankContribution), messageOutputFilename(numberWorker, numberWorker));
@@ -73,8 +73,8 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 
 						int ownerWorkerIndex = obtainOwnerWorkerIndex(foreignEdge.getTargetName());
 
-						System.out.printf("worker %d send message to worker %d: %s %f\n", numberWorker,
-								ownerWorkerIndex, foreignEdge.getTargetName(), pagerankContribution);
+//						System.out.printf("worker %d send message to worker %d: %s %f\n", numberWorker,
+//								ownerWorkerIndex, foreignEdge.getTargetName(), pagerankContribution);
 
 						write(new MRChannelElement<Integer, Double>(Integer.valueOf(foreignEdge.getTargetName()),
 								pagerankContribution), messageOutputFilename(numberWorker, ownerWorkerIndex));
