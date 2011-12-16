@@ -100,12 +100,7 @@ public class DeciderFilePagerankWorker extends AbstractPagerankWorker {
 			e.printStackTrace();
 		}
 		
-	    try {
-			nodeGroup.getCurrentLauncher().putCacheEntry(getCacheKey(), cache);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		nodeGroup.localLauncher.putCacheEntryLocal(getCacheKey(), cache);
 		
 		terminate = true;
 	}

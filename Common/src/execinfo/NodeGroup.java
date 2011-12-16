@@ -11,6 +11,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package execinfo;
 
+import interfaces.LocalLauncher;
 import interfaces.Manager;
 import interfaces.Launcher;
 
@@ -42,6 +43,8 @@ public class NodeGroup implements Serializable {
 
 	private Launcher currentLauncher;
 	private Launcher previousLauncher;
+	
+	public LocalLauncher localLauncher = null;
 	
 	private Manager manager;
 
@@ -169,6 +172,7 @@ public class NodeGroup implements Serializable {
 	public void prepareSchedule(long serialNumber) {
 		setSerialNumber(serialNumber);
 
+		localLauncher = null;
 		setMark(null);
 	}
 

@@ -145,7 +145,7 @@ public class ResultGenerator extends Thread {
 		
 		return units[4] + "millisec";
 		
-//		// Convert to seconds
+		// Convert to seconds
 //		time = time/1000;
 //
 //		// Get seconds

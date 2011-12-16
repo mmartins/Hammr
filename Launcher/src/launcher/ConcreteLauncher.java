@@ -31,6 +31,7 @@ import execinfo.NodeGroup;
 import utilities.RMIHelper;
 
 import interfaces.Launcher;
+import interfaces.LocalLauncher;
 import interfaces.Manager;
 
 /**
@@ -38,7 +39,7 @@ import interfaces.Manager;
  * 
  * @author Hammurabi Mendes (hmendes)
  */
-public class ConcreteLauncher implements Launcher {
+public class ConcreteLauncher implements Launcher, LocalLauncher {
 	private static final int NUMBER_SLOTS_DEFAULT = Integer.MAX_VALUE;
 
 	private static ConcreteLauncher instance;
@@ -183,9 +184,11 @@ public class ConcreteLauncher implements Launcher {
 		if(launcherStatus.getFreeSlots() < nodeGroup.getSize()) {
 			return false;
 		}
-
+		
 		nodeGroups.put(nodeGroup.getSerialNumber(), nodeGroup);
 
+		nodeGroup.localLauncher = this;
+		
 		ExecutionHandler executionHandler = new ExecutionHandler(manager, this, nodeGroup);
 
 		executorService.execute(executionHandler);
@@ -254,5 +257,17 @@ public class ConcreteLauncher implements Launcher {
 	 */
 	public static void main(String[] arguments) {
 		System.out.println("Running " + ConcreteLauncher.getInstance().getId());
+	}
+
+	@Override
+	public Object getCacheEntryLocal(String entry) {
+		return launcherCache.get(entry);
+	}
+
+	@Override
+	public Object putCacheEntryLocal(String entry, Object object) {
+		launcherCache.remove(entry);
+		System.gc();
+		return launcherCache.put(entry, object);
 	}	
 }
