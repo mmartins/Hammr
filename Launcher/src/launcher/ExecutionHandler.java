@@ -21,6 +21,7 @@ import java.lang.management.ThreadMXBean;
 
 import java.net.InetSocketAddress;
 
+import utilities.Logging;
 import utilities.RMIHelper;
 
 import communication.channel.InputChannel;
@@ -327,7 +328,7 @@ public class ExecutionHandler extends Thread {
 		concreteLauncher.delNodeGroup(nodeGroup);
 
 		try {
-			System.out.println("Launcher: finish execution");
+			Logging.Info(String.format("Launcher: finish execution"));
 			manager.handleTermination(resultSummary);
 		} catch (RemoteException exception) {
 			System.err.println("Unable to communicate termination to the manager");
@@ -336,6 +337,9 @@ public class ExecutionHandler extends Thread {
 			return false;
 		}	
 
+		Runtime rt = Runtime.getRuntime();
+		Logging.Info(String.format("Launcher: free memory %d", rt.freeMemory()));
+		
 		return true;
 	}
 
