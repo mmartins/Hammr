@@ -1,0 +1,809 @@
+Running Launcher-4d8bfcf:1344e49488b:-7ffe
+Executing worker-0
+Executing worker-3
+Executing worker-1
+[2011/12/17 23:09:23]worker-1: perfortInitialization
+[2011/12/17 23:09:23]worker-1: load cache
+[2011/12/17 23:09:23]worker-1: finish loading cache
+[2011/12/17 23:09:23]worker-1: loading graph...
+Executing worker-2
+[2011/12/17 23:09:23]worker-0: perfortInitialization
+[2011/12/17 23:09:23]worker-0: load cache
+[2011/12/17 23:09:23]worker-2: perfortInitialization
+[2011/12/17 23:09:23]worker-2: load cache
+[2011/12/17 23:09:23]worker-0: finish loading cache
+[2011/12/17 23:09:23]worker-0: loading graph...
+[2011/12/17 23:09:23]worker-2: finish loading cache
+[2011/12/17 23:09:23]worker-3: perfortInitialization
+[2011/12/17 23:09:23]worker-2: loading graph...
+[2011/12/17 23:09:23]worker-3: load cache
+[2011/12/17 23:09:23]worker-3: finish loading cache
+[2011/12/17 23:09:23]worker-3: loading graph...
+[2011/12/17 23:10:26]worker-0: done
+[2011/12/17 23:10:32]worker-3: done
+[2011/12/17 23:10:32]worker-2: done
+[2011/12/17 23:10:32]worker-1: done
+[2011/12/17 23:10:36]worker-0: start receiving message
+[2011/12/17 23:10:36]worker-2: start receiving message
+[2011/12/17 23:10:36]worker-3: start receiving message
+[2011/12/17 23:10:36]worker-0: performActionNothingPresent
+[2011/12/17 23:10:36]worker-2: performActionNothingPresent
+[2011/12/17 23:10:36]worker-0: processed 10000 vertex
+[2011/12/17 23:10:36]worker-3: performActionNothingPresent
+[2011/12/17 23:10:36]worker-3: processed 10000 vertex
+[2011/12/17 23:10:36]worker-2: processed 10000 vertex
+[2011/12/17 23:10:37]worker-0: processed 20000 vertex
+[2011/12/17 23:10:37]worker-2: processed 20000 vertex
+[2011/12/17 23:10:37]worker-3: processed 20000 vertex
+[2011/12/17 23:10:37]worker-3: processed 30000 vertex
+[2011/12/17 23:10:37]worker-0: processed 30000 vertex
+[2011/12/17 23:10:37]worker-2: processed 30000 vertex
+[2011/12/17 23:10:37]worker-3: processed 40000 vertex
+[2011/12/17 23:10:37]worker-2: processed 40000 vertex
+[2011/12/17 23:10:37]worker-0: processed 40000 vertex
+[2011/12/17 23:10:37]worker-0: processed 50000 vertex
+[2011/12/17 23:10:37]worker-3: processed 50000 vertex
+[2011/12/17 23:10:37]worker-3: processed 60000 vertex
+[2011/12/17 23:10:37]worker-2: processed 50000 vertex
+[2011/12/17 23:10:37]worker-2: processed 60000 vertex
+[2011/12/17 23:10:37]worker-0: processed 60000 vertex
+[2011/12/17 23:10:37]worker-3: processed 70000 vertex
+[2011/12/17 23:10:37]worker-2: processed 70000 vertex
+[2011/12/17 23:10:37]worker-0: processed 70000 vertex
+[2011/12/17 23:10:37]worker-3: processed 80000 vertex
+[2011/12/17 23:10:37]worker-2: processed 80000 vertex
+[2011/12/17 23:10:37]worker-0: processed 80000 vertex
+[2011/12/17 23:10:37]worker-0: processed 90000 vertex
+[2011/12/17 23:10:37]worker-3: processed 90000 vertex
+[2011/12/17 23:10:37]worker-2: processed 90000 vertex
+[2011/12/17 23:10:37]worker-2: processed 100000 vertex
+[2011/12/17 23:10:37]worker-0: processed 100000 vertex
+[2011/12/17 23:10:37]worker-3: processed 100000 vertex
+[2011/12/17 23:10:46]worker-2: performTermination
+[2011/12/17 23:10:52]worker-3: performTermination
+[2011/12/17 23:11:01]worker-0: performTermination
+[2011/12/17 23:11:01]worker-1: start receiving message
+[2011/12/17 23:11:03]worker-0: done
+[2011/12/17 23:11:04]worker-1: performActionNothingPresent
+[2011/12/17 23:11:04]Launcher: finish execution
+[2011/12/17 23:11:04]worker-1: processed 10000 vertex
+[2011/12/17 23:11:04]worker-1: processed 20000 vertex
+[2011/12/17 23:11:04]worker-1: processed 30000 vertex
+[2011/12/17 23:11:04]worker-1: processed 40000 vertex
+[2011/12/17 23:11:04]worker-1: processed 50000 vertex
+[2011/12/17 23:11:04]worker-1: processed 60000 vertex
+[2011/12/17 23:11:04]worker-1: processed 70000 vertex
+[2011/12/17 23:11:04]worker-1: processed 80000 vertex
+[2011/12/17 23:11:04]worker-1: processed 90000 vertex
+[2011/12/17 23:11:04]worker-1: processed 100000 vertex
+[2011/12/17 23:11:11]worker-1: performTermination
+[2011/12/17 23:11:11]Launcher: free memory 3724848344
+[2011/12/17 23:11:11]worker-2: done
+[2011/12/17 23:11:12]worker-3: done
+[2011/12/17 23:11:12]Launcher: finish execution
+[2011/12/17 23:11:12]Launcher: free memory 3718163504
+[2011/12/17 23:11:12]Launcher: finish execution
+[2011/12/17 23:11:12]Launcher: free memory 3711478664
+[2011/12/17 23:11:13]worker-1: done
+[2011/12/17 23:11:13]Launcher: finish execution
+[2011/12/17 23:11:13]Launcher: free memory 3660390472
+Executing worker-1
+[2011/12/17 23:11:13]worker-1: perfortInitialization
+Executing worker-0
+[2011/12/17 23:11:13]worker-1: load cache
+[2011/12/17 23:11:13]worker-1: finish loading cache
+[2011/12/17 23:11:13]worker-0: perfortInitialization
+[2011/12/17 23:11:13]worker-0: load cache
+[2011/12/17 23:11:13]worker-0: finish loading cache
+[2011/12/17 23:11:13]worker-0: start receiving message
+[2011/12/17 23:11:13]worker-1: start receiving message
+Executing worker-3
+[2011/12/17 23:11:13]worker-3: perfortInitialization
+[2011/12/17 23:11:13]worker-3: load cache
+[2011/12/17 23:11:13]worker-3: finish loading cache
+[2011/12/17 23:11:13]worker-3: start receiving message
+Executing worker-2
+[2011/12/17 23:11:13]worker-2: perfortInitialization
+[2011/12/17 23:11:13]worker-2: load cache
+[2011/12/17 23:11:13]worker-2: finish loading cache
+[2011/12/17 23:11:13]worker-2: start receiving message
+[2011/12/17 23:11:14]worker-1: performActionNothingPresent
+[2011/12/17 23:11:14]worker-0: performActionNothingPresent
+[2011/12/17 23:11:14]worker-2: performActionNothingPresent
+[2011/12/17 23:11:14]worker-3: performActionNothingPresent
+[2011/12/17 23:11:14]worker-1: processed 10000 vertex
+[2011/12/17 23:11:14]worker-3: processed 10000 vertex
+[2011/12/17 23:11:14]worker-0: processed 10000 vertex
+[2011/12/17 23:11:14]worker-2: processed 10000 vertex
+[2011/12/17 23:11:14]worker-0: processed 20000 vertex
+[2011/12/17 23:11:14]worker-1: processed 20000 vertex
+[2011/12/17 23:11:14]worker-3: processed 20000 vertex
+[2011/12/17 23:11:14]worker-3: processed 30000 vertex
+[2011/12/17 23:11:14]worker-2: processed 20000 vertex
+[2011/12/17 23:11:14]worker-0: processed 30000 vertex
+[2011/12/17 23:11:14]worker-1: processed 30000 vertex
+[2011/12/17 23:11:14]worker-3: processed 40000 vertex
+[2011/12/17 23:11:14]worker-0: processed 40000 vertex
+[2011/12/17 23:11:14]worker-2: processed 30000 vertex
+[2011/12/17 23:11:14]worker-0: processed 50000 vertex
+[2011/12/17 23:11:14]worker-1: processed 40000 vertex
+[2011/12/17 23:11:14]worker-2: processed 40000 vertex
+[2011/12/17 23:11:14]worker-3: processed 50000 vertex
+[2011/12/17 23:11:14]worker-1: processed 50000 vertex
+[2011/12/17 23:11:14]worker-2: processed 50000 vertex
+[2011/12/17 23:11:14]worker-3: processed 60000 vertex
+[2011/12/17 23:11:14]worker-0: processed 60000 vertex
+[2011/12/17 23:11:14]worker-1: processed 60000 vertex
+[2011/12/17 23:11:14]worker-2: processed 60000 vertex
+[2011/12/17 23:11:14]worker-0: processed 70000 vertex
+[2011/12/17 23:11:14]worker-1: processed 70000 vertex
+[2011/12/17 23:11:14]worker-3: processed 70000 vertex
+[2011/12/17 23:11:14]worker-2: processed 70000 vertex
+[2011/12/17 23:11:14]worker-1: processed 80000 vertex
+[2011/12/17 23:11:14]worker-0: processed 80000 vertex
+[2011/12/17 23:11:14]worker-2: processed 80000 vertex
+[2011/12/17 23:11:14]worker-3: processed 80000 vertex
+[2011/12/17 23:11:14]worker-1: processed 90000 vertex
+[2011/12/17 23:11:14]worker-2: processed 90000 vertex
+[2011/12/17 23:11:14]worker-0: processed 90000 vertex
+[2011/12/17 23:11:14]worker-1: processed 100000 vertex
+[2011/12/17 23:11:14]worker-0: processed 100000 vertex
+[2011/12/17 23:11:14]worker-2: processed 100000 vertex
+[2011/12/17 23:11:14]worker-3: processed 90000 vertex
+[2011/12/17 23:11:21]worker-1: performTermination
+[2011/12/17 23:11:21]worker-3: processed 100000 vertex
+[2011/12/17 23:11:28]worker-0: performTermination
+[2011/12/17 23:11:37]worker-2: performTermination
+[2011/12/17 23:11:44]worker-3: performTermination
+[2011/12/17 23:11:45]worker-1: done
+[2011/12/17 23:11:46]Launcher: finish execution
+[2011/12/17 23:11:46]Launcher: free memory 3705460192
+[2011/12/17 23:11:46]worker-0: done
+[2011/12/17 23:11:46]worker-2: done
+[2011/12/17 23:11:47]Launcher: finish execution
+[2011/12/17 23:11:47]Launcher: finish execution
+[2011/12/17 23:11:47]Launcher: free memory 3656569840
+[2011/12/17 23:11:47]Launcher: free memory 3656569840
+[2011/12/17 23:11:47]worker-3: done
+[2011/12/17 23:11:47]Launcher: finish execution
+[2011/12/17 23:11:47]Launcher: free memory 3629961824
+Executing worker-0
+[2011/12/17 23:11:47]worker-0: perfortInitialization
+[2011/12/17 23:11:47]worker-0: load cache
+[2011/12/17 23:11:47]worker-0: finish loading cache
+Executing worker-1
+Executing worker-3
+[2011/12/17 23:11:47]worker-1: perfortInitialization
+[2011/12/17 23:11:47]worker-1: load cache
+[2011/12/17 23:11:47]worker-3: perfortInitialization
+[2011/12/17 23:11:47]worker-3: load cache
+[2011/12/17 23:11:47]worker-1: finish loading cache
+[2011/12/17 23:11:47]worker-3: finish loading cache
+Executing worker-2
+[2011/12/17 23:11:47]worker-2: perfortInitialization
+[2011/12/17 23:11:47]worker-2: load cache
+[2011/12/17 23:11:47]worker-2: finish loading cache
+[2011/12/17 23:11:47]worker-1: start receiving message
+[2011/12/17 23:11:47]worker-0: start receiving message
+[2011/12/17 23:11:47]worker-3: start receiving message
+[2011/12/17 23:11:47]worker-2: start receiving message
+[2011/12/17 23:11:47]worker-1: performActionNothingPresent
+[2011/12/17 23:11:47]worker-1: processed 10000 vertex
+[2011/12/17 23:11:47]worker-1: processed 20000 vertex
+[2011/12/17 23:11:47]worker-1: processed 30000 vertex
+[2011/12/17 23:11:47]worker-0: performActionNothingPresent
+[2011/12/17 23:11:47]worker-0: processed 10000 vertex
+[2011/12/17 23:11:47]worker-1: processed 40000 vertex
+[2011/12/17 23:11:47]worker-3: performActionNothingPresent
+[2011/12/17 23:11:47]worker-0: processed 20000 vertex
+[2011/12/17 23:11:47]worker-3: processed 10000 vertex
+[2011/12/17 23:11:47]worker-2: performActionNothingPresent
+[2011/12/17 23:11:47]worker-0: processed 30000 vertex
+[2011/12/17 23:11:47]worker-0: processed 40000 vertex
+[2011/12/17 23:11:47]worker-1: processed 50000 vertex
+[2011/12/17 23:11:47]worker-0: processed 50000 vertex
+[2011/12/17 23:11:47]worker-1: processed 60000 vertex
+[2011/12/17 23:11:47]worker-2: processed 10000 vertex
+[2011/12/17 23:11:47]worker-3: processed 20000 vertex
+[2011/12/17 23:11:47]worker-2: processed 20000 vertex
+[2011/12/17 23:11:47]worker-0: processed 60000 vertex
+[2011/12/17 23:11:47]worker-1: processed 70000 vertex
+[2011/12/17 23:11:47]worker-0: processed 70000 vertex
+[2011/12/17 23:11:47]worker-3: processed 30000 vertex
+[2011/12/17 23:11:47]worker-2: processed 30000 vertex
+[2011/12/17 23:11:47]worker-3: processed 40000 vertex
+[2011/12/17 23:11:47]worker-1: processed 80000 vertex
+[2011/12/17 23:11:47]worker-0: processed 80000 vertex
+[2011/12/17 23:11:47]worker-2: processed 40000 vertex
+[2011/12/17 23:11:47]worker-3: processed 50000 vertex
+[2011/12/17 23:11:47]worker-1: processed 90000 vertex
+[2011/12/17 23:11:48]worker-0: processed 90000 vertex
+[2011/12/17 23:11:48]worker-1: processed 100000 vertex
+[2011/12/17 23:11:48]worker-2: processed 50000 vertex
+[2011/12/17 23:11:48]worker-3: processed 60000 vertex
+[2011/12/17 23:11:48]worker-2: processed 60000 vertex
+[2011/12/17 23:11:48]worker-3: processed 70000 vertex
+[2011/12/17 23:11:48]worker-0: processed 100000 vertex
+[2011/12/17 23:11:48]worker-2: processed 70000 vertex
+[2011/12/17 23:11:48]worker-2: processed 80000 vertex
+[2011/12/17 23:11:48]worker-3: processed 80000 vertex
+[2011/12/17 23:11:48]worker-2: processed 90000 vertex
+[2011/12/17 23:11:48]worker-3: processed 90000 vertex
+[2011/12/17 23:11:48]worker-2: processed 100000 vertex
+[2011/12/17 23:11:54]worker-3: processed 100000 vertex
+[2011/12/17 23:12:01]worker-0: performTermination
+[2011/12/17 23:12:01]worker-1: performTermination
+[2011/12/17 23:12:08]worker-2: performTermination
+[2011/12/17 23:12:15]worker-3: performTermination
+[2011/12/17 23:12:17]worker-3: done
+[2011/12/17 23:12:17]Launcher: finish execution
+[2011/12/17 23:12:17]Launcher: free memory 3685829560
+[2011/12/17 23:12:18]worker-1: done
+[2011/12/17 23:12:18]worker-0: done
+[2011/12/17 23:12:18]worker-2: done
+[2011/12/17 23:12:18]Launcher: finish execution
+[2011/12/17 23:12:18]Launcher: finish execution
+[2011/12/17 23:12:18]Launcher: finish execution
+[2011/12/17 23:12:18]Launcher: free memory 3622258936
+[2011/12/17 23:12:18]Launcher: free memory 3622258936
+[2011/12/17 23:12:19]Launcher: free memory 3608889376
+Executing worker-1
+[2011/12/17 23:12:19]worker-1: perfortInitialization
+[2011/12/17 23:12:19]worker-1: load cache
+[2011/12/17 23:12:19]worker-1: finish loading cache
+Executing worker-0
+[2011/12/17 23:12:19]worker-0: perfortInitialization
+[2011/12/17 23:12:19]worker-0: load cache
+[2011/12/17 23:12:19]worker-0: finish loading cache
+Executing worker-3
+[2011/12/17 23:12:19]worker-3: perfortInitialization
+[2011/12/17 23:12:19]worker-3: load cache
+[2011/12/17 23:12:19]worker-3: finish loading cache
+[2011/12/17 23:12:19]worker-0: start receiving message
+Executing worker-2
+[2011/12/17 23:12:19]worker-2: perfortInitialization
+[2011/12/17 23:12:19]worker-2: load cache
+[2011/12/17 23:12:19]worker-2: finish loading cache
+[2011/12/17 23:12:19]worker-3: start receiving message
+[2011/12/17 23:12:19]worker-2: start receiving message
+[2011/12/17 23:12:19]worker-1: start receiving message
+[2011/12/17 23:12:19]worker-0: performActionNothingPresent
+[2011/12/17 23:12:19]worker-0: processed 10000 vertex
+[2011/12/17 23:12:19]worker-3: performActionNothingPresent
+[2011/12/17 23:12:19]worker-3: processed 10000 vertex
+[2011/12/17 23:12:19]worker-2: performActionNothingPresent
+[2011/12/17 23:12:19]worker-1: performActionNothingPresent
+[2011/12/17 23:12:19]worker-1: processed 10000 vertex
+[2011/12/17 23:12:19]worker-2: processed 10000 vertex
+[2011/12/17 23:12:19]worker-0: processed 20000 vertex
+[2011/12/17 23:12:19]worker-3: processed 20000 vertex
+[2011/12/17 23:12:19]worker-1: processed 20000 vertex
+[2011/12/17 23:12:19]worker-2: processed 20000 vertex
+[2011/12/17 23:12:19]worker-0: processed 30000 vertex
+[2011/12/17 23:12:19]worker-3: processed 30000 vertex
+[2011/12/17 23:12:19]worker-0: processed 40000 vertex
+[2011/12/17 23:12:19]worker-3: processed 40000 vertex
+[2011/12/17 23:12:19]worker-1: processed 30000 vertex
+[2011/12/17 23:12:19]worker-2: processed 30000 vertex
+[2011/12/17 23:12:19]worker-1: processed 40000 vertex
+[2011/12/17 23:12:19]worker-1: processed 50000 vertex
+[2011/12/17 23:12:19]worker-0: processed 50000 vertex
+[2011/12/17 23:12:19]worker-2: processed 40000 vertex
+[2011/12/17 23:12:19]worker-3: processed 50000 vertex
+[2011/12/17 23:12:19]worker-2: processed 50000 vertex
+[2011/12/17 23:12:19]worker-1: processed 60000 vertex
+[2011/12/17 23:12:19]worker-0: processed 60000 vertex
+[2011/12/17 23:12:19]worker-1: processed 70000 vertex
+[2011/12/17 23:12:19]worker-0: processed 70000 vertex
+[2011/12/17 23:12:19]worker-3: processed 60000 vertex
+[2011/12/17 23:12:19]worker-2: processed 60000 vertex
+[2011/12/17 23:12:19]worker-3: processed 70000 vertex
+[2011/12/17 23:12:19]worker-1: processed 80000 vertex
+[2011/12/17 23:12:19]worker-2: processed 70000 vertex
+[2011/12/17 23:12:19]worker-2: processed 80000 vertex
+[2011/12/17 23:12:19]worker-3: processed 80000 vertex
+[2011/12/17 23:12:19]worker-2: processed 90000 vertex
+[2011/12/17 23:12:19]worker-3: processed 90000 vertex
+[2011/12/17 23:12:19]worker-2: processed 100000 vertex
+[2011/12/17 23:12:19]worker-1: processed 90000 vertex
+[2011/12/17 23:12:19]worker-0: processed 80000 vertex
+[2011/12/17 23:12:19]worker-3: processed 100000 vertex
+[2011/12/17 23:12:19]worker-1: processed 100000 vertex
+[2011/12/17 23:12:19]worker-0: processed 90000 vertex
+[2011/12/17 23:12:26]worker-2: performTermination
+[2011/12/17 23:12:26]worker-0: processed 100000 vertex
+[2011/12/17 23:12:32]worker-3: performTermination
+[2011/12/17 23:12:41]worker-0: performTermination
+[2011/12/17 23:12:48]worker-1: performTermination
+[2011/12/17 23:12:51]worker-1: done
+[2011/12/17 23:12:51]Launcher: finish execution
+[2011/12/17 23:12:51]Launcher: free memory 3662741488
+[2011/12/17 23:12:51]worker-0: done
+[2011/12/17 23:12:51]worker-2: done
+[2011/12/17 23:12:51]worker-3: done
+[2011/12/17 23:12:51]Launcher: finish execution
+[2011/12/17 23:12:51]Launcher: free memory 3636395792
+[2011/12/17 23:12:51]Launcher: finish execution
+[2011/12/17 23:12:51]Launcher: free memory 3629710952
+[2011/12/17 23:12:51]Launcher: finish execution
+[2011/12/17 23:12:52]Launcher: free memory 3609787624
+Executing worker-1
+[2011/12/17 23:12:52]worker-1: perfortInitialization
+[2011/12/17 23:12:52]worker-1: load cache
+[2011/12/17 23:12:52]worker-1: finish loading cache
+[2011/12/17 23:12:52]worker-1: start receiving message
+Executing worker-0
+[2011/12/17 23:12:52]worker-0: perfortInitialization
+[2011/12/17 23:12:52]worker-0: load cache
+Executing worker-3
+[2011/12/17 23:12:52]worker-3: perfortInitialization
+[2011/12/17 23:12:52]worker-0: finish loading cache
+[2011/12/17 23:12:52]worker-3: load cache
+[2011/12/17 23:12:52]worker-3: finish loading cache
+Executing worker-2
+[2011/12/17 23:12:52]worker-2: perfortInitialization
+[2011/12/17 23:12:52]worker-2: load cache
+[2011/12/17 23:12:52]worker-2: finish loading cache
+[2011/12/17 23:12:52]worker-0: start receiving message
+[2011/12/17 23:12:52]worker-3: start receiving message
+[2011/12/17 23:12:52]worker-2: start receiving message
+[2011/12/17 23:12:52]worker-1: performActionNothingPresent
+[2011/12/17 23:12:52]worker-1: processed 10000 vertex
+[2011/12/17 23:12:52]worker-1: processed 20000 vertex
+[2011/12/17 23:12:52]worker-1: processed 30000 vertex
+[2011/12/17 23:12:52]worker-0: performActionNothingPresent
+[2011/12/17 23:12:52]worker-1: processed 40000 vertex
+[2011/12/17 23:12:52]worker-0: processed 10000 vertex
+[2011/12/17 23:12:52]worker-3: performActionNothingPresent
+[2011/12/17 23:12:52]worker-1: processed 50000 vertex
+[2011/12/17 23:12:52]worker-3: processed 10000 vertex
+[2011/12/17 23:12:52]worker-1: processed 60000 vertex
+[2011/12/17 23:12:52]worker-2: performActionNothingPresent
+[2011/12/17 23:12:52]worker-1: processed 70000 vertex
+[2011/12/17 23:12:52]worker-2: processed 10000 vertex
+[2011/12/17 23:12:52]worker-0: processed 20000 vertex
+[2011/12/17 23:12:52]worker-1: processed 80000 vertex
+[2011/12/17 23:12:52]worker-1: processed 90000 vertex
+[2011/12/17 23:12:52]worker-2: processed 20000 vertex
+[2011/12/17 23:12:52]worker-1: processed 100000 vertex
+[2011/12/17 23:12:52]worker-3: processed 20000 vertex
+[2011/12/17 23:12:52]worker-0: processed 30000 vertex
+[2011/12/17 23:12:52]worker-0: processed 40000 vertex
+[2011/12/17 23:12:52]worker-2: processed 30000 vertex
+[2011/12/17 23:12:59]worker-3: processed 30000 vertex
+[2011/12/17 23:12:59]worker-0: processed 50000 vertex
+[2011/12/17 23:12:59]worker-1: performTermination
+[2011/12/17 23:12:59]worker-2: processed 40000 vertex
+[2011/12/17 23:12:59]worker-2: processed 50000 vertex
+[2011/12/17 23:12:59]worker-3: processed 40000 vertex
+[2011/12/17 23:12:59]worker-3: processed 50000 vertex
+[2011/12/17 23:12:59]worker-0: processed 60000 vertex
+[2011/12/17 23:12:59]worker-0: processed 70000 vertex
+[2011/12/17 23:12:59]worker-2: processed 60000 vertex
+[2011/12/17 23:12:59]worker-3: processed 60000 vertex
+[2011/12/17 23:12:59]worker-0: processed 80000 vertex
+[2011/12/17 23:12:59]worker-0: processed 90000 vertex
+[2011/12/17 23:12:59]worker-2: processed 70000 vertex
+[2011/12/17 23:12:59]worker-0: processed 100000 vertex
+[2011/12/17 23:12:59]worker-3: processed 70000 vertex
+[2011/12/17 23:12:59]worker-3: processed 80000 vertex
+[2011/12/17 23:12:59]worker-2: processed 80000 vertex
+[2011/12/17 23:13:06]worker-2: processed 90000 vertex
+[2011/12/17 23:13:06]worker-3: processed 90000 vertex
+[2011/12/17 23:13:06]worker-0: performTermination
+[2011/12/17 23:13:06]worker-2: processed 100000 vertex
+[2011/12/17 23:13:06]worker-3: processed 100000 vertex
+[2011/12/17 23:13:14]worker-3: performTermination
+[2011/12/17 23:13:20]worker-2: performTermination
+[2011/12/17 23:13:22]worker-1: done
+[2011/12/17 23:13:22]worker-0: done
+[2011/12/17 23:13:22]Launcher: finish execution
+[2011/12/17 23:13:22]Launcher: free memory 3695691680
+[2011/12/17 23:13:22]Launcher: finish execution
+[2011/12/17 23:13:22]Launcher: free memory 3678521040
+[2011/12/17 23:13:23]worker-3: done
+[2011/12/17 23:13:23]Launcher: finish execution
+[2011/12/17 23:13:23]Launcher: free memory 3661350384
+[2011/12/17 23:13:23]worker-2: done
+[2011/12/17 23:13:23]Launcher: finish execution
+[2011/12/17 23:13:23]Launcher: free memory 3641427056
+Executing worker-1
+[2011/12/17 23:13:23]worker-1: perfortInitialization
+[2011/12/17 23:13:23]worker-1: load cache
+[2011/12/17 23:13:23]worker-1: finish loading cache
+Executing worker-2
+[2011/12/17 23:13:23]worker-2: perfortInitialization
+[2011/12/17 23:13:23]worker-2: load cache
+[2011/12/17 23:13:23]worker-2: finish loading cache
+Executing worker-0
+[2011/12/17 23:13:23]worker-0: perfortInitialization
+[2011/12/17 23:13:23]worker-1: start receiving message
+[2011/12/17 23:13:23]worker-0: load cache
+[2011/12/17 23:13:23]worker-0: finish loading cache
+Executing worker-3
+[2011/12/17 23:13:23]worker-2: start receiving message
+[2011/12/17 23:13:23]worker-3: perfortInitialization
+[2011/12/17 23:13:23]worker-3: load cache
+[2011/12/17 23:13:23]worker-3: finish loading cache
+[2011/12/17 23:13:23]worker-0: start receiving message
+[2011/12/17 23:13:23]worker-3: start receiving message
+[2011/12/17 23:13:23]worker-1: performActionNothingPresent
+[2011/12/17 23:13:23]worker-2: performActionNothingPresent
+[2011/12/17 23:13:23]worker-1: processed 10000 vertex
+[2011/12/17 23:13:23]worker-2: processed 10000 vertex
+[2011/12/17 23:13:23]worker-1: processed 20000 vertex
+[2011/12/17 23:13:23]worker-2: processed 20000 vertex
+[2011/12/17 23:13:23]worker-1: processed 30000 vertex
+[2011/12/17 23:13:23]worker-2: processed 30000 vertex
+[2011/12/17 23:13:23]worker-1: processed 40000 vertex
+[2011/12/17 23:13:23]worker-2: processed 40000 vertex
+[2011/12/17 23:13:23]worker-1: processed 50000 vertex
+[2011/12/17 23:13:23]worker-2: processed 50000 vertex
+[2011/12/17 23:13:23]worker-1: processed 60000 vertex
+[2011/12/17 23:13:23]worker-2: processed 60000 vertex
+[2011/12/17 23:13:23]worker-1: processed 70000 vertex
+[2011/12/17 23:13:23]worker-2: processed 70000 vertex
+[2011/12/17 23:13:23]worker-1: processed 80000 vertex
+[2011/12/17 23:13:23]worker-2: processed 80000 vertex
+[2011/12/17 23:13:23]worker-1: processed 90000 vertex
+[2011/12/17 23:13:23]worker-2: processed 90000 vertex
+[2011/12/17 23:13:23]worker-1: processed 100000 vertex
+[2011/12/17 23:13:23]worker-3: performActionNothingPresent
+[2011/12/17 23:13:23]worker-2: processed 100000 vertex
+[2011/12/17 23:13:23]worker-0: performActionNothingPresent
+[2011/12/17 23:13:30]worker-1: performTermination
+[2011/12/17 23:13:30]worker-3: processed 10000 vertex
+[2011/12/17 23:13:37]worker-2: performTermination
+[2011/12/17 23:13:37]worker-3: processed 20000 vertex
+[2011/12/17 23:13:37]worker-3: processed 30000 vertex
+[2011/12/17 23:13:37]worker-3: processed 40000 vertex
+[2011/12/17 23:13:37]worker-3: processed 50000 vertex
+[2011/12/17 23:13:37]worker-3: processed 60000 vertex
+[2011/12/17 23:13:37]worker-3: processed 70000 vertex
+[2011/12/17 23:13:37]worker-3: processed 80000 vertex
+[2011/12/17 23:13:37]worker-3: processed 90000 vertex
+[2011/12/17 23:13:37]worker-3: processed 100000 vertex
+[2011/12/17 23:13:37]worker-0: processed 10000 vertex
+[2011/12/17 23:13:37]worker-0: processed 20000 vertex
+[2011/12/17 23:13:37]worker-0: processed 30000 vertex
+[2011/12/17 23:13:37]worker-0: processed 40000 vertex
+[2011/12/17 23:13:37]worker-0: processed 50000 vertex
+[2011/12/17 23:13:37]worker-0: processed 60000 vertex
+[2011/12/17 23:13:37]worker-0: processed 70000 vertex
+[2011/12/17 23:13:37]worker-0: processed 80000 vertex
+[2011/12/17 23:13:37]worker-0: processed 90000 vertex
+[2011/12/17 23:13:37]worker-0: processed 100000 vertex
+[2011/12/17 23:13:44]worker-3: performTermination
+[2011/12/17 23:13:50]worker-0: performTermination
+[2011/12/17 23:13:53]worker-1: done
+[2011/12/17 23:13:53]worker-2: done
+[2011/12/17 23:13:53]worker-0: done
+[2011/12/17 23:13:53]worker-3: done
+[2011/12/17 23:13:54]Launcher: finish execution
+[2011/12/17 23:13:54]Launcher: free memory 3652714952
+[2011/12/17 23:13:54]Launcher: finish execution
+[2011/12/17 23:13:54]Launcher: free memory 3646030112
+[2011/12/17 23:13:54]Launcher: finish execution
+[2011/12/17 23:13:54]Launcher: free memory 3639345272
+[2011/12/17 23:13:54]Launcher: finish execution
+[2011/12/17 23:13:54]Launcher: free memory 3619421944
+Executing worker-0
+[2011/12/17 23:13:54]worker-0: perfortInitialization
+[2011/12/17 23:13:54]worker-0: load cache
+[2011/12/17 23:13:54]worker-0: finish loading cache
+Executing worker-1
+[2011/12/17 23:13:54]worker-1: perfortInitialization
+[2011/12/17 23:13:54]worker-1: load cache
+[2011/12/17 23:13:54]worker-1: finish loading cache
+[2011/12/17 23:13:54]worker-0: start receiving message
+Executing worker-3
+[2011/12/17 23:13:54]worker-3: perfortInitialization
+[2011/12/17 23:13:54]worker-3: load cache
+[2011/12/17 23:13:54]worker-3: finish loading cache
+[2011/12/17 23:13:54]worker-1: start receiving message
+Executing worker-2
+[2011/12/17 23:13:54]worker-2: perfortInitialization
+[2011/12/17 23:13:54]worker-2: load cache
+[2011/12/17 23:13:54]worker-2: finish loading cache
+[2011/12/17 23:13:54]worker-3: start receiving message
+[2011/12/17 23:13:54]worker-2: start receiving message
+[2011/12/17 23:13:54]worker-0: performActionNothingPresent
+[2011/12/17 23:13:54]worker-0: processed 10000 vertex
+[2011/12/17 23:13:54]worker-3: performActionNothingPresent
+[2011/12/17 23:13:54]worker-0: processed 20000 vertex
+[2011/12/17 23:13:54]worker-3: processed 10000 vertex
+[2011/12/17 23:13:54]worker-1: performActionNothingPresent
+[2011/12/17 23:13:54]worker-2: performActionNothingPresent
+[2011/12/17 23:13:54]worker-1: processed 10000 vertex
+[2011/12/17 23:13:54]worker-2: processed 10000 vertex
+[2011/12/17 23:13:54]worker-1: processed 20000 vertex
+[2011/12/17 23:13:54]worker-3: processed 20000 vertex
+[2011/12/17 23:13:54]worker-0: processed 30000 vertex
+[2011/12/17 23:13:54]worker-2: processed 20000 vertex
+[2011/12/17 23:13:54]worker-0: processed 40000 vertex
+[2011/12/17 23:13:54]worker-1: processed 30000 vertex
+[2011/12/17 23:13:54]worker-2: processed 30000 vertex
+[2011/12/17 23:13:54]worker-1: processed 40000 vertex
+[2011/12/17 23:13:54]worker-2: processed 40000 vertex
+[2011/12/17 23:13:54]worker-3: processed 30000 vertex
+[2011/12/17 23:13:54]worker-0: processed 50000 vertex
+[2011/12/17 23:13:54]worker-3: processed 40000 vertex
+[2011/12/17 23:13:54]worker-1: processed 50000 vertex
+[2011/12/17 23:13:54]worker-2: processed 50000 vertex
+[2011/12/17 23:13:54]worker-0: processed 60000 vertex
+[2011/12/17 23:13:54]worker-3: processed 50000 vertex
+[2011/12/17 23:13:54]worker-1: processed 60000 vertex
+[2011/12/17 23:13:54]worker-2: processed 60000 vertex
+[2011/12/17 23:13:54]worker-1: processed 70000 vertex
+[2011/12/17 23:13:54]worker-0: processed 70000 vertex
+[2011/12/17 23:13:54]worker-3: processed 60000 vertex
+[2011/12/17 23:13:54]worker-0: processed 80000 vertex
+[2011/12/17 23:13:54]worker-3: processed 70000 vertex
+[2011/12/17 23:13:54]worker-2: processed 70000 vertex
+[2011/12/17 23:13:54]worker-1: processed 80000 vertex
+[2011/12/17 23:13:54]worker-2: processed 80000 vertex
+[2011/12/17 23:13:54]worker-0: processed 90000 vertex
+[2011/12/17 23:13:54]worker-3: processed 80000 vertex
+[2011/12/17 23:13:54]worker-1: processed 90000 vertex
+[2011/12/17 23:13:54]worker-2: processed 90000 vertex
+[2011/12/17 23:13:54]worker-0: processed 100000 vertex
+[2011/12/17 23:13:54]worker-3: processed 90000 vertex
+[2011/12/17 23:13:54]worker-1: processed 100000 vertex
+[2011/12/17 23:13:54]worker-3: processed 100000 vertex
+[2011/12/17 23:14:01]worker-0: performTermination
+[2011/12/17 23:14:01]worker-2: processed 100000 vertex
+[2011/12/17 23:14:08]worker-3: performTermination
+[2011/12/17 23:14:14]worker-1: performTermination
+[2011/12/17 23:14:21]worker-2: performTermination
+[2011/12/17 23:14:24]worker-1: done
+[2011/12/17 23:14:24]Launcher: finish execution
+[2011/12/17 23:14:24]Launcher: free memory 3650366264
+[2011/12/17 23:14:24]worker-2: done
+[2011/12/17 23:14:24]worker-3: done
+[2011/12/17 23:14:24]worker-0: done
+[2011/12/17 23:14:24]Launcher: finish execution
+[2011/12/17 23:14:24]Launcher: free memory 3624151632
+[2011/12/17 23:14:25]Launcher: finish execution
+[2011/12/17 23:14:25]Launcher: finish execution
+[2011/12/17 23:14:25]Launcher: free memory 3610781952
+[2011/12/17 23:14:25]Launcher: free memory 3597543440
+Executing worker-0
+[2011/12/17 23:14:25]worker-0: perfortInitialization
+[2011/12/17 23:14:25]worker-0: load cache
+[2011/12/17 23:14:25]worker-0: finish loading cache
+[2011/12/17 23:14:25]worker-0: start receiving message
+Executing worker-1
+[2011/12/17 23:14:25]worker-1: perfortInitialization
+[2011/12/17 23:14:25]worker-1: load cache
+[2011/12/17 23:14:25]worker-1: finish loading cache
+Executing worker-3
+[2011/12/17 23:14:25]worker-3: perfortInitialization
+[2011/12/17 23:14:25]worker-3: load cache
+[2011/12/17 23:14:25]worker-3: finish loading cache
+Executing worker-2
+[2011/12/17 23:14:25]worker-2: perfortInitialization
+[2011/12/17 23:14:25]worker-2: load cache
+[2011/12/17 23:14:25]worker-2: finish loading cache
+[2011/12/17 23:14:25]worker-3: start receiving message
+[2011/12/17 23:14:25]worker-1: start receiving message
+[2011/12/17 23:14:25]worker-2: start receiving message
+[2011/12/17 23:14:25]worker-0: performActionNothingPresent
+[2011/12/17 23:14:25]worker-0: processed 10000 vertex
+[2011/12/17 23:14:25]worker-0: processed 20000 vertex
+[2011/12/17 23:14:25]worker-0: processed 30000 vertex
+[2011/12/17 23:14:25]worker-3: performActionNothingPresent
+[2011/12/17 23:14:25]worker-1: performActionNothingPresent
+[2011/12/17 23:14:25]worker-1: processed 10000 vertex
+[2011/12/17 23:14:25]worker-3: processed 10000 vertex
+[2011/12/17 23:14:25]worker-2: performActionNothingPresent
+[2011/12/17 23:14:25]worker-1: processed 20000 vertex
+[2011/12/17 23:14:25]worker-2: processed 10000 vertex
+[2011/12/17 23:14:25]worker-1: processed 30000 vertex
+[2011/12/17 23:14:25]worker-1: processed 40000 vertex
+[2011/12/17 23:14:25]worker-0: processed 40000 vertex
+[2011/12/17 23:14:25]worker-1: processed 50000 vertex
+[2011/12/17 23:14:25]worker-2: processed 20000 vertex
+[2011/12/17 23:14:25]worker-1: processed 60000 vertex
+[2011/12/17 23:14:25]worker-3: processed 20000 vertex
+[2011/12/17 23:14:25]worker-1: processed 70000 vertex
+[2011/12/17 23:14:25]worker-1: processed 80000 vertex
+[2011/12/17 23:14:25]worker-0: processed 50000 vertex
+[2011/12/17 23:14:25]worker-1: processed 90000 vertex
+[2011/12/17 23:14:25]worker-2: processed 30000 vertex
+[2011/12/17 23:14:25]worker-1: processed 100000 vertex
+[2011/12/17 23:14:25]worker-3: processed 30000 vertex
+[2011/12/17 23:14:25]worker-2: processed 40000 vertex
+[2011/12/17 23:14:25]worker-3: processed 40000 vertex
+[2011/12/17 23:14:25]worker-2: processed 50000 vertex
+[2011/12/17 23:14:25]worker-0: processed 60000 vertex
+[2011/12/17 23:14:25]worker-2: processed 60000 vertex
+[2011/12/17 23:14:25]worker-0: processed 70000 vertex
+[2011/12/17 23:14:25]worker-2: processed 70000 vertex
+[2011/12/17 23:14:25]worker-3: processed 50000 vertex
+[2011/12/17 23:14:25]worker-2: processed 80000 vertex
+[2011/12/17 23:14:25]worker-0: processed 80000 vertex
+[2011/12/17 23:14:25]worker-2: processed 90000 vertex
+[2011/12/17 23:14:25]worker-3: processed 60000 vertex
+[2011/12/17 23:14:25]worker-2: processed 100000 vertex
+[2011/12/17 23:14:25]worker-3: processed 70000 vertex
+[2011/12/17 23:14:25]worker-0: processed 90000 vertex
+[2011/12/17 23:14:32]worker-0: processed 100000 vertex
+[2011/12/17 23:14:32]worker-3: processed 80000 vertex
+[2011/12/17 23:14:32]worker-1: performTermination
+[2011/12/17 23:14:32]worker-3: processed 90000 vertex
+[2011/12/17 23:14:39]worker-2: performTermination
+[2011/12/17 23:14:47]worker-0: performTermination
+[2011/12/17 23:14:48]worker-3: processed 100000 vertex
+[2011/12/17 23:14:55]worker-3: performTermination
+[2011/12/17 23:14:56]worker-0: done
+[2011/12/17 23:14:56]Launcher: finish execution
+[2011/12/17 23:14:56]Launcher: free memory 3694793360
+[2011/12/17 23:14:57]worker-1: done
+[2011/12/17 23:14:57]worker-2: done
+[2011/12/17 23:14:57]worker-3: done
+[2011/12/17 23:14:57]Launcher: finish execution
+[2011/12/17 23:14:57]Launcher: finish execution
+[2011/12/17 23:14:57]Launcher: free memory 3660452064
+[2011/12/17 23:14:57]Launcher: free memory 3660452064
+[2011/12/17 23:14:57]Launcher: finish execution
+[2011/12/17 23:14:58]Launcher: free memory 3640397664
+Executing worker-0
+[2011/12/17 23:14:58]worker-0: perfortInitialization
+[2011/12/17 23:14:58]worker-0: load cache
+[2011/12/17 23:14:58]worker-0: finish loading cache
+Executing worker-1
+Executing worker-3
+[2011/12/17 23:14:58]worker-1: perfortInitialization
+[2011/12/17 23:14:58]worker-1: load cache
+[2011/12/17 23:14:58]worker-3: perfortInitialization
+[2011/12/17 23:14:58]worker-3: load cache
+[2011/12/17 23:14:58]worker-1: finish loading cache
+[2011/12/17 23:14:58]worker-3: finish loading cache
+Executing worker-2
+[2011/12/17 23:14:58]worker-0: start receiving message
+[2011/12/17 23:14:58]worker-2: perfortInitialization
+[2011/12/17 23:14:58]worker-2: load cache
+[2011/12/17 23:14:58]worker-2: finish loading cache
+[2011/12/17 23:14:58]worker-1: start receiving message
+[2011/12/17 23:14:58]worker-3: start receiving message
+[2011/12/17 23:14:58]worker-2: start receiving message
+[2011/12/17 23:14:58]worker-0: performActionNothingPresent
+[2011/12/17 23:14:58]worker-0: processed 10000 vertex
+[2011/12/17 23:14:58]worker-1: performActionNothingPresent
+[2011/12/17 23:14:58]worker-0: processed 20000 vertex
+[2011/12/17 23:14:58]worker-1: processed 10000 vertex
+[2011/12/17 23:14:58]worker-0: processed 30000 vertex
+[2011/12/17 23:14:58]worker-3: performActionNothingPresent
+[2011/12/17 23:14:58]worker-0: processed 40000 vertex
+[2011/12/17 23:14:58]worker-3: processed 10000 vertex
+[2011/12/17 23:14:58]worker-2: performActionNothingPresent
+[2011/12/17 23:14:58]worker-0: processed 50000 vertex
+[2011/12/17 23:14:58]worker-2: processed 10000 vertex
+[2011/12/17 23:14:58]worker-0: processed 60000 vertex
+[2011/12/17 23:14:58]worker-1: processed 20000 vertex
+[2011/12/17 23:14:58]worker-0: processed 70000 vertex
+[2011/12/17 23:14:58]worker-3: processed 20000 vertex
+[2011/12/17 23:14:58]worker-0: processed 80000 vertex
+[2011/12/17 23:14:58]worker-0: processed 90000 vertex
+[2011/12/17 23:14:58]worker-2: processed 20000 vertex
+[2011/12/17 23:14:58]worker-0: processed 100000 vertex
+[2011/12/17 23:14:58]worker-1: processed 30000 vertex
+[2011/12/17 23:15:05]worker-0: performTermination
+[2011/12/17 23:15:05]worker-2: processed 30000 vertex
+[2011/12/17 23:15:05]worker-3: processed 30000 vertex
+[2011/12/17 23:15:05]worker-3: processed 40000 vertex
+[2011/12/17 23:15:05]worker-1: processed 40000 vertex
+[2011/12/17 23:15:05]worker-1: processed 50000 vertex
+[2011/12/17 23:15:05]worker-2: processed 40000 vertex
+[2011/12/17 23:15:05]worker-2: processed 50000 vertex
+[2011/12/17 23:15:05]worker-3: processed 50000 vertex
+[2011/12/17 23:15:05]worker-1: processed 60000 vertex
+[2011/12/17 23:15:05]worker-2: processed 60000 vertex
+[2011/12/17 23:15:05]worker-3: processed 60000 vertex
+[2011/12/17 23:15:05]worker-3: processed 70000 vertex
+[2011/12/17 23:15:05]worker-1: processed 70000 vertex
+[2011/12/17 23:15:05]worker-2: processed 70000 vertex
+[2011/12/17 23:15:05]worker-3: processed 80000 vertex
+[2011/12/17 23:15:05]worker-1: processed 80000 vertex
+[2011/12/17 23:15:05]worker-1: processed 90000 vertex
+[2011/12/17 23:15:05]worker-2: processed 80000 vertex
+[2011/12/17 23:15:05]worker-3: processed 90000 vertex
+[2011/12/17 23:15:05]worker-1: processed 100000 vertex
+[2011/12/17 23:15:05]worker-2: processed 90000 vertex
+[2011/12/17 23:15:05]worker-3: processed 100000 vertex
+[2011/12/17 23:15:05]worker-2: processed 100000 vertex
+[2011/12/17 23:15:12]worker-1: performTermination
+[2011/12/17 23:15:18]worker-3: performTermination
+[2011/12/17 23:15:25]worker-2: performTermination
+[2011/12/17 23:15:28]worker-0: done
+[2011/12/17 23:15:28]worker-2: done
+[2011/12/17 23:15:28]worker-1: done
+[2011/12/17 23:15:28]worker-3: done
+[2011/12/17 23:15:28]Launcher: finish execution
+[2011/12/17 23:15:28]Launcher: finish execution
+[2011/12/17 23:15:28]Launcher: free memory 3649477288
+[2011/12/17 23:15:28]Launcher: free memory 3649477256
+[2011/12/17 23:15:28]Launcher: finish execution
+[2011/12/17 23:15:28]Launcher: free memory 3642792416
+[2011/12/17 23:15:28]Launcher: finish execution
+[2011/12/17 23:15:29]Launcher: free memory 3622869088
+Executing worker-1
+[2011/12/17 23:15:29]worker-1: perfortInitialization
+[2011/12/17 23:15:29]worker-1: load cache
+[2011/12/17 23:15:29]worker-1: finish loading cache
+Executing worker-0
+[2011/12/17 23:15:29]worker-0: perfortInitialization
+[2011/12/17 23:15:29]worker-0: load cache
+[2011/12/17 23:15:29]worker-0: finish loading cache
+Executing worker-3
+[2011/12/17 23:15:29]worker-3: perfortInitialization
+[2011/12/17 23:15:29]worker-3: load cache
+[2011/12/17 23:15:29]worker-3: finish loading cache
+Executing worker-2
+[2011/12/17 23:15:29]worker-2: perfortInitialization
+[2011/12/17 23:15:29]worker-2: load cache
+[2011/12/17 23:15:29]worker-2: finish loading cache
+[2011/12/17 23:15:29]worker-3: start receiving message
+[2011/12/17 23:15:29]worker-0: start receiving message
+[2011/12/17 23:15:29]worker-2: start receiving message
+[2011/12/17 23:15:29]worker-1: start receiving message
+[2011/12/17 23:15:29]worker-0: performActionNothingPresent
+[2011/12/17 23:15:29]worker-1: performActionNothingPresent
+[2011/12/17 23:15:29]worker-0: processed 10000 vertex
+[2011/12/17 23:15:29]worker-1: processed 10000 vertex
+[2011/12/17 23:15:29]worker-3: performActionNothingPresent
+[2011/12/17 23:15:29]worker-1: processed 20000 vertex
+[2011/12/17 23:15:29]worker-3: processed 10000 vertex
+[2011/12/17 23:15:29]worker-1: processed 30000 vertex
+[2011/12/17 23:15:29]worker-3: processed 20000 vertex
+[2011/12/17 23:15:29]worker-1: processed 40000 vertex
+[2011/12/17 23:15:29]worker-1: processed 50000 vertex
+[2011/12/17 23:15:29]worker-0: processed 20000 vertex
+[2011/12/17 23:15:29]worker-1: processed 60000 vertex
+[2011/12/17 23:15:29]worker-3: processed 30000 vertex
+[2011/12/17 23:15:29]worker-1: processed 70000 vertex
+[2011/12/17 23:15:29]worker-3: processed 40000 vertex
+[2011/12/17 23:15:29]worker-0: processed 30000 vertex
+[2011/12/17 23:15:29]worker-1: processed 80000 vertex
+[2011/12/17 23:15:29]worker-0: processed 40000 vertex
+[2011/12/17 23:15:29]worker-1: processed 90000 vertex
+[2011/12/17 23:15:29]worker-3: processed 50000 vertex
+[2011/12/17 23:15:29]worker-1: processed 100000 vertex
+[2011/12/17 23:15:29]worker-2: performActionNothingPresent
+[2011/12/17 23:15:29]worker-0: processed 50000 vertex
+[2011/12/17 23:15:29]worker-2: processed 10000 vertex
+[2011/12/17 23:15:29]worker-3: processed 60000 vertex
+[2011/12/17 23:15:29]worker-2: processed 20000 vertex
+[2011/12/17 23:15:29]worker-3: processed 70000 vertex
+[2011/12/17 23:15:29]worker-0: processed 60000 vertex
+[2011/12/17 23:15:29]worker-2: processed 30000 vertex
+[2011/12/17 23:15:29]worker-0: processed 70000 vertex
+[2011/12/17 23:15:29]worker-2: processed 40000 vertex
+[2011/12/17 23:15:29]worker-3: processed 80000 vertex
+[2011/12/17 23:15:29]worker-2: processed 50000 vertex
+[2011/12/17 23:15:29]worker-0: processed 80000 vertex
+[2011/12/17 23:15:29]worker-2: processed 60000 vertex
+[2011/12/17 23:15:29]worker-2: processed 70000 vertex
+[2011/12/17 23:15:29]worker-3: processed 90000 vertex
+[2011/12/17 23:15:29]worker-2: processed 80000 vertex
+[2011/12/17 23:15:29]worker-0: processed 90000 vertex
+[2011/12/17 23:15:29]worker-2: processed 90000 vertex
+[2011/12/17 23:15:29]worker-0: processed 100000 vertex
+[2011/12/17 23:15:29]worker-3: processed 100000 vertex
+[2011/12/17 23:15:29]worker-2: processed 100000 vertex
+[2011/12/17 23:15:36]worker-1: performTermination
+[2011/12/17 23:15:42]worker-2: performTermination
+[2011/12/17 23:15:49]worker-3: performTermination
+[2011/12/17 23:15:56]worker-0: performTermination
+[2011/12/17 23:15:59]worker-1: done
+[2011/12/17 23:15:59]worker-2: done
+[2011/12/17 23:15:59]worker-3: done
+[2011/12/17 23:15:59]worker-0: done
+[2011/12/17 23:15:59]Launcher: finish execution
+[2011/12/17 23:15:59]Launcher: free memory 3643041440
+[2011/12/17 23:15:59]Launcher: finish execution
+[2011/12/17 23:15:59]Launcher: finish execution
+[2011/12/17 23:15:59]Launcher: free memory 3629671760
+[2011/12/17 23:15:59]Launcher: finish execution
+[2011/12/17 23:15:59]Launcher: free memory 3622986920
+[2011/12/17 23:15:59]Launcher: free memory 3622986920
