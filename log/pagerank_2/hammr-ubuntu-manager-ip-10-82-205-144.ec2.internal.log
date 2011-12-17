@@ -1,0 +1,79 @@
+Running Manager running on directory "/home/ubuntu/nfs/Hammr"
+Registered launcher with ID Launcher3b7e619b:13449ad7a5e:-7ffe
+Registered launcher with ID Launcher2dfb1a9c:13449ad7ba7:-7ffe
+Time to parse graph for application pagerank: 3 msec
+Identified node group bundles:
+{
+	[worker-7]
+}
+{
+	[worker-2]
+}
+{
+	[worker-1]
+}
+{
+	[worker-0]
+}
+{
+	[worker-3]
+}
+{
+	[worker-6]
+}
+{
+	[worker-4]
+}
+{
+	[worker-5]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-7]
+}
+Scheduling node group bundle {
+	[worker-4]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-6]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+Scheduling node group bundle {
+	[worker-5]
+}
+prepareIteration
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-7]
+}
+Scheduling node group bundle {
+	[worker-4]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-6]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+Scheduling node group bundle {
+	[worker-5]
+}
+terminateApplication

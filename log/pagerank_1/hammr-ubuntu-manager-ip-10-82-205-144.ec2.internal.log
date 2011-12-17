@@ -1,0 +1,94 @@
+Running Manager running on directory "/mnt/nfs//Hammr"
+Registered launcher with ID Launcher38507fc6:1344899b361:-7ffe
+Time to parse graph for application pagerank: 2 msec
+Identified node group bundles:
+{
+	[worker-2]
+}
+{
+	[worker-1]
+}
+{
+	[worker-3]
+}
+{
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+prepareIteration
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+prepareIteration
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+prepareIteration
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+prepareIteration
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+prepareIteration
+Scheduling node group bundle {
+	[worker-2]
+}
+Scheduling node group bundle {
+	[worker-3]
+}
+Scheduling node group bundle {
+	[worker-0]
+}
+Scheduling node group bundle {
+	[worker-1]
+}
+terminateApplication

@@ -2,9 +2,11 @@
 
 # Edit these definitions
 
-MANAGER_DIR=$(pwd)/Experiments
-CLIENT_DIR=$(pwd)/Experiments/WordCount
-PAGERANK_DIR=$(pwd)/Experiments/PageRank
+BASEDIR=/home/ubuntu/nfs/Hammr
+
+MANAGER_DIR=$BASEDIR/Experiments
+CLIENT_DIR=$BASEDIR/Experiments/WordCount
+PAGERANK_DIR=$BASEDIR/Experiments/PageRank
 
 REGISTRYLOC=localhost
 
@@ -97,6 +99,11 @@ RunGenOutput() {
 	java -cp $CLASSPATH $HEAPPARAMS utilities.counting.CountingOutputExtractor $@
 }
 
+RunGenPagerank() {
+	echo "Running the gen pagerank"
+	java -cp $CLASSPATH $HEAPPARAMS utilities.pagerank.PageRankInputGenerator $@
+}
+
 Kill() {
 	killall -9 rmiregistry 2>/dev/null
 	ps ax -o pid,command | grep ConcreteManager | grep -v grep | xargs kill -9 2>/dev/null
@@ -117,6 +124,7 @@ case "${COMMAND}" in
     pagerank)     RunPagerank $@ ;; 
 		gen_input)    RunGenInput $@ ;;
 		gen_output)   RunGenOutput $@ ;;
+    genpagerank)  RunGenPagerank $@ ;;
     kill)         Kill $@ ;;
     *)            echo "Unrecognized command"; exit 1; ;;
 esac
