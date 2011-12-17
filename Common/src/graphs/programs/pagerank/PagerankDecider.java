@@ -13,7 +13,7 @@ public class PagerankDecider extends Decider{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	int counter = 4;
+	int counter = 1;
 	
 	public PagerankDecider(ApplicationSpecification applicationSpecification) {
 		super(applicationSpecification);
