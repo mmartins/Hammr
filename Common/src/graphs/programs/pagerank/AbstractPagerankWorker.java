@@ -310,7 +310,7 @@ public abstract class AbstractPagerankWorker extends GraphWorker<GraphVertex,Gra
 	
 	@Override
 	protected boolean performTermination() {
-		Logging.Info("performTermination");
+		Logging.Info(String.format("%s: performTermination", name));
 		dumpPagerank();
 		
 		return true;
