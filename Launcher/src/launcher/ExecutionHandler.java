@@ -81,6 +81,12 @@ public class ExecutionHandler extends Thread {
 		
 		this.nodeGroup = nodeGroup;
 		this.nodeGroup.setGroupManager(groupManager);
+		try {
+			groupManager.registerStateHolder(nodeGroup);
+		} catch (RemoteException exception) {
+			System.err.println("Error registering node group to group manager");
+			exception.printStackTrace();
+		}
 		this.nodeGroup.getStage().setStageManager(stageManager);
 		
 		this.reportPeriod = 10000;
@@ -153,7 +159,6 @@ public class ExecutionHandler extends Thread {
 			return;
 		}
 
-		nodeGroup.scheduleProgressReport(0L, reportPeriod);
 		resultSummary = performExecution();
 
 		finishExecution(resultSummary);

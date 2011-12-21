@@ -234,23 +234,6 @@ public class NodeGroup implements Serializable {
 		setMark(null);
 	}
 
-	public void scheduleProgressReport(long initialDelay, long period) {
-		/*Timer timer = new Timer();
-		
-		TimerTask task = new TimerTask() {
-			public void run() {
-				try {
-					groupManager.receiveState(NodeGroup.this, progressReport);
-				} catch (RemoteException exception) {
-					System.err.println("Unable to contact manager");
-					exception.printStackTrace();
-				}
-			}
-		};
-		
-		timer.scheduleAtFixedRate(task, initialDelay, period);*/
-	}
-	
 	public boolean reducePerformance() {
 		long[][] freqs = groupDVFS.getAvailableFrequencies();
 		long[] setFreqs = new long[freqs.length];
