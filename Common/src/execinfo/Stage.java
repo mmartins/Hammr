@@ -29,34 +29,27 @@ public class Stage implements Serializable {
 	
 	private StateManager stageManager;
 	
-	public Stage() {
-		nodeGroups = new HashSet<NodeGroup>();		
+	public Stage(NodeGroup nodeGroup) {
+		nodeGroups = new HashSet<NodeGroup>();
 		progressReport = new ProgressReport();
+		addNodeGroup(nodeGroup);
 	}
 
 	public Stage(long serialNumber, NodeGroup nodeGroup) {
+		this(nodeGroup);
 		this.serialNumber = serialNumber;
-		this.nodeGroups = new HashSet<NodeGroup>();
-		addNodeGroup(nodeGroup);
-	}
-	
-	public Stage(NodeGroup nodeGroup) {
-		nodeGroups = new HashSet<NodeGroup>();
-		addNodeGroup(nodeGroup);
 	}
 
-	public Stage(long serialNumber, Set<NodeGroup> nodeGroups) {
-		this.serialNumber = serialNumber;
-		this.nodeGroups = new HashSet<NodeGroup>();
-
-		addNodeGroups(nodeGroups);	
-	}
-	
 	public Stage(Set<NodeGroup> nodeGroups) {
 		this.nodeGroups = new HashSet<NodeGroup>();
-
+		progressReport = new ProgressReport();
 		addNodeGroups(nodeGroups);
 	}	
+
+	public Stage(long serialNumber, Set<NodeGroup> nodeGroups) {
+		this(nodeGroups);
+		this.serialNumber = serialNumber;
+	}
 
 	public void setSerialNumber(long serialNumber) {
 		this.serialNumber = serialNumber;
@@ -67,34 +60,13 @@ public class Stage implements Serializable {
 	}
 	
 	public boolean addNodeGroup(NodeGroup nodeGroup) {
-		if(nodeGroup.getStage() != null) {
-			assert false;
-
-			return false;
-		}
-
-		nodeGroup.setStage(this);
-
 		nodeGroups.add(nodeGroup);
 
 		return true;
 	}
 
 	public boolean addNodeGroups(Set<NodeGroup> nodeGroups) {
-		for (NodeGroup nodeGroup: nodeGroups) {
-			if (nodeGroup.getStage() != null) {
-				assert false;
-
-				return false;
-			}
-		}
-
-		for (NodeGroup nodeGroup: nodeGroups) {
-			nodeGroup.setStage(this);
-
-			this.nodeGroups.add(nodeGroup);
-		}	
-
+		this.nodeGroups.addAll(nodeGroups);
 		return true;
 	}
 	

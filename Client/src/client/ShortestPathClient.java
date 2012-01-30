@@ -14,7 +14,7 @@ package client;
 import enums.CommunicationMode;
 import exceptions.OverlapingFilesException;
 import graphs.appspecs.GraphProcessingSpecification;
-import graphs.programs.shortestpath.SPFinishAggregator;
+import graphs.programs.shortestpath.SPFinishController;
 import graphs.programs.shortestpath.SPGraphEdge;
 import graphs.programs.shortestpath.SPGraphVertex;
 import graphs.programs.shortestpath.SPGraphWorker;
@@ -89,9 +89,9 @@ public class ShortestPathClient {
 			System.exit(1);
 		}
 
-		// Add an aggregator to permit workers detect the end of the iterative processes
+		// Add a controller to permit workers detect the end of the iterative processes
 
-		graphProcessingSpecification.addAggregator("finish", new SPFinishAggregator("finish", numberWorkers));
+		graphProcessingSpecification.addController("finish", new SPFinishController("finish", numberWorkers));
 
 		try {
 			manager.registerApplication(graphProcessingSpecification);

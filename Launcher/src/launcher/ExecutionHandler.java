@@ -12,6 +12,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package launcher;
 
+import interfaces.Exportable;
 import interfaces.Manager;
 import interfaces.StateManager;
 
@@ -134,12 +135,20 @@ public class ExecutionHandler extends Thread {
 	@Override
 	public void run() {
 		// Makes the current launcher and current manager accessible to the nodes
-		nodeGroup.setCurrentLauncher(jobLauncher);
 		nodeGroup.setManager(manager);
 
 		// Stores runtime information; sent back to the master
 		// at the end of the execution.
 		ResultSummary resultSummary;
+
+		// Exports all the nodes that should be exported,
+		// so their remote reference can be used externally
+
+		for(Node node: nodeGroup.getNodes()) {
+			if(node instanceof Exportable) {
+				RMIHelper.exportRemoteObject((Exportable) node);
+			}
+		}
 
 		try {
 			setupCommunication();

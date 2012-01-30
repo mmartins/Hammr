@@ -26,32 +26,11 @@ public abstract class TimedStatefulNode extends StatefulNode {
 		this.timeout = timeout;
 
 		this.timeUnit = timeUnit;
+
+		this.terminate = false;
 	}
 
-	public void run() {
-		if (!performInitialization()) {
-			return;
-		}
-
-		Record record;
-
-		while (true) {
-			record = tryReadArbitraryChannel(timeout, timeUnit);
-
-			if (record == null) {
-				if(dynamicallyVerifyTermination()) {
-					break;
-				}
-			}
-			else {
-				performAction(record);
-			}
-		}
-
-		performTermination();
-
-		shutdown();		
+	protected Record read() {
+		return tryReadArbitraryChannel(timeout, timeUnit);
 	}
-
-	protected abstract boolean dynamicallyVerifyTermination();
 }
