@@ -110,7 +110,7 @@ public class JobManager implements Manager {
 	 * 
 	 * @return True unless launcher is not reachable.
 	 */
-	public boolean registerLauncher(Launcher launcher) {
+	public synchronized boolean registerLauncher(Launcher launcher) {
 		String launcherId;
 
 		try {
@@ -138,7 +138,7 @@ public class JobManager implements Manager {
 	 *         2) Scheduler setup for application went wrong;
 	 *         
 	 */
-	public boolean registerApplication(ApplicationSpecification applicationSpecification) {
+	public synchronized boolean registerApplication(ApplicationSpecification applicationSpecification) {
 		String applicationName = applicationSpecification.getName();
 
 		// Trying to register an applicationName that's still running
@@ -252,7 +252,7 @@ public class JobManager implements Manager {
 	 * 
 	 * @return The aggregator associated to the specified variable in the specified application. 
 	 */
-	public ApplicationAggregator<? extends Serializable, ? extends Serializable> obtainAggregator(String applicationName, String variableName) {
+	public synchronized ApplicationAggregator<? extends Serializable, ? extends Serializable> obtainAggregator(String applicationName, String variableName) {
 		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
 		if (applicationPackage == null) {
@@ -273,7 +273,7 @@ public class JobManager implements Manager {
 	 * 
 	 * @return The controller associated to the specified name in the specified application. 
 	 */
-	public ApplicationController obtainController(String applicationName, String controllerName) {
+	public synchronized ApplicationController obtainController(String applicationName, String controllerName) {
 		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
 
 		if (applicationPackage == null) {
@@ -292,7 +292,8 @@ public class JobManager implements Manager {
 	 * 
 	 * @return True if scheduling works as expected; false otherwise.
 	 */
-	public boolean handleTermination(ResultSummary resultSummary) {
+
+	public synchronized boolean handleTermination(ResultSummary resultSummary) {
 		String applicationName = resultSummary.getNodeGroupApplication();
 
 		ApplicationPackage applicationPackage = applicationPackages.get(applicationName);
@@ -325,13 +326,14 @@ public class JobManager implements Manager {
 				scheduler.terminateIteration();
 
 				if (scheduler.finishedApplication()) {
+					System.out.println("terminateApplication");
 					scheduler.terminateApplication();
 
 					finishApplication(resultSummary.getNodeGroupApplication());
 				}
 				else {
+					System.out.println("prepareIteration");
 					scheduler.prepareIteration();
-
 					scheduler.schedule();
 				}
 			}

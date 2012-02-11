@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import utilities.RMIHelper;
+import utilities.logging.Logging;
 import appspecs.Node;
 
 import communication.channel.FileInputChannel;
@@ -69,13 +70,13 @@ public class ExecutionHandler extends Thread {
 	 * Constructor.
 	 * 
 	 * @param manager Reference to manager.
-	 * @param jobLauncher Reference to local launcher.
+	 * @param jobLauncher2 Reference to local launcher.
 	 * @param nodeGroup NodeGroup that should run.
 	 */
-	public ExecutionHandler(Manager manager, JobLauncher jobLauncher, NodeGroup nodeGroup) {
+	public ExecutionHandler(Manager manager, JobLauncher jobLauncher2, NodeGroup nodeGroup) {
 		this.manager = manager;
 
-		this.jobLauncher = jobLauncher;
+		this.jobLauncher = jobLauncher2;
 
 		StateManager groupManager = (StateManager) RMIHelper.locateRemoteObject(registryLocation, "GroupManager");
 		StateManager stageManager = (StateManager) RMIHelper.locateRemoteObject(registryLocation, "StageManager");
@@ -165,6 +166,8 @@ public class ExecutionHandler extends Thread {
 
 			finishExecution(resultSummary);
 
+			System.gc();
+			
 			return;
 		}
 
@@ -393,6 +396,7 @@ public class ExecutionHandler extends Thread {
 		jobLauncher.delNodeGroup(nodeGroup);
 
 		try {
+			Logging.log(String.format("Launcher: finish execution"));
 			manager.handleTermination(resultSummary);
 		} catch (RemoteException exception) {
 			System.err.println("Unable to communicate termination to manager");
@@ -401,6 +405,9 @@ public class ExecutionHandler extends Thread {
 			return false;
 		}	
 
+		Runtime rt = Runtime.getRuntime();
+		Logging.log(String.format("Launcher: free memory %d", rt.freeMemory()));
+		
 		return true;
 	}
 

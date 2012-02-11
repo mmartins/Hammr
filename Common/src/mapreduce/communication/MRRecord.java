@@ -23,7 +23,7 @@ public class MRRecord<K,V> extends Record {
 
 		this.value = value;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public K getKey() {
 		return (K) super.getObject();
@@ -33,6 +33,11 @@ public class MRRecord<K,V> extends Record {
 		return value;
 	}
 
+	public void setKey(K key)
+	{
+		setObject(key);
+	}
+	
 	public void setValue(V value) {
 		this.value = value;
 	}

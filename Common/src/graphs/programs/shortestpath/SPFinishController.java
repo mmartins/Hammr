@@ -40,15 +40,15 @@ public class SPFinishController implements ApplicationController {
 	public synchronized void notifyFinish(Exportable worker) {
 		workers.add(worker);
 
-		if(workers.size() >= numberWorkers) {
+		if (workers.size() >= numberWorkers) {
 			terminateWorkers();
 		}	
 	}
 
 	private void terminateWorkers() {
-		for(Exportable worker: workers) {
+		for (Exportable worker: workers) {
 			try {
-				if(worker instanceof ExportableActivatable) {
+				if (worker instanceof ExportableActivatable) {
 					((ExportableActivatable) worker).setActive(false);
 				}
 			} catch (RemoteException exception) {

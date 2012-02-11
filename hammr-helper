@@ -2,8 +2,11 @@
 
 # Edit these definitions
 
-MANAGER_DIR=$(pwd)/Experiments
-CLIENT_DIR=$(pwd)/Experiments/WordCount
+BASEDIR=/home/ubuntu/nfs/Hammr
+
+MANAGER_DIR=$BASEDIR/Experiments
+CLIENT_DIR=$BASEDIR/Experiments/WordCount
+PAGERANK_DIR=$BASEDIR/Experiments/PageRank
 
 REGISTRYLOC=localhost
 
@@ -22,7 +25,7 @@ MATHFILE="$LIBDIR/commons-math-2.2.jar"
 BINDIRS=$COMMONDIR:$BASEDIR/Client/bin:$BASEDIR/Launcher/bin:$BASEDIR/Manager/bin:$LIBDIR/jgrapht-org/jgrapht
 
 # We are memory hungry! Reserve heap space for the JVM
-HEAPPARAMS="-XX:-UseGCOverheadLimit -Xms2500M -Xmx2500M"
+HEAPPARAMS="-XX:-UseGCOverheadLimit -Xms2500M -Xmx2500M -ea"
 
 export CODEBASE="file://${BASEDIR}/Common/bin/"
 
@@ -86,6 +89,11 @@ RunShortestPath() {
 	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.client.basedir=$CLIENT_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Client/security.policy client.ShortestPathClient $@
 }
 
+RunPagerank() {
+	echo "Running pagerank: codebase=${CODEBASE} and registry=${REGISTRYLOC}"
+	java -cp $CLASSPATH $HEAPPARAMS -Dhammr.client.basedir=$PAGERANK_DIR -Djava.rmi.server.location=$REGISTRYLOC -Djava.rmi.server.codebase=$CODEBASE -Djava.security.policy=$BASEDIR/Client/security.policy client.PageRankClient $@
+}
+
 RunGenInput() {
 	echo "Running the input generator"
 	java -cp $CLASSPATH $HEAPPARAMS utilities.counting.CountingInputGenerator $@
@@ -94,6 +102,11 @@ RunGenInput() {
 RunGenOutput() {
 	echo "Running the output extractor"
 	java -cp $CLASSPATH $HEAPPARAMS utilities.counting.CountingOutputExtractor $@
+}
+
+RunGenPagerank() {
+	echo "Running the gen pagerank"
+	java -cp $CLASSPATH $HEAPPARAMS utilities.pagerank.PageRankInputGenerator $@
 }
 
 Kill() {
@@ -113,8 +126,10 @@ case "${COMMAND}" in
     test)         RunTest $@ ;;
     wordcount)    RunWordCount $@ ;;
     shortestpath) RunShortestPath $@ ;;
+    pagerank)     RunPagerank $@ ;; 
 		gen_input)    RunGenInput $@ ;;
 		gen_output)   RunGenOutput $@ ;;
+    genpagerank)  RunGenPagerank $@ ;;
     kill)         Kill $@ ;;
     *)            echo "Unrecognized command"; exit 1; ;;
 esac

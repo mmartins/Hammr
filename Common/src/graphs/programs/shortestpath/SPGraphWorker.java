@@ -56,7 +56,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge>  imple
 
 		SPGraphVertex vertex = vertexMap.get("0");
 
-		if(vertex != null) {
+		if (vertex != null) {
 			updateVertex(vertex, 0);		
 		}
 
@@ -64,7 +64,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge>  imple
 	}
 
 	protected void performAction(Record record) {
-		if(record instanceof SPGraphUpdateMessage) {
+		if (record instanceof SPGraphUpdateMessage) {
 			SPGraphUpdateMessage message = (SPGraphUpdateMessage) record;
 
 			SPGraphVertex vertex = vertexMap.get(message.getVertexName());
@@ -84,7 +84,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge>  imple
 
 		// Recalculate internal neighbor distances
 
-		for(SPGraphEdge edge: graph.outgoingEdgesOf(vertex)) {
+		for (SPGraphEdge edge: graph.outgoingEdgesOf(vertex)) {
 			SPGraphVertex neighbor = graph.getEdgeTarget(edge);
 
 			updateVertex(neighbor, vertex.getDistance() + edge.getDistance());
@@ -103,7 +103,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge>  imple
 	}
 
 	protected void performActionNothingPresent() {
-		if(finished == true) {
+		if (finished == true) {
 			return;
 		}
 
@@ -127,7 +127,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge>  imple
 	}
 
 	public void setActive(boolean active) throws RemoteException {
-		if(active == false) {
+		if (active == false) {
 			terminate = true;
 		}
 	}

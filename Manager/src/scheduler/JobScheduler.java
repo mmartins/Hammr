@@ -32,6 +32,8 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+import scheduler.DependencyManager;
+import scheduler.Scheduler;
 import utilities.MutableInteger;
 import utilities.RMIHelper;
 import utilities.filesystem.FileHelper;
@@ -50,7 +52,7 @@ import execinfo.NodeGroup;
 import execinfo.Stage;
 
 public class JobScheduler implements Scheduler {
-	
+
 	private String applicationName;
 	private ApplicationSpecification applicationSpecification;
 
@@ -404,7 +406,7 @@ public class JobScheduler implements Scheduler {
 
 		// Notify the dependency manager that the initial nodes should be immediately available to schedule
 
-		for(Node initial: initials) {
+		for (Node initial: initials) {
 			dependencyManager.insertDependency(null, convertGroupToStage.get(initial.getNodeGroup()));
 		}
 

@@ -198,7 +198,12 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	}
 
 	public void addInput(Node node, Filename filename) {
-		if (inputToChannels.get(filename) == null) {
+		addInput(node, filename.getLocation(), filename);
+	}
+
+	public void addInput(Node node, String key, Filename filename)
+	{
+		if(inputToChannels.get(filename) == null) {
 			inputToChannels.put(filename, new HashSet<InputChannel>());
 		}
 
@@ -212,14 +217,14 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 
 		FileInputChannel inputChannel = new FileInputChannel(filename.getLocation(), filename);
 
-		node.addInputChannel(filename.getLocation(), inputChannel, true);
+		node.addInputChannel(key, inputChannel, true);
 
 		inputToChannels.get(filename).add(inputChannel);
 		inputToNodes.get(filename).add(node);
 
 		nodeToInputs.get(node).add(filename);
 	}
-
+	
 	public InputChannel delInput(Node node, Filename filename) {
 		InputChannel inputChannel = node.delInputChannel(filename.getLocation());
 
@@ -270,7 +275,12 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 	}
 
 	public void addOutput(Node node, Filename filename) throws OverlapingFilesException {
-		if (outputToChannels.get(filename) != null) {
+		addOutput(node, filename.getLocation(), filename);
+	}
+
+
+	public void addOutput(Node node, String fn, Filename filename) throws OverlapingFilesException {
+		if(outputToChannels.get(filename) != null) {
 			throw new OverlapingFilesException(filename);
 		}
 
@@ -284,14 +294,14 @@ public class ApplicationSpecification extends DefaultDirectedGraph<Node, Edge> {
 
 		FileOutputChannel outputChannel = new FileOutputChannel(filename.getLocation(), filename);
 
-		node.addOutputChannel(filename.getLocation(), outputChannel, true);
+		node.addOutputChannel(fn, outputChannel, true);
 
 		outputToChannels.put(filename, outputChannel);
 		outputToNodes.put(filename, node);
 
-		nodeToOutputs.get(node).add(filename);
+		nodeToOutputs.get(node).add(filename);	
 	}
-
+	
 	public OutputChannel delOutput(Node node, Filename filename) {
 		OutputChannel outputChannel = node.delOutputChannel(filename.getLocation());
 

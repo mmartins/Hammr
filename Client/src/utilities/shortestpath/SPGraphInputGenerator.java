@@ -15,36 +15,35 @@ import java.io.IOException;
 
 import java.util.Random;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import java.util.List;
 import java.util.ArrayList;
 
 import org.jgrapht.graph.DefaultDirectedGraph;
 
-import utilities.GraphInputGenerator;
 
+import utilities.GraphInputGenerator;
 import utilities.filesystem.Directory;
 
-import graphs.programs.shortestpath.SPGraphVertex;
-import graphs.programs.shortestpath.SPGraphEdge;
+import graphs.programs.GraphEdge;
+import graphs.programs.GraphVertex;
 
-public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SPGraphEdge> {
-	private int numberVertices;
+public class SPGraphInputGenerator extends GraphInputGenerator<GraphVertex, GraphEdge> {
+	
+	private final int numberVertices;
 
-	private double probabilityEdges;
+	private final int numberEdgesPerVertex;
 
-	private double maximumDistance;
-
-	public SPGraphInputGenerator(Directory directory, int numberVertices, double probabilityEdges, double maximumDistance, String[] outputs) {
-		super(directory, outputs);
-
+	public SPGraphInputGenerator(Directory directory, int startIndex, int numberVertices, int numberEdgesPerVertex,  String[] outputs) {
+		super(directory, startIndex, outputs);
+		
 		this.numberVertices = numberVertices;
 
-		this.probabilityEdges = probabilityEdges;
-
-		this.maximumDistance = maximumDistance;
+		this.numberEdgesPerVertex = numberEdgesPerVertex;
 	}
 
 	protected void obtainGraph() {
@@ -52,70 +51,58 @@ public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SP
 	}
 
 	protected void obtainSpecifiedGraph() {
-		graph = new DefaultDirectedGraph<SPGraphVertex,SPGraphEdge>(SPGraphEdge.class);
+		graph = new DefaultDirectedGraph<GraphVertex,GraphEdge>(GraphEdge.class);
 
 		Random random = new Random();
 
-		Map<Integer,SPGraphVertex> vertexMap = new HashMap<Integer,SPGraphVertex>();
-
+		Map<Integer,GraphVertex> vertexMap = new HashMap<Integer,GraphVertex>();
+		
 		for(int i = 0; i < numberVertices; i++) {
-			SPGraphVertex vertex = new SPGraphVertex();
+			GraphVertex vertex = new GraphVertex();
 
 			graph.addVertex(vertex);
 
 			vertexMap.put(i, vertex);
+			
+			if(i % 10000 == 0)
+				System.out.printf("processed %d vertex.\n", i - startIndex);
 		}
 
 		for(int i = 0; i < numberVertices; i++) {
-			for(int j = 0; j < numberVertices; j++) {
-				if(i == j) {
-					continue;
+			for(int j = 0; j < numberEdgesPerVertex; j++) {
+				
+				Set<Integer> visited = new HashSet<Integer>();
+					
+				int k = random.nextInt(numberVertices);
+				
+				while(visited.contains(k))
+				{
+					k = random.nextInt(numberVertices);
 				}
-
-				double dice = random.nextDouble();
-
-				if(dice <= probabilityEdges) {
-					graph.addEdge(vertexMap.get(i), vertexMap.get(j), new SPGraphEdge(random.nextDouble() * maximumDistance));
-				}
+				
+				visited.add(k);
+				
+				graph.addEdge(vertexMap.get(i), vertexMap.get(k), new GraphEdge());
 			}
+			if(i % 1000 == 0)
+				System.out.printf("processed %d vertex.\n", i);
 		}		
-	}
-
-	protected void obtainSimpleGraph() {
-		graph = new DefaultDirectedGraph<SPGraphVertex,SPGraphEdge>(SPGraphEdge.class);
-
-		Map<Integer,SPGraphVertex> vertexMap = new HashMap<Integer,SPGraphVertex>();
-
-		for(int i = 0; i < 5; i++) {
-			SPGraphVertex vertex = new SPGraphVertex();
-
-			graph.addVertex(vertex);
-
-			vertexMap.put(i, vertex);
-		}
-
-		graph.addEdge(vertexMap.get(0), vertexMap.get(1), new SPGraphEdge(1));
-		graph.addEdge(vertexMap.get(1), vertexMap.get(2), new SPGraphEdge(1));
-		graph.addEdge(vertexMap.get(2), vertexMap.get(3), new SPGraphEdge(5));
-		graph.addEdge(vertexMap.get(3), vertexMap.get(4), new SPGraphEdge(1));
-		graph.addEdge(vertexMap.get(0), vertexMap.get(2), new SPGraphEdge(10));
-		graph.addEdge(vertexMap.get(0), vertexMap.get(3), new SPGraphEdge(6));
 	}
 
 	public static void main(String[] arguments) {
 		if(arguments.length <= 4) {
-			System.err.println("usage: SPGraphInputGenerator baseDirectory numberVertices probabilityEdges maximumDistance [<input> ... <input>]");
+			System.err.println("usage: RandomGraphInputGenerator baseDirectory startIndex numberVertices numberEdgesPerVertex [<input> ... <input>]");
 
 			System.exit(1);
 		}
 
 		String baseDirectory = arguments[0];
 
-		int numberVertices = Integer.valueOf(arguments[1]);
+		int startIndex = Integer.valueOf(arguments[1]);
+		
+		int numberVertices = Integer.valueOf(arguments[2]);
 
-		double probabilityEdges = Double.valueOf(arguments[2]);
-
-		double maximumDistance = Double.valueOf(arguments[3]);
+		int numberEdgesPerVertex = Integer.valueOf(arguments[3]);
 
 		List<String> outputsList = new ArrayList<String>();
 
@@ -125,7 +112,7 @@ public class SPGraphInputGenerator extends GraphInputGenerator<SPGraphVertex, SP
 
 		String[] outputsArray = outputsList.toArray(new String[outputsList.size()]);
 
-		SPGraphInputGenerator generator = new SPGraphInputGenerator(new Directory(baseDirectory), numberVertices, probabilityEdges, maximumDistance, outputsArray);
+		SPGraphInputGenerator generator = new SPGraphInputGenerator(new Directory(baseDirectory), startIndex, numberVertices, numberEdgesPerVertex, outputsArray);
 
 		try {
 			generator.run();

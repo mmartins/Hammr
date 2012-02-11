@@ -11,11 +11,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package manager;
 
+
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import scheduler.Scheduler;
 import appspecs.ApplicationSpecification;
@@ -47,9 +48,9 @@ public class ApplicationPackage {
 	 * Class constructor.
 	 */
 	public ApplicationPackage() {
-		this.registeredSocketAddresses = new HashMap<String, InetSocketAddress>();
+		this.registeredSocketAddresses = new ConcurrentHashMap<String, InetSocketAddress>();
 
-		this.resultCollection = new HashSet<ResultSummary>();
+		this.resultCollection = new LinkedHashSet<ResultSummary>();
 	}
 
 	/**
@@ -166,5 +167,9 @@ public class ApplicationPackage {
 	 */
 	public long getTotalRunningTime() {
 		return globalTimerFinish - globalTimerStart;
+	}
+	
+	public void reset() {
+		registeredSocketAddresses.clear();
 	}
 }

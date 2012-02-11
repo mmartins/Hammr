@@ -36,6 +36,11 @@ public class Filename implements Serializable {
 		return protocol;
 	}
 
+	public String getFilename()
+	{
+		return location.substring(location.lastIndexOf('/') + 1);
+	}
+	
 	public boolean equals(Filename other) {
 		return (this.getLocation() == other.getLocation() && this.getProtocol() == other.getProtocol());
 	}
