@@ -21,7 +21,7 @@
 
 #include <jni.h>	/* Java Native Interface Headers */
 #include "platforms_x86_X86_DVFS.h"	/* Java glue */
-#include "cpufreq.h"
+#include <cpufreq.h>
 
 JNIEXPORT jlong JNICALL Java_platforms_x86_X86_1DVFS_getTransitionLatency
   (JNIEnv *env, jobject obj, jint cpu)
