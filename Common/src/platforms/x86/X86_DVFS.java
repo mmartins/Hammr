@@ -172,7 +172,7 @@ public class X86_DVFS implements DVFS,Serializable {
 	}
 	
 	static {
-		System.load("/home/brown/git/Hammr/Common/bin/platforms/x86/libx86DVFS.so");
+		System.load("/home/martins/git/Hammr/Common/bin/platforms/x86/libx86DVFS.so");
 	}
 
 }
