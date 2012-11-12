@@ -25,6 +25,10 @@ public class ReaderArbitraryWriterArbitrary extends StatefulNode {
 		writeArbitraryChannel(record);
 	}
 
+	protected void performActionNothingPresent() {
+		terminate = true;
+	}
+
 	protected boolean performTermination() {
 		return true;
 	}

@@ -11,14 +11,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package interfaces;
 
-import java.io.Serializable;
-
-import java.rmi.Remote;
-
 import java.rmi.RemoteException;
 
-public interface Aggregator<I extends Serializable, O extends Serializable> extends Remote {
-	public void updateAggregate(I object) throws RemoteException;
+public interface ExportableActivatable extends Exportable {
+	public boolean isActive() throws RemoteException;
 
-	public O obtainAggregate() throws RemoteException; 
+	public void setActive(boolean active) throws RemoteException;
 }

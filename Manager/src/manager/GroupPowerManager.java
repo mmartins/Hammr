@@ -34,12 +34,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import utilities.RMIHelper;
 import execinfo.NodeGroup;
 import execinfo.ProgressReport;
+import execinfo.Stage;
 
 /**
  * Concrete implementation of Manager.
@@ -60,8 +63,8 @@ public class GroupPowerManager implements StateManager {
 	
 	private double minThreshold;
 	
-	// Active groups, mapped by stage ID
-	private Map<Long, DescriptiveStatistics> registeredGroups;
+	// Active stages, mapped by stage ID
+	private Map<Stage, DescriptiveStatistics> registeredStages;
 	
 	// Active reports, mapped by group ID
 	private Map<NodeGroup, ProgressReport> registeredReports;
@@ -70,7 +73,7 @@ public class GroupPowerManager implements StateManager {
 		String registryLocation = System.getProperty("java.rmi.server.location");
 		String baseDirectory = System.getProperty("hammr.group_manager.basedir");
 
-		instance = setupManager(registryLocation, baseDirectory);
+		instance = setupManager(registryLocation, baseDirectory);		
 	}
 
 	/**
@@ -93,6 +96,129 @@ public class GroupPowerManager implements StateManager {
 	}
 
 	/**
+	 * 
+	 */
+	private void collectProgressReports() {
+		ProgressReport prevReport, report;
+		DescriptiveStatistics stats;
+		
+		for (NodeGroup group : registeredReports.keySet()) {
+			Stage stage = group.getStage();
+			
+			report = group.getProgressReport();
+			
+			prevReport = registeredReports.get(group);
+			
+			if (prevReport != null && report != null) {
+				if (prevReport.getProgress() <= report.getProgress()) {
+					continue;
+				}
+			}
+
+			registeredReports.put(group, report);
+			stats = registeredStages.get(stage);
+			stats.addValue(report.getProgress());		
+		}
+		
+		int numReports = 0;
+		
+		for (Stage stage : registeredStages.keySet()) {
+	
+			for (NodeGroup nodeGroup : registeredReports.keySet()) {
+				if ((registeredReports.containsKey(nodeGroup) == false) || (registeredReports.get(nodeGroup) == null))
+					break;
+				
+				numReports++;
+			}
+			
+			/* Only proceed with policy once all groups belonging to stage have reported their progress */
+			if (numReports == stage.getNodeGroups().size()) {
+				controlPolicy(stage);
+			}
+			
+			numReports = 0;
+		}
+	}
+	
+	private boolean controlPolicy(Stage stage) {
+		DescriptiveStatistics stats = registeredStages.get(stage);
+		
+		if (stats != null && stats.getN() < registeredReports.size())
+			return true;
+		
+		double mean = stats.getMean();
+		
+		switch (policy) {
+		case GroupPolicy.ENERGY:
+			for (Map.Entry<NodeGroup, ProgressReport> entry : registeredReports.entrySet()) {
+				NodeGroup group = entry.getKey();
+
+				if (group.getStage() == stage) {
+
+					if (entry.getValue().getProgress() - mean > maxThreshold) {
+						group.reducePerformance();
+					}
+				}
+			}
+
+			break;
+
+		case GroupPolicy.PERFORMANCE:
+
+			for (Map.Entry<NodeGroup, ProgressReport> entry : registeredReports.entrySet()) {
+				NodeGroup group = entry.getKey();
+
+				if (group.getStage() == stage) {
+					/* If task is finished, reduce frequency to minimum */
+					if (entry.getValue().getProgress() == 1.0) {
+						group.reducePerformance();
+					}
+					/* Else, force group to run at max frequency */
+					else if (mean - entry.getValue().getProgress() > maxThreshold) {
+						group.increasePerformance();
+					}
+				}
+			}
+
+			break;
+
+		case GroupPolicy.MODERATE:
+			for (Map.Entry<NodeGroup, ProgressReport> entry : registeredReports.entrySet()) {
+				NodeGroup group = entry.getKey();
+
+				if (group.getStage() == stage) {
+					/* If task is finished, reduce frequency to minimum */
+					if (entry.getValue().getProgress() == 1.0) {
+						group.reducePerformance();
+					}
+
+					/* Else, try to balance */
+					else {
+						if (entry.getValue().getProgress() - mean > maxThreshold) {
+							group.reducePerformance();
+						}
+
+						if (mean - entry.getValue().getProgress() > maxThreshold) {
+							group.increasePerformance();
+						}
+					}
+				}
+			}
+
+			break;
+		}
+		
+		// Clear report map
+		for (NodeGroup group : stage.getNodeGroups()) {		
+			registeredReports.put(group, null);
+		}
+		
+		registeredStages.get(stage).clear();
+		
+		return true;
+	}
+	
+	/**
 	 * Notifies manager of new group start. Called by Launchers.
 	 * 
 	 * @param group	Started group.
@@ -103,7 +229,7 @@ public class GroupPowerManager implements StateManager {
 		NodeGroup group = (NodeGroup) holder;
 
 		/* Only holders belonging to registered applications can register */
-		if (registeredGroups.containsKey(group.getStage().getSerialNumber()) == false)
+		if (registeredStages.containsKey(group.getStage()) == false)
 			return false;
 
 		registeredReports.put(group, null);
@@ -155,14 +281,23 @@ public class GroupPowerManager implements StateManager {
 	 * 
 	 * @return The list of registered stages IDs
 	 */
-	public Collection<Long> getRegisteredStages() {
-		return registeredGroups.keySet();
+	public Collection<Stage> getRegisteredStages() {
+		return registeredStages.keySet();
 	}
 	
 	/**
 	 * Returns the list of registered groups.
 	 * 
-	 * @return The list of registered groups.
+	 * @return The list of registered groups.		Timer timer = new Timer();
+		
+		TimerTask task = new TimerTask() {
+			public void run() {
+				collectProgressReports();
+			}
+		};
+		
+		timer.scheduleAtFixedRate(task, 0, 10);
+
 	 */
 	public Collection<NodeGroup> getRegisteredGroups() {
 		return registeredReports.keySet();
@@ -174,9 +309,19 @@ public class GroupPowerManager implements StateManager {
 	 * @param baseDirectory Working directory of the manager.
 	 */
 	public GroupPowerManager(String baseDirectory) {
-		this.registeredGroups = Collections.synchronizedMap(new HashMap<Long, DescriptiveStatistics>());
+		this.registeredStages = Collections.synchronizedMap(new HashMap<Stage, DescriptiveStatistics>());
 		this.registeredReports = Collections.synchronizedMap(new HashMap<NodeGroup, ProgressReport>());
 		this.baseDirectory = baseDirectory;
+		
+		Timer timer = new Timer();
+		
+		TimerTask task = new TimerTask() {
+			public void run() {
+				collectProgressReports();
+			}
+		};
+		
+		timer.scheduleAtFixedRate(task, 0, 10);
 	}
 
 	public boolean receiveState(Object stateHolder, Object state) throws RemoteException {
@@ -186,7 +331,7 @@ public class GroupPowerManager implements StateManager {
 		DescriptiveStatistics stats;
 		
 		/* Only holders belonging to registered applications can report state */
-		if (registeredGroups.containsKey(stageId) == false)
+		if (registeredStages.containsKey(stageId) == false)
 			return false;
 
 		prevReport = registeredReports.get(group);
@@ -199,7 +344,7 @@ public class GroupPowerManager implements StateManager {
 		}
 		
 		registeredReports.put(group, report);
-		stats = registeredGroups.get(stageId);
+		stats = registeredStages.get(stageId);
 		stats.addValue(report.getProgress());
 		
 		/* Only proceed with policy once all groups belonging to stage have reported their progress */
@@ -262,7 +407,7 @@ public class GroupPowerManager implements StateManager {
 			registeredReports.put(g, null);
 		}
 		
-		registeredGroups.get(stageId).clear();
+		registeredStages.get(stageId).clear();
 		
 		return true;
 	}

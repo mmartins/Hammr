@@ -18,16 +18,23 @@ import communication.channel.Record;
 public abstract class TimedStatefulNode extends StatefulNode {
 	private static final long serialVersionUID = 1L;
 
-	private int timeout;
+	protected int timeout;
 
-	private TimeUnit timeUnit;
+	protected TimeUnit timeUnit;
 
 	public TimedStatefulNode(int timeout, TimeUnit timeUnit) {
 		this.timeout = timeout;
 
 		this.timeUnit = timeUnit;
+
+		this.terminate = false;
 	}
 
+	protected Record read() {
+		return tryReadArbitraryChannel(timeout, timeUnit);
+	}
+	
+	@Override
 	public void run() {
 		if (!performInitialization()) {
 			return;
@@ -36,15 +43,18 @@ public abstract class TimedStatefulNode extends StatefulNode {
 		Record record;
 
 		while (true) {
+			
 			record = tryReadArbitraryChannel(timeout, timeUnit);
 
-			if (record == null) {
-				if(dynamicallyVerifyTermination()) {
-					break;
-				}
+			if(record == null) {
+				performActionNothingPresent();
 			}
 			else {
 				performAction(record);
+			}
+
+			if(terminate) {
+				break;
 			}
 		}
 
@@ -53,5 +63,5 @@ public abstract class TimedStatefulNode extends StatefulNode {
 		shutdown();		
 	}
 
-	protected abstract boolean dynamicallyVerifyTermination();
+	protected abstract void performActionNothingPresent();
 }

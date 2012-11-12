@@ -11,13 +11,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package scheduler;
 
-import interfaces.Aggregator;
+import interfaces.ApplicationAggregator;
+import interfaces.ApplicationController;
 import interfaces.Launcher;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,6 +32,8 @@ import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+import scheduler.DependencyManager;
+import scheduler.Scheduler;
 import utilities.MutableInteger;
 import utilities.RMIHelper;
 import utilities.filesystem.FileHelper;
@@ -50,7 +52,7 @@ import execinfo.NodeGroup;
 import execinfo.Stage;
 
 public class JobScheduler implements Scheduler {
-	
+
 	private String applicationName;
 	private ApplicationSpecification applicationSpecification;
 
@@ -73,6 +75,8 @@ public class JobScheduler implements Scheduler {
 	private Map<Long, NodeGroup> runningNodeGroups;
 
 	private long serialNumberCounter = 1L;
+
+	private Map<NodeGroup, Stage> convertGroupToStage;
 
 	/**
 	 * Constructor method.
@@ -99,11 +103,21 @@ public class JobScheduler implements Scheduler {
 
 		this.runningNodeGroups = new HashMap<Long, NodeGroup>();
 
+		this.convertGroupToStage = new HashMap<NodeGroup, Stage>();
+
 		// Parse the application graph
 
 		long graphParsingStartTimer = System.currentTimeMillis();
 
 		Map<MutableInteger, Stage> stages = getStages();
+
+		// Map the NodeGroups to the NodeGroupBundles
+
+		for (Stage stage: stages.values()) {
+			for(NodeGroup nodeGroup: stage.getNodeGroups()) {
+				convertGroupToStage.put(nodeGroup, stage);
+			}
+		}
 
 		long graphParsingEndingTimer = System.currentTimeMillis();
 
@@ -132,7 +146,7 @@ public class JobScheduler implements Scheduler {
 				source = edge.getSource();
 				target = edge.getTarget();
 
-				stageGraph.addEdge(source.getNodeGroup().getStage(), target.getNodeGroup().getStage());
+				stageGraph.addEdge(convertGroupToStage.get(source.getNodeGroup()), convertGroupToStage.get(target.getNodeGroup()));
 			}
 		}
 
@@ -149,7 +163,7 @@ public class JobScheduler implements Scheduler {
 				source = edge.getSource();
 				target = edge.getTarget();
 
-				if (source.getNodeGroup().getStage() == target.getNodeGroup().getStage()) {
+				if (convertGroupToStage.get(source.getNodeGroup()) == convertGroupToStage.get(target.getNodeGroup())) {
 					throw new TemporalDependencyException(source, target);
 				}
 			}
@@ -158,9 +172,17 @@ public class JobScheduler implements Scheduler {
 		// Exports all the aggregators
 
 		for (String variable: applicationSpecification.getAggregators().keySet()) {
-			Aggregator<? extends Serializable,? extends Serializable> aggregator = applicationSpecification.getAggregator(variable);
+			ApplicationAggregator<? extends Serializable,? extends Serializable> aggregator = applicationSpecification.getAggregator(variable);
 
 			RMIHelper.exportRemoteObject(aggregator);
+		}
+
+		// Exports all the controllers
+
+		for(String variable: applicationSpecification.getControllers().keySet()) {
+			ApplicationController controller = applicationSpecification.getController(variable);
+
+			RMIHelper.exportRemoteObject(controller);
 		}
 	}
 
@@ -203,7 +225,7 @@ public class JobScheduler implements Scheduler {
 				for (Edge connection: applicationSpecification.outgoingEdgesOf(current)) {
 					neighbor = connection.getTarget();
 
-					if (connection.getCommunicationMode() == CommunicationMode.SHM) {
+					if (connection.getCommunicationMode() == CommunicationMode.SHM || connection.getCommunicationMode() == CommunicationMode.NODEBOX) {
 						if (!neighbor.isMarked()) {
 							neighbor.setMark(spammerIdentifier);
 							queue.add(neighbor);
@@ -252,7 +274,7 @@ public class JobScheduler implements Scheduler {
 		Node source, target;
 
 		for (Edge edge: applicationSpecification.edgeSet()) {
-			if (edge.getCommunicationMode() == CommunicationMode.TCP) {
+			if (edge.getCommunicationMode() == CommunicationMode.TCP || edge.getCommunicationMode() == CommunicationMode.TIMEBOX) {
 				source = edge.getSource();
 				target = edge.getTarget();
 
@@ -326,7 +348,7 @@ public class JobScheduler implements Scheduler {
 	public synchronized boolean finishedApplication() {
 		Decider decider = applicationSpecification.getDecider();
 
-		Map<String, Aggregator<? extends Serializable,? extends Serializable>> aggregators = applicationSpecification.getAggregators();
+		Map<String, ApplicationAggregator<? extends Serializable,? extends Serializable>> aggregators = applicationSpecification.getAggregators();
 
 		if (decider == null) {
 			return true;
@@ -339,7 +361,7 @@ public class JobScheduler implements Scheduler {
 
 		// Returns true if the decider prepared a following iteration
 
-		return decider.requiresRunning();
+		return !decider.requiresRunning();
 	}
 
 	/**
@@ -385,7 +407,7 @@ public class JobScheduler implements Scheduler {
 		// Notify the dependency manager that the initial nodes should be immediately available to schedule
 
 		for (Node initial: initials) {
-			dependencyManager.insertDependency(null, initial.getNodeGroup().getStage());
+			dependencyManager.insertDependency(null, convertGroupToStage.get(initial.getNodeGroup()));
 		}
 
 		// Notify the other dependencies for the dependency manager
@@ -395,7 +417,7 @@ public class JobScheduler implements Scheduler {
 				source = edge.getSource();
 				target = edge.getTarget();
 
-				dependencyManager.insertDependency(source.getNodeGroup(), target.getNodeGroup().getStage());
+				dependencyManager.insertDependency(source.getNodeGroup(), convertGroupToStage.get(target.getNodeGroup()));
 			}
 		}
 
@@ -481,12 +503,19 @@ public class JobScheduler implements Scheduler {
 	 * @throws InsufficientLaunchersException If no alive Launcher can receive the next wave of NodeGroups.
 	 */
 	private void scheduleNodeGroup(NodeGroup nodeGroup) throws InsufficientLaunchersException {
+		// Setup the previous/current launcher and manager references in the node group
+
+		nodeGroup.setPreviousLauncher(nodeGroup.getPreviousLauncher());
+		nodeGroup.setManager(JobManager.getInstance());
+
 		// First, try to reschedule the node group to the same launcher used before
 
 		Launcher previousLauncher = nodeGroup.getPreviousLauncher();
 
 		if (previousLauncher != null) {
 			try {
+				nodeGroup.setCurrentLauncher(previousLauncher);
+
 				if (previousLauncher.addNodeGroup(nodeGroup)) {
 					// Add node group to the running group
 					runningNodeGroups.put(nodeGroup.getSerialNumber(), nodeGroup);
@@ -509,10 +538,9 @@ public class JobScheduler implements Scheduler {
 			try {
 				Launcher launcher = availableLaunchers.remove(i);
 
-				if (launcher.addNodeGroup(nodeGroup)) {
-					// Remember this scheduling decision
-					nodeGroup.setPreviousLauncher(launcher);
+				nodeGroup.setCurrentLauncher(launcher);
 
+				if(launcher.addNodeGroup(nodeGroup)) {
 					// Add node group to the running group
 					runningNodeGroups.put(nodeGroup.getSerialNumber(), nodeGroup);
 

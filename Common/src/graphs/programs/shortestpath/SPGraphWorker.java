@@ -12,47 +12,51 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package graphs.programs.shortestpath;
 
 import graphs.programs.GraphWorker;
-import interfaces.Aggregator;
+import interfaces.ApplicationController;
+import interfaces.ExportableActivatable;
 
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
 import org.jgrapht.graph.DefaultDirectedGraph;
 
-import utilities.Pair;
-
 import communication.channel.Record;
 
-public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge> {
+public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge>  implements ExportableActivatable {
 	private static final long serialVersionUID = 1L;
 
-	private Aggregator<Pair<Boolean,Integer>,Boolean> aggregator;
+	private ApplicationController controller;
 
-	private boolean finish;
+	private boolean finished;
 
 	public SPGraphWorker(int numberWorker, int numberVertexes, int numberWorkers) {
 		super(numberWorker, numberVertexes, numberWorkers, 30, TimeUnit.SECONDS);
 
-		this.finish = false;
+		finished = false;
 	}
 
 	protected DefaultDirectedGraph<SPGraphVertex,SPGraphEdge> createGraph() {
 		return new DefaultDirectedGraph<SPGraphVertex,SPGraphEdge>(SPGraphEdge.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected boolean performInitialization() {
 		loadGraph();
 
 		try {
-			this.aggregator = (Aggregator<Pair<Boolean, Integer>, Boolean>) nodeGroup.getManager().obtainAggregator("shortestpath", "finish");
+			this.controller = nodeGroup.getManager().obtainController("shortestpath", "finish");
 		} catch (RemoteException exception) {
 			return false;
 		}
 
+		try {
+			controller.notifyStart(this);
+		} catch (RemoteException exception) {
+			System.err.println("Error updating the controller: " + exception);
+		}	
+
 		SPGraphVertex vertex = vertexMap.get("0");
 
-		if(vertex != null) {
+		if (vertex != null) {
 			updateVertex(vertex, 0);		
 		}
 
@@ -60,16 +64,6 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge> {
 	}
 
 	protected void performAction(Record record) {
-		if(finish == true) {
-			try {
-				finish = false;
-
-				aggregator.updateAggregate(new Pair<Boolean,Integer>(false, numberWorker));
-			} catch (RemoteException exception) {
-				System.err.println("Error obtaining information from the aggregator: " + exception);
-			}
-		}
-
 		if (record instanceof SPGraphUpdateMessage) {
 			SPGraphUpdateMessage message = (SPGraphUpdateMessage) record;
 
@@ -90,7 +84,7 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge> {
 
 		// Recalculate internal neighbor distances
 
-		for(SPGraphEdge edge: graph.outgoingEdgesOf(vertex)) {
+		for (SPGraphEdge edge: graph.outgoingEdgesOf(vertex)) {
 			SPGraphVertex neighbor = graph.getEdgeTarget(edge);
 
 			updateVertex(neighbor, vertex.getDistance() + edge.getDistance());
@@ -108,35 +102,33 @@ public class SPGraphWorker extends GraphWorker<SPGraphVertex,SPGraphEdge> {
 		}
 	}
 
+	protected void performActionNothingPresent() {
+		if (finished == true) {
+			return;
+		}
+
+		finished = true;
+
+		try {
+			controller.notifyFinish(this);
+		} catch (RemoteException exception) {
+			System.err.println("Error updating the controller: " + exception);
+		}	
+	}
+
 	protected boolean performTermination() {
 		dumpGraph();
 
 		return true;
 	}
 
-	protected boolean dynamicallyVerifyTermination() {
-		if (finish == false) {
-			try {
-				finish = true;
-
-				aggregator.updateAggregate(new Pair<Boolean,Integer>(true, numberWorker));
-			} catch (RemoteException exception) {
-				System.err.println("Error updating the aggregator: " + exception);
-			}	
-		}
-
-		try {
-			boolean result = aggregator.obtainAggregate();
-
-			return result;
-		} catch (RemoteException exception) {
-			System.err.println("Error obtaining information from the aggregator: " + exception);
-		}
-
+	public boolean isActive() throws RemoteException {
 		return true;
 	}
 
-	protected void initiateReaderShufflers() {
-		createReaderShuffler(true, false);
+	public void setActive(boolean active) throws RemoteException {
+		if (active == false) {
+			terminate = true;
+		}
 	}
 }

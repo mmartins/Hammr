@@ -12,6 +12,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package launcher;
 
 import interfaces.Launcher;
+import interfaces.LocalLauncher;
 import interfaces.Manager;
 
 import java.net.InetAddress;
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import launcher.ExecutionHandler;
+
 import utilities.RMIHelper;
 import execinfo.LauncherStatus;
 import execinfo.NodeGroup;
@@ -33,7 +36,7 @@ import execinfo.NodeGroup;
  * 
  * @author Hammurabi Mendes (hmendes)
  */
-public class JobLauncher implements Launcher {
+public class JobLauncher implements Launcher, LocalLauncher {
 	private static final int NUMBER_SLOTS_DEFAULT = Integer.MAX_VALUE;
 	
 	private static JobLauncher instance;
@@ -178,9 +181,11 @@ public class JobLauncher implements Launcher {
 		if (launcherStatus.getFreeSlots() < nodeGroup.getSize()) {
 			return false;
 		}
-
+		
 		nodeGroups.put(nodeGroup.getSerialNumber(), nodeGroup);
 
+		nodeGroup.localLauncher = this;
+		
 		ExecutionHandler executionHandler = new ExecutionHandler(manager, this, nodeGroup);
 
 		executorService.execute(executionHandler);
@@ -239,6 +244,8 @@ public class JobLauncher implements Launcher {
 	 * @return The previous object associated with the specified entry.
 	 */
 	public Object putCacheEntry(String entry, Object object) {
+		launcherCache.remove(entry);
+		System.gc();
 		return launcherCache.put(entry, object);
 	}
 
@@ -247,5 +254,15 @@ public class JobLauncher implements Launcher {
 	 */
 	public static void main(String[] arguments) {
 		System.out.println("Running " + JobLauncher.getInstance().getId());
+	}
+
+	public Object getCacheEntryLocal(String entry) {
+		return launcherCache.get(entry);
+	}
+
+	public Object putCacheEntryLocal(String entry, Object object) {
+		launcherCache.remove(entry);
+		System.gc();
+		return launcherCache.put(entry, object);
 	}	
 }

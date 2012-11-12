@@ -29,7 +29,6 @@ package manager;
 
 import interfaces.StateManager;
 
-import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -94,19 +93,6 @@ public class StagePowerManager implements StateManager {
 		registeredStages.put(stageId, stage);
 		System.out.println("Registered stage with ID " + stageId);
 
-		return true;
-	}
-
-	/**
-	 * Reports new state to state manager. Called by State holders.
-	 * 
-	 * @param stateHolder	state holder.
-	 * @param state			state.
-	 * 
-	 * @return True unless holder is not reachable.
-	 */
-	public boolean receiveState(Object stateHolder, Object state) throws RemoteException {
-		/* TODO: Fill this */
 		return true;
 	}
 

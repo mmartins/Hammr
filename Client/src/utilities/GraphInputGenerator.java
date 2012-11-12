@@ -34,6 +34,8 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 
 	protected Filename[] outputs;
 
+	protected final int startIndex;
+	
 	public GraphInputGenerator(Directory directory, String[] outputs) {
 		List<Filename> outputList = new ArrayList<Filename>();
 
@@ -42,8 +44,20 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 		}
 
 		this.outputs = outputList.toArray(new Filename[outputList.size()]);
+		startIndex = 0;
 	}
 
+	public GraphInputGenerator(Directory directory, int startIndex, String[] outputs) {
+		List<Filename> outputList = new ArrayList<Filename>();
+
+		for(int i = 0; i < outputs.length; i++) {
+			outputList.add(FileHelper.getFileInformation(directory.getPath(), outputs[i], directory.getProtocol()));
+		}
+
+		this.outputs = outputList.toArray(new Filename[outputList.size()]);
+		this.startIndex = startIndex;
+	}
+	
 	protected abstract void obtainGraph();
 
 	public void run() throws IOException {
@@ -58,7 +72,7 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 		while (iterator1.hasNext()) {
 			V vertex = iterator1.next();
 
-			vertex.setName(String.valueOf(index++));
+			vertex.setName(String.valueOf(startIndex + index++));
 		}
 
 		for (E edge: graph.edgeSet()) {
@@ -79,18 +93,20 @@ public abstract class GraphInputGenerator<V extends GraphVertex,E extends GraphE
 			writers[i] =  new FileRecordWriter(outputs[i]);
 		}
 
-		int shareWriters = (graph.vertexSet().size() / writers.length);
+		int vertexPerWriter = (graph.vertexSet().size() / writers.length);
 		int indexWrite = 0;
 
 		BreadthFirstIterator<V,E> iterator2 = new BreadthFirstIterator<V,E>(graph);
 
 		while (iterator2.hasNext()) {
 			V vertex = iterator2.next();
-
-			writers[indexWrite / shareWriters].write(new VertexRecord<V>(vertex));
+			
+			int writerIndex = Math.min(indexWrite / vertexPerWriter, outputs.length - 1);
+			
+			writers[writerIndex].write(new VertexRecord<V>(vertex));
 
 			for (E edge: graph.outgoingEdgesOf(vertex)) {
-				writers[indexWrite / shareWriters].write(new EdgeRecord<E>(edge));
+				writers[writerIndex].write(new EdgeRecord<E>(edge));
 			}
 
 			indexWrite++;

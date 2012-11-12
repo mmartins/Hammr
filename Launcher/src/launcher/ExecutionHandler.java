@@ -12,6 +12,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package launcher;
 
+import interfaces.Exportable;
 import interfaces.Manager;
 import interfaces.StateManager;
 
@@ -24,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import utilities.RMIHelper;
+import utilities.logging.Logging;
 import appspecs.Node;
 
 import communication.channel.FileInputChannel;
@@ -68,19 +70,25 @@ public class ExecutionHandler extends Thread {
 	 * Constructor.
 	 * 
 	 * @param manager Reference to manager.
-	 * @param jobLauncher Reference to local launcher.
+	 * @param jobLauncher2 Reference to local launcher.
 	 * @param nodeGroup NodeGroup that should run.
 	 */
-	public ExecutionHandler(Manager manager, JobLauncher jobLauncher, NodeGroup nodeGroup) {
+	public ExecutionHandler(Manager manager, JobLauncher jobLauncher2, NodeGroup nodeGroup) {
 		this.manager = manager;
 
-		this.jobLauncher = jobLauncher;
+		this.jobLauncher = jobLauncher2;
 
 		StateManager groupManager = (StateManager) RMIHelper.locateRemoteObject(registryLocation, "GroupManager");
 		StateManager stageManager = (StateManager) RMIHelper.locateRemoteObject(registryLocation, "StageManager");
 		
 		this.nodeGroup = nodeGroup;
 		this.nodeGroup.setGroupManager(groupManager);
+		try {
+			groupManager.registerStateHolder(nodeGroup);
+		} catch (RemoteException exception) {
+			System.err.println("Error registering node group to group manager");
+			exception.printStackTrace();
+		}
 		this.nodeGroup.getStage().setStageManager(stageManager);
 		
 		this.reportPeriod = 10000;
@@ -128,12 +136,20 @@ public class ExecutionHandler extends Thread {
 	@Override
 	public void run() {
 		// Makes the current launcher and current manager accessible to the nodes
-		nodeGroup.setCurrentLauncher(jobLauncher);
 		nodeGroup.setManager(manager);
 
 		// Stores runtime information; sent back to the master
 		// at the end of the execution.
 		ResultSummary resultSummary;
+
+		// Exports all the nodes that should be exported,
+		// so their remote reference can be used externally
+
+		for(Node node: nodeGroup.getNodes()) {
+			if(node instanceof Exportable) {
+				RMIHelper.exportRemoteObject((Exportable) node);
+			}
+		}
 
 		try {
 			setupCommunication();
@@ -150,10 +166,11 @@ public class ExecutionHandler extends Thread {
 
 			finishExecution(resultSummary);
 
+			System.gc();
+			
 			return;
 		}
 
-		nodeGroup.scheduleProgressReport(0L, reportPeriod);
 		resultSummary = performExecution();
 
 		finishExecution(resultSummary);
@@ -379,6 +396,7 @@ public class ExecutionHandler extends Thread {
 		jobLauncher.delNodeGroup(nodeGroup);
 
 		try {
+			Logging.log(String.format("Launcher: finish execution"));
 			manager.handleTermination(resultSummary);
 		} catch (RemoteException exception) {
 			System.err.println("Unable to communicate termination to manager");
@@ -387,6 +405,9 @@ public class ExecutionHandler extends Thread {
 			return false;
 		}	
 
+		Runtime rt = Runtime.getRuntime();
+		Logging.log(String.format("Launcher: free memory %d", rt.freeMemory()));
+		
 		return true;
 	}
 

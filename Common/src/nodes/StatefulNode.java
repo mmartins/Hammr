@@ -18,21 +18,39 @@ import communication.channel.Record;
 public abstract class StatefulNode extends Node {
 	private static final long serialVersionUID = 1L;
 
+	protected volatile boolean terminate;
+
+	public StatefulNode() {
+		terminate = false;
+	}
+
 	public void run() {
 		if (!performInitialization()) {
+			// Failed initialization: just shut down
+
+			performTermination();
+
+			shutdown();
+
 			return;
 		}
 
 		Record record;
 
 		while (true) {
-			record = readArbitraryChannel();
+			record = read();
 
 			if (record == null) {
+				performActionNothingPresent();
+			}
+			else {
+				performAction(record);
+			}
+
+			if (terminate) {
 				break;
 			}
 
-			performAction(record);
 		}
 
 		performTermination();
@@ -44,5 +62,11 @@ public abstract class StatefulNode extends Node {
 
 	protected abstract void performAction(Record record);
 
+	protected abstract void performActionNothingPresent();
+
 	protected abstract boolean performTermination();
+
+	protected Record read() {
+		return readArbitraryChannel();
+	}
 }

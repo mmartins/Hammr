@@ -12,6 +12,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package execinfo;
 
 import interfaces.DVFS;
+import interfaces.LocalLauncher;
 import interfaces.Launcher;
 import interfaces.Manager;
 import interfaces.StateManager;
@@ -42,7 +43,9 @@ public class NodeGroup implements Serializable {
 
 	private Launcher currentLauncher;
 	private Launcher previousLauncher;
-
+	
+	public LocalLauncher localLauncher = null;
+	
 	private Manager manager;
 	private Stage stage;
 	
@@ -231,26 +234,10 @@ public class NodeGroup implements Serializable {
 	public void prepareSchedule(long serialNumber) {
 		setSerialNumber(serialNumber);
 
+		localLauncher = null;
 		setMark(null);
 	}
 
-	public void scheduleProgressReport(long initialDelay, long period) {
-		/*Timer timer = new Timer();
-		
-		TimerTask task = new TimerTask() {
-			public void run() {
-				try {
-					groupManager.receiveState(NodeGroup.this, progressReport);
-				} catch (RemoteException exception) {
-					System.err.println("Unable to contact manager");
-					exception.printStackTrace();
-				}
-			}
-		};
-		
-		timer.scheduleAtFixedRate(task, initialDelay, period);*/
-	}
-	
 	public boolean reducePerformance() {
 		long[][] freqs = groupDVFS.getAvailableFrequencies();
 		long[] setFreqs = new long[freqs.length];

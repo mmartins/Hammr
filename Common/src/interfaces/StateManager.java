@@ -47,16 +47,6 @@ public interface StateManager extends Remote {
 	public boolean registerStateHolder(Object holder) throws RemoteException;
 
 	/**
-	 * Reports new state to state manager. Called by State holders.
-	 * 
-	 * @param stateHolder	state holder.
-	 * @param state			state.
-	 * 
-	 * @return True unless holder is not reachable.
-	 */
-	public boolean receiveState(Object stateHolder, Object state) throws RemoteException;
-	
-	/**
 	 * Post-execution handler for state manager.
 	 * 
 	 * @return True if scheduling works as expected; false otherwise.

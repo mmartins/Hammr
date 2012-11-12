@@ -11,31 +11,49 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 package graphs.programs.shortestpath;
 
-import utilities.Pair;
-import execinfo.aggregators.AbstractAggregator;
+import java.util.List;
+import java.util.ArrayList;
 
-public class SPFinishAggregator extends AbstractAggregator<Pair<Boolean,Integer>,Boolean> {
+import interfaces.ApplicationController;
+
+import interfaces.Exportable;
+import interfaces.ExportableActivatable;
+
+import java.rmi.RemoteException;
+
+public class SPFinishController implements ApplicationController {
 	private static final long serialVersionUID = 1L;
 
-	private boolean[] finalize;
+	private int numberWorkers;
 
-	public SPFinishAggregator(String variable, int numberWorkers) {
-		super(variable);
+	private List<Exportable> workers;
 
-		finalize = new boolean[numberWorkers];
+	public SPFinishController(String variable, int numberWorkers) {
+		this.numberWorkers = numberWorkers;
+
+		this.workers = new ArrayList<Exportable>();
 	}
 
-	public synchronized void updateAggregate(Pair<Boolean,Integer> object) {
-		finalize[object.getSecond()] = object.getFirst();
+	public synchronized void notifyStart(Exportable worker) {
 	}
 
-	public synchronized Boolean obtainAggregate() {
-		for (int i = 0; i < finalize.length; i++) {
-			if (finalize[i] == false) {
-				return false;
+	public synchronized void notifyFinish(Exportable worker) {
+		workers.add(worker);
+
+		if (workers.size() >= numberWorkers) {
+			terminateWorkers();
+		}	
+	}
+
+	private void terminateWorkers() {
+		for (Exportable worker: workers) {
+			try {
+				if (worker instanceof ExportableActivatable) {
+					((ExportableActivatable) worker).setActive(false);
+				}
+			} catch (RemoteException exception) {
+				System.err.println("Unable to contact activatable node");
 			}
 		}
-
-		return true;
 	}
 }
